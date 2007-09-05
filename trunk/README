@@ -1,0 +1,398 @@
+wcs2kml version 0.1
+Jeremy Brewer
+
+This package contains code for importing astronomical images into Sky
+in Google Earth.  This process consists of warping the input image
+to lat-lon projection and writing the bounding box in spherical
+coordinates to a KML document.  This package works with FITS (Flexible
+Image Transport System) images that are already registered on the sky, i.e.
+contain a WCS (World Coordinate System).  These are 2 standards used by
+the professional astronomy community.
+
+To use the C++ version of wcs2kml, you will need a PNG version of the FITS
+image you want to warp.  If you don't know how to make a PNG from a FITS
+file (or you don't want to waste time doing so), we've included a Python
+script fits2png.py that will do this conversion for you.  To install this
+script, run 'python setup.py install' in the python subdirectory.  Additional
+control over the output of fits2png.py is available through the use of the
+fitsimage Python module.  See the source code for fits2png.py and fitsimage.py
+for more details.
+
+The code for wcs2kml is released under the Apache License 2.0.  See the
+COPYING file for a full license description.  Additional code is bundled with
+wcs2kml which is licensed under different terms.  More specifically, the
+libraries from gestalt are BSD and WCS Tools is LGPL 2.
+
+C++ Requirements:
+- libpng
+- gflags 0.6 or newer (http://code.google.com/p/google-gflags/)
+- autotools
+- libtool
+
+Python Requirements:
+- Python Imaging Library (Image module)
+- Numeric
+- pyfits (http://www.stsci.edu/resources/software_hardware/pyfits)
+- Python 2.3 or newer
+
+Contents:
+- C++ projection API
+- C++ wcs2kml, a small program that utilizes the API
+- Python wcs2kml, a Python version of wcs2kml that isn't as full featured
+- Python FITS data regionator
+- Python utilities for converting FITS to raster image formats
+
+Bundled Software:
+- WCS Tools version 3.6.8 (http://tdc-www.harvard.edu/software/wcstools/)
+- Python libraries from gestalt (http://nvogre.phyast.pitt.edu/wcs/)
+
+C++ Installation:
+
+This package uses the GNU autotools.  To build, issue these commands from
+the top level directory:
+
+./configure --prefix=<install prefix dir>
+make
+make install (as root user)
+
+This should compile the package automatically for you and install it.  If you
+have libpng and gflags installed outside of the usual Unix directories,
+you must tell configure where to find them.  For example, the command:
+
+./configure --with-png-dir=/opt/local --with-glfags-dir=/usr/local
+
+will look for png.h in /opt/local/include and libpng in /opt/local/lib, and
+similarly for gflags.
+
+On Mac OS X, MacPorts installs Unix software in /opt/local and Fink installs
+software in /sw by default.
+
+Finally, to run wcs2kml, you will need to include the prefix/lib directory
+in your dynamic library path.  On Linux, you need to set the LD_LIBRARY_PATH
+to include prefix/lib (e.g. export LD_LIBRARY_PATH=/prefix/lib for bash).
+On Mac OS X, you need to set DYLD_FALLBACK_LIBRARY_PATH (don't set
+DYLD_LIBRARY_PATH, see http://hublog.hubmed.org/archives/001192.html for
+details).
+
+After installation, the following files will be installed in the directory
+you specified for configure:
+
+prefix/bin/wcs2kml
+prefix/include/google/boundingbox-inl.h
+prefix/include/google/boundingbox.h
+prefix/include/google/color.h
+prefix/include/google/fits.h
+prefix/include/google/kml.h
+prefix/include/google/pngimage.h
+prefix/include/google/regionator.h
+prefix/include/google/skyprojection.h
+prefix/include/google/stringprintf.h
+prefix/include/google/uint8.h
+prefix/include/google/wcsprojection.h
+prefix/include/google/wraparound.h
+prefix/include/wcs.h (from the WCS Tools package, used by wcsprojection.h)
+prefix/lib/libwcs2kml.* (the library extensions vary with platform)
+
+Build Issues:
+
+This code has been built and tested on Linux and Mac OS X.  We weren't able
+to build the code on Windows under cygwin, but this appears to be an
+autoconf/automake error.  If anyone would like to offer help getting this
+package building properly on Windows, we would appreciate it.
+
+Python Installation:
+
+In the python subdirectory, run
+
+python setup.py install
+
+This will install the following files in your Python site-packages directory:
+
+fits/__init__.py
+fits/fitsparse.py
+fits/fitsregionator.py
+fitsimage.py
+fitslib.py
+line.py
+pointarray.py
+wcslib.py
+
+and the following scripts somewhere in your path:
+
+ext2fits.py
+fits2kml.py
+fits2png.py
+regionate_fits.py
+wcs2kml.py
+wcs2fits.py
+
+Alternatively, you can simply copy these files to a directory in your
+PYTHONPATH environment variable.
+
+See the README in the python subdirectory for more information about what
+each script does.
+
+Usage:
+
+The wcs2kml program takes as input a FITS file containing a WCS header and
+a PNG version of the same image.  wcs2kml only uses the WCS from the
+primary header of the FITS file -- the pixels to use for the output image
+are taken from the PNG image, so the FITS file need only contain a single
+header with WCS information.  See the FAQ section below for more
+information.
+
+If you don't have a PNG version of your FITS file or you have a
+multi-extension FITS files, see the workaround section below -- we've
+got you covered.
+
+The most basic usage for wcs2kml is:
+
+wcs2kml --fitsfile=foo.fits --imagefile=foo.png
+
+This will produce a warped image and a KML document.  To view the image in
+Sky in Google Earth, open the KML document in Google Earth.  Earth also
+supports a format known as KMZ, which is simply a zip archive containing
+KML and images.  By default, KMZ archives load the doc.kml file, so you
+can package a KMZ file like so:
+
+wcs2kml --fitsfile=foo.fits --imagefile=foo.png --kmlfile=doc.kml
+        --outfile=foo_warped.png
+zip foo.kmz doc.kml foo_warped.png
+
+There are many additional options described below.
+
+Commandline Options:
+
+--help
+--helpshort
+
+Use the --helpshort flag to get a brief usage summary.  The --help flags
+lists all of the flags you can use, including those defined outside of
+wcs2mkl.cc (a unique feature of gflags is that flags can be declared
+anywhere).  The documentation in this README is much more thorough.
+
+--kmlfile
+--outfile
+
+These specifiy the output warped PNG image and KML document.  If the
+--regionate (see below) flag is turned on, --outfile is ignored, but --kmlfile
+specifies the root KML document.
+
+--copy_input_size
+--output_width
+--output_height
+--max_side_length
+
+By default, wcs2kml tries to guess what the warped image's dimensions should
+be.  The equations it uses are derived by assuming that an image is rotated
+slightly and that the output image dimensions should allow the original
+image to fit inside the rotated box with minimal resizing.  The algorithm in
+general works really well except for images that have rotation angles of
+0, 90, 180, and 270, so in cases where images have north or east up it is
+helpful to be able to specify the output dimensions exactly.
+
+The --max_side_length flag is applied after all of the above options are
+specified.  It will maintain the same aspect ratio of the projected image but
+reduce the maximum dimension to the specified amount.  This is useful is you
+want to downsample the output image.
+
+--input_image_origin_is_upper_left
+
+Somtimes FITS files are inverted about the y axis when converted to raster
+formats because the origin convention of FITS is different from that of most
+raster formats.  Or perhaps you solved for the WCS using pixel coordinates
+from a JPEG or PNG image.  In either case your image will appear flipped from
+how it should be in Sky, and this option is what you should use to fix it.
+
+--maskfile
+
+If you have a mask for your input image, you can specify it as input and
+wcs2kml will make masked out regions transparent.  If you don't have a
+mask but need to make one (e.g. if your image has huge black borders around
+it), then use the --automask option.  As with the input image, the mask
+must be in PNG format.
+
+--automask
+--automask_red
+--automask_green
+--automask_blue
+--automaskfile
+
+These options control the automasking feature of wcs2kml.  If --automask
+is on, wcs2kml will mask out every exterior pixel of the given RGB color.
+The mask wcs2kml generates is written to the file given by --automaskfile.
+
+--regionate
+--regionate_dir
+--regionate_filename_prefix
+--regionate_min_lod_pixels
+--regionate_max_lod_pixels
+--regionate_top_level_draw_order
+--regionate_draw_tile_borders
+
+The --regionate flag will "regionate" the image, meaning wcs2kml will
+output a hierarchy of image tiles and KML documents instead of a single
+image and KML file.  The output of this is termed a Super Overlay on the
+KML tutorial site.  By default, --regionate will produce a set of images
+in a subdirectory "tiles" with a root KML file taken from --kmlfile.  To view
+the output images in Earth, you would open the root KML file.
+
+So why would you want to regionate an image?  If your image is really
+large (more than a few hundred kilobytes), users will experience a huge
+delay as they load the input image into Google Earth.  This delay is much
+worse over a network and will make your computer server unhappy.  The
+solution is to regionate the image so that Earth will load a low resolution
+image first, then as users zoom closer to the image higher resolution images
+will be loaded.  The --regionate flag will create an efficient hierarchy
+of increasing resolution for you.
+
+There are two options that control how Earth loads a new image from disk
+or network.  These are the <minLodPixels> and <maxLodPixels> KML
+tags, which can be adjusted using corresponding flags above.  The
+defaults have been tuned for Sky, but you might find it useful to
+experiment with other values.  The KML Tutorial site is a good place to
+learn how these options work.
+
+If you have multiple regionated images that overlap, the
+--regionate_top_level_draw_order may be of use.  It allows to specify the
+<drawOrder> tag for the top level image.  This will determine which of the
+regionated images will appear on top of the other.  See the KML tutorial site
+for more information.
+
+Finally, if you need to debug how Earth is loading your regionated imagery
+or if you just want to see a really cool effect, turn on the 
+--regionate_draw_tile_borders flag, which will draw a white border around
+each tile.  This will show you exactly when each new level of imagery is
+being loaded.
+
+See the KML tutorial for more information on the <Region> tag and how
+the various options work:
+
+http://code.google.com/apis/kml/documentation/kml_21tutorial.html
+
+Workarounds:
+
+wcs2kml comes with many tools for reading and writing FITS images, including
+tools for converting FITS images into raster formats.  The python subdirectory
+contains the following scripts which are very helpful:
+
+fits2png.py -- Converts FITS images into a PNG format (see fitsimage.py for
+               more options to control the conversion)
+ext2fits.py -- Converts multi-extension FITS images to a set of single
+               extension FITS images
+wcs2fits.py -- Takes an ascii file containing a WCS and writes it to a valid
+               FITS file containing a single header
+
+These scripts make use of the gestalt (http://nvogre.phyast.pitt.edu/wcs/)
+Python libraries for reading and writing FITS images.  In particular, the
+following Python modules can be used to easily deal with a variety of
+problems that might arise when using FITS files:
+
+fitslib.py
+
+A simple and powerful Python FITS library.  In addition to providing a 
+high level interface that's simple to use, many of the underlying parsing
+functions can be leveraged to deal with odd FITS data.  The wcs2fits.py
+script, for example, uses the lower level parse_card() function to easily
+parse FITS-like headers that may contain newlines.
+
+fitsimage.py
+
+This module provides one major function, FitsImage(), that takes a file
+object pointing to FITS image and returns a Python Imaging Library object.
+You can the easily manipulate the image using the common Image module in
+Python.  This module is what fits2png.py uses for its conversion.
+
+fitsimage.py supports several options for controlling the autocontrast of
+FITS images, including percentile cuts and the (cryptically named) zscale
+algorithm from ds9 and IRAF.
+
+wcslib.py
+
+Provides WCS projection for TAN and TAN-SIPS.  Used by wcs2kml.py for its
+projection.  Unfortunately, epoch shifts aren't supported.
+
+Using the C++ API:
+
+Although no sample code is included with this library, the main program wcs2kml
+is just a thin wrapper over the API. If you browse the source code for
+wcs2kml.cc and the documentation in the header files, you should have no
+trouble picking up how to utilize the API since wcs2kml.cc uses almost all of
+the available functionality.
+
+FAQ:
+
+Q: wcs2kml exited because I didn't have a certain FITS keyword, but
+   other FITS programs don't seem to have a problem with my file.
+
+A: Experience has taught us that there are a lot of odd WCS headers out
+   there that can cause our projection engine to fail or behave erratically.
+   To ensure that wcs2kml is always doing The Right Thing, it tries to
+   weed out potential problems by being extremely picky about what WCS
+   headers are allowed.  In particular, it will abort if:
+   
+   - There isn't an EQUINOX or EPOCH keyword
+   - There isn't a full CD matrix or CDELT pair
+   - There aren't both CRPIX and CRVAL values
+   - There are more than 2 WCS axes (e.g CDELT3 values).
+
+   If you have a FITS file that fails to meet these requirements, see the
+   workaround section for how you can strip out a wcs2kml friendly WCS.
+   If you find a FITS file that our program fails on, please try to
+   determine which FITS header keywords (if any) are causing the problem
+   and report them (or better yet, add more checks to wcsprojection.cc).
+
+Q: wcs2ml exited and with an assertion failure saying that ra/dec min/max
+   was not less/greater than +-LARGE_BAD_VALUE.  What happened?
+
+A: You have a potentially bad or weird WCS!  See the question above.  This
+   problem could also be caused by inputing a PNG image that has different
+   dimensions from the corresponding FITS image.
+   
+   This error is triggered by a sanity check in the bounding box calculation.
+   It typically means that wcstools is doing calculations with uninitialized
+   or crazy values.
+
+Q: Does the FITS header need to contain the dimensions of the PNG image?
+   A valid FITS file with only a header would have NAXIS = 0, so how can
+   I specify image dimensions with only a FITS header?
+
+A: No, wcs2kml reads the image dimensions from the PNG image directly.  If
+   the FITS header lacks both NAXIS1 and NAXIS2, wcs2kml will add them
+   and set NAXIS = 2.
+
+   If NAXIS1 or NAXIS2 is present (but not the other), wcs2kml will
+   complain and exit.
+
+   If the FITS image has NAXIS1 and NAXIS2 values that differ from the
+   PNG image dimensions, wcs2kml will not notice (it should, and hopefully
+   will in the future).  This error will most likely be caught by the
+   bounding box calculation, or it might result in a completely transparent
+   output image, or perhaps a partially cropped image.  I'm not sure
+   because I haven't tested this with a wide range of bad values.  So don't
+   ever do this.
+
+Q: Does wcs2kml handle images that cross the poles and/or the 0-360 border
+   in right ascension?
+
+A: Yes.  Or rather, it should.  If it doesn't, then it's a bug and you should
+   let us know.
+
+Q: Why do you only support PNG?  Why not JPEG or TIFF?
+
+A: First, I had used libpng before.  Second, we needed transparency on
+   output, so PNG output was always a requirement.  Third, PNG allows us
+   to support input images with transparency.  Fourth, PNG is much better
+   for automasking because it doesn't have artifacts near the edges of the
+   image like in a JPEG.  Fifth, the install requirement is less since
+   we don't need libjpeg and libtiff.  Sixth, it's really easy to convert
+   any image format to PNG.
+
+   Despite all those reasons, if you would like to add support for JPEG or
+   TIFF, feel free to contribute.  I suggest writing an Image interface so
+   that the pre-existing code can be migrated with minimal change.
+
+Q: Why does FITS have image in the name when not all FITS files are
+   images, even some with NAXIS = 2?
+
+A: I have no idea.

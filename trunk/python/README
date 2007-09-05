@@ -1,0 +1,41 @@
+To install, run 'python setup.py install' or copy the modules (everything
+not in the scripts subdirectory, including the fits directory) to any directory
+listed in your PYTHONPATH environment variable.
+
+Imagery related scripts:
+
+fits2png.py -- Creates PNG image from a FITS file (see fitsimage.py for
+               more control over the output).
+ext2fits.py -- Creates a set of single extension FITS images from a
+               multi-extension FITS image.
+wcs2fits.py -- Creates a FITS header from an ascii file containing FITS-like
+               keywords with a WCS.
+
+Placemark related scripts:
+
+fits2kml.py       -- Creates a series of placemarks from a FITS file with a
+                     binary table.  Once placemark per row is created.
+regionate_fits.py -- Similar to fits2kml.py, but generates regionated output.
+
+Modules:
+
+fitslib.py             -- FITS reading/writing library
+wcslib.py              -- WCS library (only supports TAN and TAN-SIPS)
+fitsimage.py           -- Module for treating FITS images as Python Imaging
+                          Library objects.
+pointarray.py          -- Least squares fitting library
+line.py                -- Simple line class
+fits.fitsparse.py      -- Converts FITS table data into a placemark data
+                          structure
+fits.fitsregionator.py -- Regionates placemarks (as output by fits.fitsparse)
+
+See the doc strings for more information.
+
+The following files are taken from the Gestalt suite of astronomical web
+services (http://nvogre.phyast.pitt.edu/wcs/):
+
+fitslib.py
+fitsimage.py
+wcslib.py
+pointarray.py
+line.py
