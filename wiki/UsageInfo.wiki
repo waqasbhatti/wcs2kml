@@ -1,6 +1,4 @@
-#summary One-sentence summary of this page.
-
-This is a description of the many options available in _wcs2kml_.
+#summary This is a description of the many options available in _wcs2kml_.
 
 = Usage =
 
