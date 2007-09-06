@@ -1,4 +1,4 @@
-#summary A description of how to share KML you generate with wcs2kml.
+#summary How to share KML you generate with wcs2kml.
 
 = Sharing KML =
 
@@ -54,4 +54,3 @@ If you want to put this document on a web server, you need to change the `<Link>
 }}}
 
 Finally, send out your root KML document for the world to see!  You can also add any other information to your root KML you want, such as placemarks, to include information you think users would find interesting.
-
