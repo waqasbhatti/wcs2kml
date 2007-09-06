@@ -58,3 +58,5 @@ If you want to put this document on a web server, you need to change the `<Link>
 }}}
 
 Finally, send out your root KML document for the world to see!  You can also add any other information to your root KML you want, such as placemarks, to include additional information you think users would find interesting.
+
+A last word of advice:  Your experience may vary based on your network, but we have found that the default LOD value used by the code may need some tweaking for optimum performance.  The default value is 128 (which means that a region will be activated and bring up a higher resolution image if that region spans at least 128 pixels in your viewport).  This is excellent when the image pyramid is on local disk, but over the web it can result in heavier bandwidth usage than many users can support.  If you change the valude to 256 by adding `--regionate_min_lod_pixels 256` to your command line, you may see an improvement in performance.
