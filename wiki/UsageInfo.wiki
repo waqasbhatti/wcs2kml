@@ -129,7 +129,6 @@ or if you just want to see a really cool effect, turn on the
 each tile.  This will show you exactly when each new level of imagery is
 being loaded.
 
-See the KML tutorial for more information on the `<Region>` tag and how
+See the [http://code.google.com/apis/kml/documentation/kml_21tutorial.html KML Tutorial] for more information on the `<Region>` tag and how
 the various options work:
 
-http://code.google.com/apis/kml/documentation/kml_21tutorial.html
