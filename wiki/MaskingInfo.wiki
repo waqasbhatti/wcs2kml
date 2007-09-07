@@ -21,7 +21,7 @@ _wcs2kml_ will write out the mask it generates to the argument of `--automaskfil
 
 There are two limitations with automasking.  First, it only masks out exterior pixels.  Second, it either makes pixels completely transparent or completely opaque.  Both of these can be overcome using the `--maskfile` option.  The argument to `--maskfile` is a PNG image of the same size as the input image.  The mask image should be grayscale (technically, it can be in color but it's converted to grayscale) which specifies the transparency of the image.  White (255) pixels are completely opaque and black pixels (0) are completely transparent, and any values in between are semi-transparent.  The pixel values from the mask file are copied directly into the alpha channel of the input image and override any previous values.  Using a mask file allows for complete freedom over the transparency of the input image.
 
-Image editors can be a good way of generating a mask file easily.  Many of them support thresholding selection that can let you find every pixel above or below a given value quickly.
+Image editors can be a good way of generating a mask file easily.  Many of them support thresholding selection that can let you find every pixel above or below a given value.
 
 == Images with Transparency ==
 
