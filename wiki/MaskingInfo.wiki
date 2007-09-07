@@ -2,7 +2,7 @@
 
 = Masking =
 
-Both the C++ API and _wcs2kml_ have rich support for _masking_, or the ability to remove or "mask out" parts of the input image.  This is useful for images that have large areas that don't contain real data (common in mosaics) or contain bad data (saturation or diffraction spikes).  By taking advantage of masking, you can present users with a much more appealing image by making unwanted portions of the image transparent.  This is especially true of wide field images where background areas of the image will block out the base imagery unless masking is used.
+Both the C++ API and _wcs2kml_ have rich support for _masking_, or the ability to remove or "mask out" parts of the input image.  This is useful for images that have large areas that don't contain real data (common in mosaics) or contain bad data (saturation or diffraction spikes) or have imperfect filter overlap (which yields edges consisting of a single color).  By taking advantage of masking, you can present users with a much more appealing image by making unwanted portions of the image transparent, resulting in an image that blends seamlessly into the base imagery in Sky in Google Earth.
 
 == Automasking ==
 
@@ -20,6 +20,8 @@ _wcs2kml_ will write out the mask it generates to the argument of `--automaskfil
 == Mask Files ==
 
 There are two limitations with automasking.  First, it only masks out exterior pixels.  Second, it either makes pixels completely transparent or completely opaque.  Both of these can be overcome using the `--maskfile` option.  The argument to `--maskfile` is a PNG image of the same size as the input image.  The mask image should be grayscale (technically, it can be in color but it's converted to grayscale) which specifies the transparency of the image.  White (255) pixels are completely opaque and black pixels (0) are completely transparent, and any values in between are semi-transparent.  The pixel values from the mask file are copied directly into the alpha channel of the input image and override any previous values.  Using a mask file allows for complete freedom over the transparency of the input image.
+
+Image editors can be a good way of generating a mask file easily.  Many of them support thresholding selection that can let you find every pixel above or below a given value quickly.
 
 == Images with Transparency ==
 
