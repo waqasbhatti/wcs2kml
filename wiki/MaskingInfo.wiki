@@ -1,4 +1,4 @@
-#summary How to take advantage of masking in wcs2kml.
+#summary How to take advantage of transparency in wcs2kml.
 
 = Masking =
 
