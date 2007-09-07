@@ -2,7 +2,7 @@
 
 = Masking =
 
-Both the C++ API and _wcs2kml_ have rich support for _masking_, or the ability to remove or "mask out" parts of the input image.  This is useful for images that have large areas that don't contain real data (common in mosaics) or contain bad data (saturation or diffraction spikes).  By taking advantage of masking, you can present users with a much more appealing image by making unwanted portions of the image transparent.
+Both the C++ API and _wcs2kml_ have rich support for _masking_, or the ability to remove or "mask out" parts of the input image.  This is useful for images that have large areas that don't contain real data (common in mosaics) or contain bad data (saturation or diffraction spikes).  By taking advantage of masking, you can present users with a much more appealing image by making unwanted portions of the image transparent.  This is especially true of wide field images where background areas of the image will block out the base imagery unless masking is used.
 
 == Automasking ==
 
