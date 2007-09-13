@@ -17,6 +17,44 @@ bin_PROGRAMS = wcs2kml
 wcs2kml_SOURCES = wcs2kml.cc
 wcs2kml_LDADD = libwcs2kml.la
 
+# Test programs.
+check_PROGRAMS = color_test pngimage_test stringprintf_test fits_test \
+                 wraparound_test wcsprojection_test boundingbox_test \
+                 skyprojection_test kml_test regionator_test
+
+color_test_SOURCES = color_test.cc
+color_test_LDADD = libwcs2kml.la
+
+pngimage_test_SOURCES = pngimage_test.cc
+pngimage_test_LDADD = libwcs2kml.la
+
+stringprintf_test_SOURCES = stringprintf_test.cc
+stringprintf_test_LDADD = libwcs2kml.la
+
+fits_test_SOURCES = fits_test.cc
+fits_test_LDADD = libwcs2kml.la
+
+wraparound_test_SOURCES = wraparound_test.cc
+wraparound_test_LDADD = libwcs2kml.la
+
+wcsprojection_test_SOURCES = wcsprojection_test.cc
+wcsprojection_test_LDADD = libwcs2kml.la
+
+boundingbox_test_SOURCES = boundingbox_test.cc
+boundingbox_test_LDADD = libwcs2kml.la
+
+skyprojection_test_SOURCES = skyprojection_test.cc
+skyprojection_test_LDADD = libwcs2kml.la
+
+kml_test_SOURCES = kml_test.cc
+kml_test_LDADD = libwcs2kml.la
+
+regionator_test_SOURCES = regionator_test.cc
+regionator_test_LDADD = libwcs2kml.la
+
+# Test programs run automatically by 'make check'.
+TESTS = $(check_PROGRAMS)
+
 # Headers to install.
 googleincludedir = $(includedir)/google
 googleinclude_HEADERS = boundingbox-inl.h boundingbox.h \
