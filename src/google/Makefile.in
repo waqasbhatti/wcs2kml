@@ -110,6 +110,43 @@ bin_PROGRAMS = wcs2kml
 wcs2kml_SOURCES = wcs2kml.cc
 wcs2kml_LDADD = libwcs2kml.la
 
+# Test programs.
+check_PROGRAMS = color_test pngimage_test stringprintf_test fits_test                  wraparound_test wcsprojection_test boundingbox_test                  skyprojection_test kml_test regionator_test
+
+
+color_test_SOURCES = color_test.cc
+color_test_LDADD = libwcs2kml.la
+
+pngimage_test_SOURCES = pngimage_test.cc
+pngimage_test_LDADD = libwcs2kml.la
+
+stringprintf_test_SOURCES = stringprintf_test.cc
+stringprintf_test_LDADD = libwcs2kml.la
+
+fits_test_SOURCES = fits_test.cc
+fits_test_LDADD = libwcs2kml.la
+
+wraparound_test_SOURCES = wraparound_test.cc
+wraparound_test_LDADD = libwcs2kml.la
+
+wcsprojection_test_SOURCES = wcsprojection_test.cc
+wcsprojection_test_LDADD = libwcs2kml.la
+
+boundingbox_test_SOURCES = boundingbox_test.cc
+boundingbox_test_LDADD = libwcs2kml.la
+
+skyprojection_test_SOURCES = skyprojection_test.cc
+skyprojection_test_LDADD = libwcs2kml.la
+
+kml_test_SOURCES = kml_test.cc
+kml_test_LDADD = libwcs2kml.la
+
+regionator_test_SOURCES = regionator_test.cc
+regionator_test_LDADD = libwcs2kml.la
+
+# Test programs run automatically by 'make check'.
+TESTS = $(check_PROGRAMS)
+
 # Headers to install.
 googleincludedir = $(includedir)/google
 googleinclude_HEADERS = boundingbox-inl.h boundingbox.h                         color.h fits.h kml.h pngimage.h                         regionator.h skyprojection.h                         stringprintf.h uint8.h wcsprojection.h                         wraparound.h
@@ -134,11 +171,45 @@ libwcs2kml_la_DEPENDENCIES =  libwcs/libwcs.la
 libwcs2kml_la_OBJECTS =  color.lo pngimage.lo stringprintf.lo fits.lo \
 kml.lo wcsprojection.lo boundingbox.lo skyprojection.lo regionator.lo
 bin_PROGRAMS =  wcs2kml$(EXEEXT)
+check_PROGRAMS =  color_test$(EXEEXT) pngimage_test$(EXEEXT) \
+stringprintf_test$(EXEEXT) fits_test$(EXEEXT) wraparound_test$(EXEEXT) \
+wcsprojection_test$(EXEEXT) boundingbox_test$(EXEEXT) \
+skyprojection_test$(EXEEXT) kml_test$(EXEEXT) regionator_test$(EXEEXT)
 PROGRAMS =  $(bin_PROGRAMS)
 
 wcs2kml_OBJECTS =  wcs2kml.$(OBJEXT)
 wcs2kml_DEPENDENCIES =  libwcs2kml.la
 wcs2kml_LDFLAGS = 
+color_test_OBJECTS =  color_test.$(OBJEXT)
+color_test_DEPENDENCIES =  libwcs2kml.la
+color_test_LDFLAGS = 
+pngimage_test_OBJECTS =  pngimage_test.$(OBJEXT)
+pngimage_test_DEPENDENCIES =  libwcs2kml.la
+pngimage_test_LDFLAGS = 
+stringprintf_test_OBJECTS =  stringprintf_test.$(OBJEXT)
+stringprintf_test_DEPENDENCIES =  libwcs2kml.la
+stringprintf_test_LDFLAGS = 
+fits_test_OBJECTS =  fits_test.$(OBJEXT)
+fits_test_DEPENDENCIES =  libwcs2kml.la
+fits_test_LDFLAGS = 
+wraparound_test_OBJECTS =  wraparound_test.$(OBJEXT)
+wraparound_test_DEPENDENCIES =  libwcs2kml.la
+wraparound_test_LDFLAGS = 
+wcsprojection_test_OBJECTS =  wcsprojection_test.$(OBJEXT)
+wcsprojection_test_DEPENDENCIES =  libwcs2kml.la
+wcsprojection_test_LDFLAGS = 
+boundingbox_test_OBJECTS =  boundingbox_test.$(OBJEXT)
+boundingbox_test_DEPENDENCIES =  libwcs2kml.la
+boundingbox_test_LDFLAGS = 
+skyprojection_test_OBJECTS =  skyprojection_test.$(OBJEXT)
+skyprojection_test_DEPENDENCIES =  libwcs2kml.la
+skyprojection_test_LDFLAGS = 
+kml_test_OBJECTS =  kml_test.$(OBJEXT)
+kml_test_DEPENDENCIES =  libwcs2kml.la
+kml_test_LDFLAGS = 
+regionator_test_OBJECTS =  regionator_test.$(OBJEXT)
+regionator_test_DEPENDENCIES =  libwcs2kml.la
+regionator_test_LDFLAGS = 
 CXXCOMPILE = $(CXX) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
 LTCXXCOMPILE = $(LIBTOOL) --mode=compile $(CXX) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
 CXXLD = $(CXX)
@@ -152,11 +223,15 @@ DISTFILES = $(DIST_COMMON) $(SOURCES) $(HEADERS) $(TEXINFOS) $(EXTRA_DIST)
 
 TAR = tar
 GZIP_ENV = --best
-DEP_FILES =  .deps/boundingbox.P .deps/color.P .deps/fits.P .deps/kml.P \
-.deps/pngimage.P .deps/regionator.P .deps/skyprojection.P \
-.deps/stringprintf.P .deps/wcs2kml.P .deps/wcsprojection.P
-SOURCES = $(libwcs2kml_la_SOURCES) $(wcs2kml_SOURCES)
-OBJECTS = $(libwcs2kml_la_OBJECTS) $(wcs2kml_OBJECTS)
+DEP_FILES =  .deps/boundingbox.P .deps/boundingbox_test.P .deps/color.P \
+.deps/color_test.P .deps/fits.P .deps/fits_test.P .deps/kml.P \
+.deps/kml_test.P .deps/pngimage.P .deps/pngimage_test.P \
+.deps/regionator.P .deps/regionator_test.P .deps/skyprojection.P \
+.deps/skyprojection_test.P .deps/stringprintf.P \
+.deps/stringprintf_test.P .deps/wcs2kml.P .deps/wcsprojection.P \
+.deps/wcsprojection_test.P .deps/wraparound_test.P
+SOURCES = $(libwcs2kml_la_SOURCES) $(wcs2kml_SOURCES) $(color_test_SOURCES) $(pngimage_test_SOURCES) $(stringprintf_test_SOURCES) $(fits_test_SOURCES) $(wraparound_test_SOURCES) $(wcsprojection_test_SOURCES) $(boundingbox_test_SOURCES) $(skyprojection_test_SOURCES) $(kml_test_SOURCES) $(regionator_test_SOURCES)
+OBJECTS = $(libwcs2kml_la_OBJECTS) $(wcs2kml_OBJECTS) $(color_test_OBJECTS) $(pngimage_test_OBJECTS) $(stringprintf_test_OBJECTS) $(fits_test_OBJECTS) $(wraparound_test_OBJECTS) $(wcsprojection_test_OBJECTS) $(boundingbox_test_OBJECTS) $(skyprojection_test_OBJECTS) $(kml_test_OBJECTS) $(regionator_test_OBJECTS)
 
 all: all-redirect
 .SUFFIXES:
@@ -260,9 +335,58 @@ uninstall-binPROGRAMS:
 	  rm -f $(DESTDIR)$(bindir)/`echo $$p|sed 's/$(EXEEXT)$$//'|sed '$(transform)'|sed 's/$$/$(EXEEXT)/'`; \
 	done
 
+mostlyclean-checkPROGRAMS:
+
+clean-checkPROGRAMS:
+	-test -z "$(check_PROGRAMS)" || rm -f $(check_PROGRAMS)
+
+distclean-checkPROGRAMS:
+
+maintainer-clean-checkPROGRAMS:
+
 wcs2kml$(EXEEXT): $(wcs2kml_OBJECTS) $(wcs2kml_DEPENDENCIES)
 	@rm -f wcs2kml$(EXEEXT)
 	$(CXXLINK) $(wcs2kml_LDFLAGS) $(wcs2kml_OBJECTS) $(wcs2kml_LDADD) $(LIBS)
+
+color_test$(EXEEXT): $(color_test_OBJECTS) $(color_test_DEPENDENCIES)
+	@rm -f color_test$(EXEEXT)
+	$(CXXLINK) $(color_test_LDFLAGS) $(color_test_OBJECTS) $(color_test_LDADD) $(LIBS)
+
+pngimage_test$(EXEEXT): $(pngimage_test_OBJECTS) $(pngimage_test_DEPENDENCIES)
+	@rm -f pngimage_test$(EXEEXT)
+	$(CXXLINK) $(pngimage_test_LDFLAGS) $(pngimage_test_OBJECTS) $(pngimage_test_LDADD) $(LIBS)
+
+stringprintf_test$(EXEEXT): $(stringprintf_test_OBJECTS) $(stringprintf_test_DEPENDENCIES)
+	@rm -f stringprintf_test$(EXEEXT)
+	$(CXXLINK) $(stringprintf_test_LDFLAGS) $(stringprintf_test_OBJECTS) $(stringprintf_test_LDADD) $(LIBS)
+
+fits_test$(EXEEXT): $(fits_test_OBJECTS) $(fits_test_DEPENDENCIES)
+	@rm -f fits_test$(EXEEXT)
+	$(CXXLINK) $(fits_test_LDFLAGS) $(fits_test_OBJECTS) $(fits_test_LDADD) $(LIBS)
+
+wraparound_test$(EXEEXT): $(wraparound_test_OBJECTS) $(wraparound_test_DEPENDENCIES)
+	@rm -f wraparound_test$(EXEEXT)
+	$(CXXLINK) $(wraparound_test_LDFLAGS) $(wraparound_test_OBJECTS) $(wraparound_test_LDADD) $(LIBS)
+
+wcsprojection_test$(EXEEXT): $(wcsprojection_test_OBJECTS) $(wcsprojection_test_DEPENDENCIES)
+	@rm -f wcsprojection_test$(EXEEXT)
+	$(CXXLINK) $(wcsprojection_test_LDFLAGS) $(wcsprojection_test_OBJECTS) $(wcsprojection_test_LDADD) $(LIBS)
+
+boundingbox_test$(EXEEXT): $(boundingbox_test_OBJECTS) $(boundingbox_test_DEPENDENCIES)
+	@rm -f boundingbox_test$(EXEEXT)
+	$(CXXLINK) $(boundingbox_test_LDFLAGS) $(boundingbox_test_OBJECTS) $(boundingbox_test_LDADD) $(LIBS)
+
+skyprojection_test$(EXEEXT): $(skyprojection_test_OBJECTS) $(skyprojection_test_DEPENDENCIES)
+	@rm -f skyprojection_test$(EXEEXT)
+	$(CXXLINK) $(skyprojection_test_LDFLAGS) $(skyprojection_test_OBJECTS) $(skyprojection_test_LDADD) $(LIBS)
+
+kml_test$(EXEEXT): $(kml_test_OBJECTS) $(kml_test_DEPENDENCIES)
+	@rm -f kml_test$(EXEEXT)
+	$(CXXLINK) $(kml_test_LDFLAGS) $(kml_test_OBJECTS) $(kml_test_LDADD) $(LIBS)
+
+regionator_test$(EXEEXT): $(regionator_test_OBJECTS) $(regionator_test_DEPENDENCIES)
+	@rm -f regionator_test$(EXEEXT)
+	$(CXXLINK) $(regionator_test_LDFLAGS) $(regionator_test_OBJECTS) $(regionator_test_LDADD) $(LIBS)
 .cc.o:
 	$(CXXCOMPILE) -c $<
 .cc.obj:
@@ -455,11 +579,38 @@ maintainer-clean-depend:
 	  | sed -e 's/^\\$$//' -e '/^$$/ d' -e '/:$$/ d' -e 's/$$/ :/' \
 	    >> .deps/$(*F).P; \
 	rm -f .deps/$(*F).pp
+check-TESTS: $(TESTS)
+	@failed=0; all=0; \
+	srcdir=$(srcdir); export srcdir; \
+	for tst in $(TESTS); do \
+	  if test -f $$tst; then dir=.; \
+	  else dir="$(srcdir)"; fi; \
+	  if $(TESTS_ENVIRONMENT) $$dir/$$tst; then \
+	    all=`expr $$all + 1`; \
+	    echo "PASS: $$tst"; \
+	  elif test $$? -ne 77; then \
+	    all=`expr $$all + 1`; \
+	    failed=`expr $$failed + 1`; \
+	    echo "FAIL: $$tst"; \
+	  fi; \
+	done; \
+	if test "$$failed" -eq 0; then \
+	  banner="All $$all tests passed"; \
+	else \
+	  banner="$$failed of $$all tests failed"; \
+	fi; \
+	dashes=`echo "$$banner" | sed s/./=/g`; \
+	echo "$$dashes"; \
+	echo "$$banner"; \
+	echo "$$dashes"; \
+	test "$$failed" -eq 0
 info-am:
 info: info-recursive
 dvi-am:
 dvi: dvi-recursive
 check-am: all-am
+	$(MAKE) $(AM_MAKEFLAGS) $(check_PROGRAMS)
+	$(MAKE) $(AM_MAKEFLAGS) check-TESTS
 check: check-recursive
 installcheck-am:
 installcheck: installcheck-recursive
@@ -496,26 +647,29 @@ distclean-generic:
 maintainer-clean-generic:
 mostlyclean-am:  mostlyclean-libLTLIBRARIES mostlyclean-compile \
 		mostlyclean-libtool mostlyclean-binPROGRAMS \
-		mostlyclean-tags mostlyclean-depend mostlyclean-generic
+		mostlyclean-checkPROGRAMS mostlyclean-tags \
+		mostlyclean-depend mostlyclean-generic
 
 mostlyclean: mostlyclean-recursive
 
 clean-am:  clean-libLTLIBRARIES clean-compile clean-libtool \
-		clean-binPROGRAMS clean-tags clean-depend clean-generic \
-		mostlyclean-am
+		clean-binPROGRAMS clean-checkPROGRAMS clean-tags \
+		clean-depend clean-generic mostlyclean-am
 
 clean: clean-recursive
 
 distclean-am:  distclean-libLTLIBRARIES distclean-compile \
-		distclean-libtool distclean-binPROGRAMS distclean-tags \
-		distclean-depend distclean-generic clean-am
+		distclean-libtool distclean-binPROGRAMS \
+		distclean-checkPROGRAMS distclean-tags distclean-depend \
+		distclean-generic clean-am
 	-rm -f libtool
 
 distclean: distclean-recursive
 
 maintainer-clean-am:  maintainer-clean-libLTLIBRARIES \
 		maintainer-clean-compile maintainer-clean-libtool \
-		maintainer-clean-binPROGRAMS maintainer-clean-tags \
+		maintainer-clean-binPROGRAMS \
+		maintainer-clean-checkPROGRAMS maintainer-clean-tags \
 		maintainer-clean-depend maintainer-clean-generic \
 		distclean-am
 	@echo "This command is intended for maintainers to use;"
@@ -530,17 +684,18 @@ distclean-compile clean-compile maintainer-clean-compile \
 mostlyclean-libtool distclean-libtool clean-libtool \
 maintainer-clean-libtool mostlyclean-binPROGRAMS distclean-binPROGRAMS \
 clean-binPROGRAMS maintainer-clean-binPROGRAMS uninstall-binPROGRAMS \
-install-binPROGRAMS uninstall-googleincludeHEADERS \
-install-googleincludeHEADERS install-data-recursive \
-uninstall-data-recursive install-exec-recursive \
+install-binPROGRAMS mostlyclean-checkPROGRAMS distclean-checkPROGRAMS \
+clean-checkPROGRAMS maintainer-clean-checkPROGRAMS \
+uninstall-googleincludeHEADERS install-googleincludeHEADERS \
+install-data-recursive uninstall-data-recursive install-exec-recursive \
 uninstall-exec-recursive installdirs-recursive uninstalldirs-recursive \
 all-recursive check-recursive installcheck-recursive info-recursive \
 dvi-recursive mostlyclean-recursive distclean-recursive clean-recursive \
 maintainer-clean-recursive tags tags-recursive mostlyclean-tags \
 distclean-tags clean-tags maintainer-clean-tags distdir \
 mostlyclean-depend distclean-depend clean-depend \
-maintainer-clean-depend info-am info dvi-am dvi check check-am \
-installcheck-am installcheck install-exec-am install-exec \
+maintainer-clean-depend check-TESTS info-am info dvi-am dvi check \
+check-am installcheck-am installcheck install-exec-am install-exec \
 install-data-am install-data install-am install uninstall-am uninstall \
 all-redirect all-am all installdirs-am installdirs mostlyclean-generic \
 distclean-generic clean-generic maintainer-clean-generic clean \
