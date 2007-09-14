@@ -136,7 +136,12 @@ int Main(int argc, char **argv) {
   printf("Computing bounding box in ra, dec...\n");
   Color bg_color(4);
   bg_color.SetAllChannels(0);
+
+  // Create a projection object.  This makes a defensive copy of image and
+  // computes the bounding box of the image.  After copying the image, we
+  // no longer need the original image data.
   SkyProjection projection(image, wcs);
+  image.Clear();
   projection.SetBackgroundColor(bg_color);
   
   // Report information on the image's bounding box.
@@ -229,7 +234,8 @@ int Main(int argc, char **argv) {
     projection.SetAlphaChannelFromMask(mask);
   }
 
-  // Warp the image.
+  // Warp the image.  We can only warp once because the internal copy is
+  // automatically cleaned up afterwards.
   printf("Warping input image...\n");
   PngImage projected_image;
   projection.WarpImage(&projected_image);
