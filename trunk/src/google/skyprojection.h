@@ -111,8 +111,10 @@ class SkyProjection {
   void SetAlphaChannelFromMask(const PngImage &mask);
 
   // Warps the underlying image.  The alpha channel of the input image is
-  // preserved.  It can be set using SetAlphaChannelFromMask().
-  void WarpImage(PngImage *projected_image) const;
+  // preserved.  It can be set using SetAlphaChannelFromMask().  The contents
+  // of the internal image copy are deleted after calling this method, so
+  // you can only call this method once.
+  void WarpImage(PngImage *projected_image);
 
   // Generates a KML representation of the bounding box.  The KML
   // representation includes a <GroundOverlay> element which describes the

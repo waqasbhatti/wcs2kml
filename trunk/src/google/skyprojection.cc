@@ -291,10 +291,12 @@ void SkyProjection::SetAlphaChannelFromMask(const PngImage &mask) {
 }
 
 // Warps the input image to lat-lon projection.
-void SkyProjection::WarpImage(PngImage *projected_image) const {
-  // Resize the projected image.
+void SkyProjection::WarpImage(PngImage *projected_image) {
+  assert(image_.width() > 0);
+  assert(image_.height() > 0);
   assert(projected_width_ > 0);
   assert(projected_height_ > 0);
+  // Resize the projected image.
   projected_image->Resize(projected_width_, projected_height_, PngImage::RGBA);
 
   double ra_min;
@@ -353,6 +355,9 @@ void SkyProjection::WarpImage(PngImage *projected_image) const {
       }
     }
   }
+  
+  // We no longer need the internal copy of image.
+  image_.Clear();
 }
 
 // Writes a KML representation of the bounding box to string kml_string.  The
