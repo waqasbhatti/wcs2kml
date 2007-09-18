@@ -51,6 +51,17 @@ class Color {
     array_[i] = value;
   }
 
+  // Sets all channels in the given range to the given value.  The range
+  // of the loop is start to stop - 1, just like a normal C for loop of the
+  // form for (int i = start; i < stop; ++i) { ... }.
+  inline void SetChannels(int start, int stop, uint8 value) {
+    CheckIndex(start);
+    CheckIndex(stop - 1);
+    for (int i = start; i < stop; ++i) {
+      array_[i] = value;
+    }
+  }
+
   // Copies the given range of channels from the input color.  The range
   // of the loop is start to stop - 1, just like a normal C for loop of the
   // form for (int i = start; i < stop; ++i) { ... }.
