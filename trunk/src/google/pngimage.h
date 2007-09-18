@@ -92,16 +92,16 @@ class PngImage {
     Clear();
   }
 
-  // Deallocates an image.
+  // Deallocates an image and resets all properties.
   inline void Clear(void) {
     if (pixels_) {
       delete[] pixels_;
       pixels_ = NULL;
-      width_ = 0;
-      height_ = 0;
-      channels_ = 0;
-      colorspace_ = UNDEFINED_COLORSPACE;
     }
+    width_ = 0;
+    height_ = 0;
+    channels_ = 0;
+    colorspace_ = UNDEFINED_COLORSPACE;
   }
 
   // Resizes an image to the given size and colorspace.  This is the only
@@ -153,8 +153,21 @@ class PngImage {
     position[channel] = value;
   }
 
-  // Converts an image to grayscale.
+  // Converts an image to grayscale and returns whether the operation was
+  // successful.
   bool ConvertToGrayscale(void);
+
+  // Converts an image to grayscale with an alpha channel and returns whether
+  // the operation was successful.
+  bool ConvertToGrayscalePlusAlpha(void);
+
+  // Converts an image to RGB and returns whether the operation was
+  // successful.
+  bool ConvertToRGB(void);
+
+  // Converts an image to RGBA and returns whether the operation was
+  // successful.
+  bool ConvertToRGBA(void);
 
   // Reads an image from the given filename.  All images are converted to
   // RGBA colorspace with 8 bits per channel.

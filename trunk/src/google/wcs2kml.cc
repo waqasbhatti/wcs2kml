@@ -138,11 +138,15 @@ int Main(int argc, char **argv) {
   bg_color.SetAllChannels(0);
 
   // Create a projection object.  This makes a defensive copy of image and
-  // computes the bounding box of the image.  After copying the image, we
-  // no longer need the original image data.
+  // computes the bounding box of the image.
   SkyProjection projection(image, wcs);
-  image.Clear();
   projection.SetBackgroundColor(bg_color);
+
+  // SkyProjection copies the image, so we don't need the original data.  We
+  // do, however, need the image dimensions for later.
+  int width = image.width();
+  int height = image.height();
+  image.Clear();
   
   // Report information on the image's bounding box.
   const BoundingBox &bounding_box = projection.bounding_box();
@@ -184,7 +188,7 @@ int Main(int argc, char **argv) {
     projection.SetProjectedSize(FLAGS_output_width, FLAGS_output_height);
   }
   if (FLAGS_copy_input_size) {
-    projection.SetProjectedSize(image.width(), image.height());
+    projection.SetProjectedSize(width, height);
   }
 
   // This ensures that the output image is not unreasonably huge.
