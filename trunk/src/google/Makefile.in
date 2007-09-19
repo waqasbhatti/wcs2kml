@@ -111,7 +111,7 @@ wcs2kml_SOURCES = wcs2kml.cc
 wcs2kml_LDADD = libwcs2kml.la
 
 # Test programs.
-check_PROGRAMS = color_test pngimage_test stringprintf_test fits_test                  wraparound_test wcsprojection_test boundingbox_test                  skyprojection_test kml_test regionator_test
+check_PROGRAMS = color_test pngimage_test stringprintf_test fits_test                  wraparound_test wcsprojection_test boundingbox_test                  mask_test skyprojection_test kml_test regionator_test
 
 
 color_test_SOURCES = color_test.cc
@@ -135,6 +135,9 @@ wcsprojection_test_LDADD = libwcs2kml.la
 boundingbox_test_SOURCES = boundingbox_test.cc
 boundingbox_test_LDADD = libwcs2kml.la
 
+mask_test_SOURCES = mask_test.cc
+mask_test_LDADD = libwcs2kml.la
+
 skyprojection_test_SOURCES = skyprojection_test.cc
 skyprojection_test_LDADD = libwcs2kml.la
 
@@ -149,12 +152,12 @@ TESTS = $(check_PROGRAMS)
 
 # Headers to install.
 googleincludedir = $(includedir)/google
-googleinclude_HEADERS = boundingbox-inl.h boundingbox.h                         color.h fits.h kml.h pngimage.h                         regionator.h skyprojection.h                         stringprintf.h uint8.h wcsprojection.h                         wraparound.h
+googleinclude_HEADERS = boundingbox-inl.h boundingbox.h                         color.h fits.h kml.h mask.h pngimage.h                         regionator.h skyprojection.h                         stringprintf.h uint8.h wcsprojection.h                         wraparound.h
 
 
 # Library to make.
 lib_LTLIBRARIES = libwcs2kml.la
-libwcs2kml_la_SOURCES = color.cc pngimage.cc stringprintf.cc                         fits.cc kml.cc wcsprojection.cc                         boundingbox.cc skyprojection.cc                         regionator.cc
+libwcs2kml_la_SOURCES = color.cc pngimage.cc stringprintf.cc                         mask.cc fits.cc kml.cc wcsprojection.cc                         boundingbox.cc skyprojection.cc                         regionator.cc
 
 libwcs2kml_la_LIBADD = libwcs/libwcs.la
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
@@ -168,13 +171,15 @@ CPPFLAGS = @CPPFLAGS@
 LIBS = @LIBS@
 libwcs2kml_la_LDFLAGS = 
 libwcs2kml_la_DEPENDENCIES =  libwcs/libwcs.la
-libwcs2kml_la_OBJECTS =  color.lo pngimage.lo stringprintf.lo fits.lo \
-kml.lo wcsprojection.lo boundingbox.lo skyprojection.lo regionator.lo
+libwcs2kml_la_OBJECTS =  color.lo pngimage.lo stringprintf.lo mask.lo \
+fits.lo kml.lo wcsprojection.lo boundingbox.lo skyprojection.lo \
+regionator.lo
 bin_PROGRAMS =  wcs2kml$(EXEEXT)
 check_PROGRAMS =  color_test$(EXEEXT) pngimage_test$(EXEEXT) \
 stringprintf_test$(EXEEXT) fits_test$(EXEEXT) wraparound_test$(EXEEXT) \
 wcsprojection_test$(EXEEXT) boundingbox_test$(EXEEXT) \
-skyprojection_test$(EXEEXT) kml_test$(EXEEXT) regionator_test$(EXEEXT)
+mask_test$(EXEEXT) skyprojection_test$(EXEEXT) kml_test$(EXEEXT) \
+regionator_test$(EXEEXT)
 PROGRAMS =  $(bin_PROGRAMS)
 
 wcs2kml_OBJECTS =  wcs2kml.$(OBJEXT)
@@ -201,6 +206,9 @@ wcsprojection_test_LDFLAGS =
 boundingbox_test_OBJECTS =  boundingbox_test.$(OBJEXT)
 boundingbox_test_DEPENDENCIES =  libwcs2kml.la
 boundingbox_test_LDFLAGS = 
+mask_test_OBJECTS =  mask_test.$(OBJEXT)
+mask_test_DEPENDENCIES =  libwcs2kml.la
+mask_test_LDFLAGS = 
 skyprojection_test_OBJECTS =  skyprojection_test.$(OBJEXT)
 skyprojection_test_DEPENDENCIES =  libwcs2kml.la
 skyprojection_test_LDFLAGS = 
@@ -225,13 +233,13 @@ TAR = tar
 GZIP_ENV = --best
 DEP_FILES =  .deps/boundingbox.P .deps/boundingbox_test.P .deps/color.P \
 .deps/color_test.P .deps/fits.P .deps/fits_test.P .deps/kml.P \
-.deps/kml_test.P .deps/pngimage.P .deps/pngimage_test.P \
-.deps/regionator.P .deps/regionator_test.P .deps/skyprojection.P \
-.deps/skyprojection_test.P .deps/stringprintf.P \
+.deps/kml_test.P .deps/mask.P .deps/mask_test.P .deps/pngimage.P \
+.deps/pngimage_test.P .deps/regionator.P .deps/regionator_test.P \
+.deps/skyprojection.P .deps/skyprojection_test.P .deps/stringprintf.P \
 .deps/stringprintf_test.P .deps/wcs2kml.P .deps/wcsprojection.P \
 .deps/wcsprojection_test.P .deps/wraparound_test.P
-SOURCES = $(libwcs2kml_la_SOURCES) $(wcs2kml_SOURCES) $(color_test_SOURCES) $(pngimage_test_SOURCES) $(stringprintf_test_SOURCES) $(fits_test_SOURCES) $(wraparound_test_SOURCES) $(wcsprojection_test_SOURCES) $(boundingbox_test_SOURCES) $(skyprojection_test_SOURCES) $(kml_test_SOURCES) $(regionator_test_SOURCES)
-OBJECTS = $(libwcs2kml_la_OBJECTS) $(wcs2kml_OBJECTS) $(color_test_OBJECTS) $(pngimage_test_OBJECTS) $(stringprintf_test_OBJECTS) $(fits_test_OBJECTS) $(wraparound_test_OBJECTS) $(wcsprojection_test_OBJECTS) $(boundingbox_test_OBJECTS) $(skyprojection_test_OBJECTS) $(kml_test_OBJECTS) $(regionator_test_OBJECTS)
+SOURCES = $(libwcs2kml_la_SOURCES) $(wcs2kml_SOURCES) $(color_test_SOURCES) $(pngimage_test_SOURCES) $(stringprintf_test_SOURCES) $(fits_test_SOURCES) $(wraparound_test_SOURCES) $(wcsprojection_test_SOURCES) $(boundingbox_test_SOURCES) $(mask_test_SOURCES) $(skyprojection_test_SOURCES) $(kml_test_SOURCES) $(regionator_test_SOURCES)
+OBJECTS = $(libwcs2kml_la_OBJECTS) $(wcs2kml_OBJECTS) $(color_test_OBJECTS) $(pngimage_test_OBJECTS) $(stringprintf_test_OBJECTS) $(fits_test_OBJECTS) $(wraparound_test_OBJECTS) $(wcsprojection_test_OBJECTS) $(boundingbox_test_OBJECTS) $(mask_test_OBJECTS) $(skyprojection_test_OBJECTS) $(kml_test_OBJECTS) $(regionator_test_OBJECTS)
 
 all: all-redirect
 .SUFFIXES:
@@ -375,6 +383,10 @@ wcsprojection_test$(EXEEXT): $(wcsprojection_test_OBJECTS) $(wcsprojection_test_
 boundingbox_test$(EXEEXT): $(boundingbox_test_OBJECTS) $(boundingbox_test_DEPENDENCIES)
 	@rm -f boundingbox_test$(EXEEXT)
 	$(CXXLINK) $(boundingbox_test_LDFLAGS) $(boundingbox_test_OBJECTS) $(boundingbox_test_LDADD) $(LIBS)
+
+mask_test$(EXEEXT): $(mask_test_OBJECTS) $(mask_test_DEPENDENCIES)
+	@rm -f mask_test$(EXEEXT)
+	$(CXXLINK) $(mask_test_LDFLAGS) $(mask_test_OBJECTS) $(mask_test_LDADD) $(LIBS)
 
 skyprojection_test$(EXEEXT): $(skyprojection_test_OBJECTS) $(skyprojection_test_DEPENDENCIES)
 	@rm -f skyprojection_test$(EXEEXT)

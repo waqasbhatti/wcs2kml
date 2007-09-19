@@ -7,10 +7,43 @@
 
 namespace google_sky {
 
+// Creates an image with a checkerboard pattern.  For images with an alpha
+// channel, the "black" pixels will actually be black (not transparent).
+void MakeCheckerBoard(PngImage *image, int width, int height,
+                      PngImage::Colorspace colorspace) {
+  assert(image->Resize(width, height, colorspace));
+  Color white(image->channels());
+  white.SetAllChannels(255);
+  Color black(image->channels());
+  black.SetAllChannels(0);
+  if (colorspace == PngImage::GRAYSCALE_PLUS_ALPHA) {
+    black.SetChannel(1, 255);
+  } else if (colorspace == PngImage::RGBA) {
+    black.SetChannel(3, 255);
+  }
+  bool black_square = true;  
+  for (int i = 0; i < image->width(); ++i) {
+    for (int j = 0; j < image->height(); ++j) {
+      if (black_square) {
+        image->SetPixel(i, j, black);
+      } else {
+        image->SetPixel(i, j, white);
+      }
+      black_square = !black_square;
+    }
+    black_square = !black_square;
+  }
+}
+
 int Main(int argc, char **argv) {
   // Test Resize() and accessors.
   {
     PngImage image;
+    assert(image.width() == 0);
+    assert(image.height() == 0);
+    assert(image.colorspace() == PngImage::UNDEFINED_COLORSPACE);
+    assert(image.channels() == 0);
+
     int width = 5;
     int height = 10;
     PngImage::Colorspace colorspace;
@@ -185,8 +218,64 @@ int Main(int argc, char **argv) {
     }
   }
   
-  // TODO: Test Read().
-  // TODO: Test Write().
+  // Test Equals().
+  {
+    PngImage image;
+    PngImage copy;
+    int width = 5;
+    int height = 10;
+    PngImage::Colorspace colorspace = PngImage::GRAYSCALE;
+    assert(image.Equals(copy));
+    assert(image.Resize(width, height, colorspace));
+    assert(copy.Resize(width, height, colorspace));
+    image.SetAllValues(127);
+    copy.SetAllValues(127);
+    assert(copy.Equals(image));
+  }
+  
+  // Test Read() and Write().  We test both by creating a PngImage, writing it
+  // to file, reading it back, and verifying it.  This should be done for
+  // every colorspace.
+  {
+    PngImage image;
+    PngImage verify_image;
+    int width = 5;
+    int height = 10;
+    char *tmp_png = "tmp.png";
+
+    // Note that images read from disk are always RGBA after being read, so
+    // we need to convert them back before comparing.
+    
+    // Grayscale.
+    MakeCheckerBoard(&image, width, height, PngImage::GRAYSCALE);
+    assert(image.Write(tmp_png));
+    assert(verify_image.Read(tmp_png));
+    assert(verify_image.ConvertToGrayscale());
+    assert(image.Equals(verify_image));
+    
+    // Grayscale + alpha.
+    MakeCheckerBoard(&image, width, height, PngImage::GRAYSCALE_PLUS_ALPHA);
+    assert(image.Write(tmp_png));
+    assert(verify_image.Read(tmp_png));
+    assert(verify_image.ConvertToGrayscalePlusAlpha());
+    assert(image.Equals(verify_image));
+    
+    // RGB.
+    MakeCheckerBoard(&image, width, height, PngImage::RGB);
+    assert(image.Write(tmp_png));
+    assert(verify_image.Read(tmp_png));
+    assert(verify_image.ConvertToRGB());
+    assert(image.Equals(verify_image));
+    
+    // RGBA.
+    MakeCheckerBoard(&image, width, height, PngImage::RGBA);
+    assert(image.Write(tmp_png));
+    assert(verify_image.Read(tmp_png));
+    assert(image.Equals(verify_image));
+
+    // Clean up.
+    assert(remove(tmp_png) == 0);
+  }
   
   return 0;
 }

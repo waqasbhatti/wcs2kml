@@ -16,7 +16,10 @@
 #include <cstdio>
 #include <cassert>
 #include <cmath>
-#include <google/wraparound.h>
+#include <string>
+#include <google/fits.h>
+
+using std::string;
 
 namespace google_sky {
 
@@ -75,12 +78,55 @@ static const char *FITS_HEADER_NAXIS =
 "END                                                                           "
 "  ";
 
-static const char *FITS_FILENAME = "test_fits.fits";
-static const char *FITS_FILENAME_NO_NAXIS = "test_fits_no_naxis.fits";
+// This file has the 3 headers above stored in the first 3 successive blocks.
+static const char *FITS_FILENAME = "../../testdata/fits_test.fits";
 
 int Main(int argc, char **argv) {
-  // Need test data for this test.
-  assert(false);
+  // Test ReadHeader().
+  {
+    string header;
+    Fits::ReadHeader(FITS_FILENAME, 0, &header);
+    assert(header == FITS_HEADER);
+    Fits::ReadHeader(FITS_FILENAME, 2880, &header);
+    assert(header == FITS_HEADER_NO_NAXIS);
+    Fits::ReadHeader(FITS_FILENAME, 2 * 2880, &header);
+    assert(header == FITS_HEADER_NAXIS);
+  }
+
+  // Test AddImageDimensions().
+  {
+    string header_no_naxis;
+    string header_naxis;
+    Fits::ReadHeader(FITS_FILENAME, 2880, &header_no_naxis);
+    Fits::ReadHeader(FITS_FILENAME, 2 * 2880, &header_naxis);
+    Fits::AddImageDimensions(100, 200, &header_no_naxis);
+    assert(header_no_naxis == header_naxis);
+  }
+
+  // Test HeaderHasKeyword().
+  {
+    string header;
+    Fits::ReadHeader(FITS_FILENAME, 0, &header);
+    assert(Fits::HeaderHasKeyword(header, "SIMPLE"));
+    assert(Fits::HeaderHasKeyword(header, "BITPIX"));
+    assert(Fits::HeaderHasKeyword(header, "NAXIS1"));
+    assert(Fits::HeaderHasKeyword(header, "END"));
+    assert(!Fits::HeaderHasKeyword(header, "NAX"));
+    assert(!Fits::HeaderHasKeyword(header, "NAXIS  "));
+    assert(!Fits::HeaderHasKeyword(header, "  NAXIS"));
+  }
+  
+  // Test ReadKeywordInt().
+  {
+    string header;
+    Fits::ReadHeader(FITS_FILENAME, 0, &header);
+    assert(Fits::HeaderReadKeywordInt(header, "BITPIX", -1) == 8);
+    assert(Fits::HeaderReadKeywordInt(header, "NAXIS", -1) == 2);
+    assert(Fits::HeaderReadKeywordInt(header, "NAXIS1", -1) == 852);
+    assert(Fits::HeaderReadKeywordInt(header, "NAXIS2", -1) == 562);
+    assert(Fits::HeaderReadKeywordInt(header, "FOO", -1) == -1);
+  }
+  
   return 0;
 }
 

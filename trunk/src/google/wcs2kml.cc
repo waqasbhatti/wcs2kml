@@ -22,6 +22,7 @@
 #include <google/boundingbox.h>
 #include <google/color.h>
 #include <google/gflags.h>
+#include <google/mask.h>
 #include <google/pngimage.h>
 #include <google/regionator.h>
 #include <google/skyprojection.h>
@@ -137,17 +138,12 @@ int Main(int argc, char **argv) {
   Color bg_color(4);
   bg_color.SetAllChannels(0);
 
-  // Create a projection object.  This makes a defensive copy of image and
-  // computes the bounding box of the image.
+  // Create a projection object.  This copies a pointer to image so modifying
+  // image after this point will have changes to the copy SkyProjection keeps.
+  // This also and computes the bounding box of the image.
   SkyProjection projection(image, wcs);
   projection.SetBackgroundColor(bg_color);
-
-  // SkyProjection copies the image, so we don't need the original data.  We
-  // do, however, need the image dimensions for later.
-  int width = image.width();
-  int height = image.height();
-  image.Clear();
-  
+ 
   // Report information on the image's bounding box.
   const BoundingBox &bounding_box = projection.bounding_box();
   printf("This image:\n");
@@ -188,7 +184,7 @@ int Main(int argc, char **argv) {
     projection.SetProjectedSize(FLAGS_output_width, FLAGS_output_height);
   }
   if (FLAGS_copy_input_size) {
-    projection.SetProjectedSize(width, height);
+    projection.SetProjectedSize(image.width(), image.height());
   }
 
   // This ensures that the output image is not unreasonably huge.
@@ -210,9 +206,11 @@ int Main(int argc, char **argv) {
     mask_out_color.SetChannel(2, FLAGS_automask_blue);
     mask_out_color.SetChannel(3, 255);
 
+    // NB: We are modifying the original image, but projection keeps a pointer
+    // to this image so it sees the changes too.
     PngImage mask;
-    projection.CreateMask(mask_out_color, &mask);
-    projection.SetAlphaChannelFromMask(mask);
+    Mask::CreateMask(image, mask_out_color, &mask);
+    Mask::SetAlphaChannelFromMask(mask, &image);
 
     printf("Writing mask to file %s.png...\n", FLAGS_automaskfile.c_str());
     if (!mask.Write(FLAGS_automaskfile + ".png")) {
@@ -235,7 +233,9 @@ int Main(int argc, char **argv) {
       exit(EXIT_FAILURE);
     }
 
-    projection.SetAlphaChannelFromMask(mask);
+    // NB: We are modifying the original image, but projection keeps a pointer
+    // to this image so it sees the changes too.
+    Mask::SetAlphaChannelFromMask(mask, &image);
   }
 
   // Warp the image.  We can only warp once because the internal copy is
@@ -243,6 +243,9 @@ int Main(int argc, char **argv) {
   printf("Warping input image...\n");
   PngImage projected_image;
   projection.WarpImage(&projected_image);
+  
+  // We no longer need the original image.
+  image.Clear();
 
   // Write to file.
   if (!FLAGS_regionate) {

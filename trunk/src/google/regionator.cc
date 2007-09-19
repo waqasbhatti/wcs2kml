@@ -199,6 +199,7 @@ void Regionator::SplitTileRecursively(int level, int x1, int y1,
   Color transparent(4);
   transparent.SetAllChannels(0);
   bool is_transparent = true;
+  bool is_opaque = true;
 
   for (int i = 0; i < subimage.width(); ++i) {
     int x = min(static_cast<int>(x1 + i * dx + 0.5), x2);
@@ -215,7 +216,23 @@ void Regionator::SplitTileRecursively(int level, int x1, int y1,
         if (pixel.GetChannel(3) != 0) {
           is_transparent = false;
         }
+        
+        // We keep track of opaque regions so that we can compress the tile
+        // by converting to RGB.
+        if (pixel.GetChannel(3) != 255) {
+          is_opaque = false;
+        }
       }
+    }
+  }
+
+  // Convert opaque tiles to RGB.  This saves some disk space (probably not
+  // much), but more importantly it allows us to easily know which tiles we
+  // can safely convert to JPEG later.
+  if (is_opaque) {
+    if (!subimage.ConvertToRGB()) {
+      fprintf(stderr, "\nCan't convert subimage to RGB\n");
+      exit(EXIT_FAILURE);
     }
   }
 

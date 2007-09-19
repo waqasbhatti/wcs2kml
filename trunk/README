@@ -1,4 +1,4 @@
-wcs2kml version 0.1
+wcs2kml version 0.2
 Jeremy Brewer
 
 This package contains code for importing astronomical images into Sky
@@ -14,7 +14,8 @@ image you want to warp.  If you don't know how to make a PNG from a FITS
 file (or you don't want to waste time doing so), we've included a Python
 script fits2png.py that will do this conversion for you.  To install this
 script, run 'python setup.py install' in the python subdirectory.  Additional
-control over the output of fits2png.py is available through the use of the
+control over the output of fits2png.py is available through command 
+line flags (type fits2png.py --help for a list) or the use of the
 fitsimage Python module.  See the source code for fits2png.py and fitsimage.py
 for more details.
 
@@ -30,8 +31,8 @@ C++ Requirements:
 - libtool
 
 Python Requirements:
-- Python Imaging Library (Image module)
-- Numeric
+- Python Imaging Library (http://www.pythonware.com/products/pil/)
+- numpy (http://numpy.scipy.org/)
 - pyfits (http://www.stsci.edu/resources/software_hardware/pyfits)
 - Python 2.3 or newer
 
@@ -67,6 +68,11 @@ similarly for gflags.
 On Mac OS X, MacPorts installs Unix software in /opt/local and Fink installs
 software in /sw by default.
 
+To verify that your system built a properly functioning version of 
+wcs2kml, type 'make check' to build and run a series of tests.  All of 
+the tests should pass, and if not, you should try to determine why 
+before continuing.
+
 Finally, to run wcs2kml, you will need to include the prefix/lib directory
 in your dynamic library path.  On Linux, you need to set the LD_LIBRARY_PATH
 to include prefix/lib (e.g. export LD_LIBRARY_PATH=/prefix/lib for bash).
@@ -83,6 +89,7 @@ prefix/include/google/boundingbox.h
 prefix/include/google/color.h
 prefix/include/google/fits.h
 prefix/include/google/kml.h
+prefix/include/google/mask.h
 prefix/include/google/pngimage.h
 prefix/include/google/regionator.h
 prefix/include/google/skyprojection.h
@@ -92,6 +99,9 @@ prefix/include/google/wcsprojection.h
 prefix/include/google/wraparound.h
 prefix/include/wcs.h (from the WCS Tools package, used by wcsprojection.h)
 prefix/lib/libwcs2kml.* (the library extensions vary with platform)
+
+Note: WCS Tools is statically compiled and linked into libwcs2kml.  We 
+provide a C++ wrapper API that we use for all uses of WCS Tools.
 
 Build Issues:
 
@@ -123,6 +133,7 @@ ext2fits.py
 fits2kml.py
 fits2png.py
 regionate_fits.py
+regionated_dir_compressor.py
 wcs2kml.py
 wcs2fits.py
 
@@ -276,25 +287,39 @@ wcs2kml comes with many tools for reading and writing FITS images, including
 tools for converting FITS images into raster formats.  The python subdirectory
 contains the following scripts which are very helpful:
 
-fits2png.py -- Converts FITS images into a PNG format (see fitsimage.py for
-               more options to control the conversion)
+fits2png.py -- Converts FITS images into a PNG format (add --help to see
+               a description of the options to control the conversion)
 ext2fits.py -- Converts multi-extension FITS images to a set of single
                extension FITS images
 wcs2fits.py -- Takes an ascii file containing a WCS and writes it to a valid
                FITS file containing a single header
 
-These scripts make use of the gestalt (http://nvogre.phyast.pitt.edu/wcs/)
-Python libraries for reading and writing FITS images.  In particular, the
-following Python modules can be used to easily deal with a variety of
-problems that might arise when using FITS files:
+These scripts make use of pyfits and the gestalt 
+(http://nvogre.phyast.pitt.edu/wcs/) Python libraries for reading and 
+writing FITS images.  In particular, the following Python modules can be 
+used to easily deal with a variety of problems that might arise when 
+using FITS files:
+
+pyfits
+
+Available from http://www.stsci.edu/resources/software_hardware/pyfits,
+this simple FITS library for Python will help you work around many 
+troublesome issues that arise with FITS images.  The scripts above 
+utilize pyfits for the lower level FITS parsing.
 
 fitslib.py
 
-A simple and powerful Python FITS library.  In addition to providing a 
-high level interface that's simple to use, many of the underlying parsing
-functions can be leveraged to deal with odd FITS data.  The wcs2fits.py
-script, for example, uses the lower level parse_card() function to easily
-parse FITS-like headers that may contain newlines.
+This is a simple Python FITS library that implements a very pyfits-like 
+API for manipulating FITS images.  It only supports FITS images.
+
+I wrote fitslib after developing several simple FITS parsing functions 
+for diagnosing odd FITS files that were causing trouble for pyfits.  
+We are currently in the process of merging the useful bits of fitslib 
+back into pyfits, but there are a few parsing functions in fitslib 
+that aren't in pyfits that you may find useful when dealing with FITS 
+images.  The wcs2fits.py script, for example, uses the lower level 
+parse_card() function to easily parse FITS-like headers that may contain 
+newlines.
 
 fitsimage.py
 
@@ -310,7 +335,8 @@ algorithm from ds9 and IRAF.
 wcslib.py
 
 Provides WCS projection for TAN and TAN-SIPS.  Used by wcs2kml.py for its
-projection.  Unfortunately, epoch shifts aren't supported.
+projection.  Unfortunately, epoch shifts aren't supported.  Use the C++ 
+API if you need more.
 
 Using the C++ API:
 
@@ -347,7 +373,8 @@ Q: wcs2ml exited and with an assertion failure saying that ra/dec min/max
 
 A: You have a potentially bad or weird WCS!  See the question above.  This
    problem could also be caused by inputing a PNG image that has different
-   dimensions from the corresponding FITS image.
+   dimensions from the corresponding FITS image with older versions of
+   wcs2kml (newer versions should detect this and exit).
    
    This error is triggered by a sanity check in the bounding box calculation.
    It typically means that wcstools is doing calculations with uninitialized
@@ -365,12 +392,7 @@ A: No, wcs2kml reads the image dimensions from the PNG image directly.  If
    complain and exit.
 
    If the FITS image has NAXIS1 and NAXIS2 values that differ from the
-   PNG image dimensions, wcs2kml will not notice (it should, and hopefully
-   will in the future).  This error will most likely be caught by the
-   bounding box calculation, or it might result in a completely transparent
-   output image, or perhaps a partially cropped image.  I'm not sure
-   because I haven't tested this with a wide range of bad values.  So don't
-   ever do this.
+   PNG image dimensions, wcs2kml point this out and exit.
 
 Q: Does wcs2kml handle images that cross the poles and/or the 0-360 border
    in right ascension?
