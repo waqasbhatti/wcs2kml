@@ -16,30 +16,21 @@
 #include <cstdio>
 #include <cassert>
 #include <google/mask.h>
-#include <google/skyprojection.h>
-
-// These files are for a downsampled SDSS frame with a black border to test
-// automasking that is known to properly project.
-static const char *FITS_FILENAME =
-    "../../testdata/fpC-001478-g3-0022_small.fits";
-static const char *PNG_FILENAME = 
-    "../../testdata/fpC-001478-g3-0022_small.png";
-static const char *WARPED_PNG_FILENAME = 
-    "../../testdata/fpC-001478-g3-0022_small_warped.png";
 
 namespace google_sky {
 
+// These files are for a downsampled SDSS frame with a black border to test
+// automasking that is known to properly project.
+static const char *PNG_FILENAME = 
+    "../../testdata/fpC-001478-g3-0022_small.png";
+static const char *PNG_MASK_FILENAME = 
+    "../../testdata/fpC-001478-g3-0022_small_mask.png";
+
 int Main(int argc, char **argv) {
-  // Test WarpImage with masking.
+  // Test CreateMask().
   {
     PngImage image;
     assert(image.Read(PNG_FILENAME));
-    WcsProjection wcs(FITS_FILENAME, image.width(), image.height());
-    Color bg_color(4);  // transparent
-    SkyProjection projection(image, wcs);
-    projection.SetBackgroundColor(bg_color);
-    projection.set_input_image_origin(SkyProjection::LOWER_LEFT);
-    projection.SetMaxSideLength(400);
 
     // Test images have a small black border.  The automasking should get
     // rid of it completely.
@@ -49,16 +40,15 @@ int Main(int argc, char **argv) {
 
     PngImage mask;
     Mask::CreateMask(image, black, &mask);
-    Mask::SetAlphaChannelFromMask(mask, &image);
-
-    PngImage warped_image;
-    projection.WarpImage(&warped_image);
-    
+   
     // Compare to previous results.
-    PngImage true_warped_image;
-    assert(true_warped_image.Read(WARPED_PNG_FILENAME));
-    assert(warped_image.Equals(true_warped_image));
+    PngImage true_mask;
+    assert(true_mask.Read(PNG_MASK_FILENAME));
+    assert(true_mask.ConvertToGrayscale());
+    assert(mask.Equals(true_mask));
   }
+  
+  // NB: SetAlphaChannelFromMask() will be tested by skyprojection_test.
 
   return 0;
 }

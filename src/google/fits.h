@@ -107,6 +107,11 @@ class Fits {
   static bool HeaderHasKeyword(const std::string &header,
                                const std::string &keyword);
 
+  // Reads an integer keyword.  Returns default_value if not found.
+  static int HeaderReadKeywordInt(const std::string &header,
+                                  const std::string &keyword,
+                                  int default_value);
+
  private:
   // For now Fits is a static only class, but this might change in the
   // future.

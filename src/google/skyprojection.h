@@ -46,13 +46,18 @@ class SkyProjection {
   };
  
   // Creates a SkyProjection object for the given raster image and WCS
-  // describing the position of the image on the sky.  The input image is
-  // copied internally, preserving any alpha channel information present
-  // in the input image.  The input image must be in colorspace G, GA, RGB,
-  // or RGBA or this function dies.
+  // describing the position of the image on the sky.  A pointer to the input
+  // image is saved internally, preserving any alpha channel information present
+  // in the input image.  The input image must be in colorspace RGBA or this
+  // function dies.
+  //
+  // SkyProjection saves only a pointer to the original image to save memory.
+  // It is therefore very important not to modify the input image after
+  // creating a new SkyProjection.
   //
   // The dimensions of the output projected image are automatically set using
-  // DetermineProjectedSize().
+  // DetermineProjectedSize(), but they can be altered using
+  // SetProjectedSize().
   SkyProjection(const PngImage &image, const WcsProjection &wcs);
 
   ~SkyProjection() {
@@ -100,21 +105,9 @@ class SkyProjection {
     return input_image_origin_;
   }
  
-  // Creates a mask from the underlying image by making 4 simple passes
-  // from each image edge to the first pixel that doesn't contain color
-  // mask_out_color (4 channels, alpha ignored).  All pixels from the edge to
-  // this point are masked out.
-  void CreateMask(const Color &mask_out_color, PngImage *mask) const;
-  
-  // Sets the alpha channel of the underlying image using the values from
-  // the given mask.  Dies if mask contains more than 1 channel.
-  void SetAlphaChannelFromMask(const PngImage &mask);
-
   // Warps the underlying image.  The alpha channel of the input image is
-  // preserved.  It can be set using SetAlphaChannelFromMask().  The contents
-  // of the internal image copy are deleted after calling this method, so
-  // you can only call this method once.
-  void WarpImage(PngImage *projected_image);
+  // preserved.
+  void WarpImage(PngImage *projected_image) const;
 
   // Generates a KML representation of the bounding box.  The KML
   // representation includes a <GroundOverlay> element which describes the
@@ -146,8 +139,8 @@ class SkyProjection {
   }
 
  private:
-  // A copy of the original raster image in RGBA colorspace.
-  PngImage image_;
+  // Pointer to the original raster image in RGBA colorspace.
+  const PngImage *image_;
 
   // The WCS used for projecting pixel coordinates to spherical coordinates.
   const WcsProjection *wcs_;
@@ -165,6 +158,11 @@ class SkyProjection {
   // autmatically determined before the image can be projected.
   int projected_width_;
   int projected_height_;
+
+  // These are used to check on mutation of the input PngImage before
+  // performing the warping.
+  int original_width_;
+  int original_height_;
 
   // Determines the size of the projected image automatically so that the input
   // image should fit within the projected image with minimal resizing.

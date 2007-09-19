@@ -20,7 +20,7 @@ wcs2kml_LDADD = libwcs2kml.la
 # Test programs.
 check_PROGRAMS = color_test pngimage_test stringprintf_test fits_test \
                  wraparound_test wcsprojection_test boundingbox_test \
-                 skyprojection_test kml_test regionator_test
+                 mask_test skyprojection_test kml_test regionator_test
 
 color_test_SOURCES = color_test.cc
 color_test_LDADD = libwcs2kml.la
@@ -43,6 +43,9 @@ wcsprojection_test_LDADD = libwcs2kml.la
 boundingbox_test_SOURCES = boundingbox_test.cc
 boundingbox_test_LDADD = libwcs2kml.la
 
+mask_test_SOURCES = mask_test.cc
+mask_test_LDADD = libwcs2kml.la
+
 skyprojection_test_SOURCES = skyprojection_test.cc
 skyprojection_test_LDADD = libwcs2kml.la
 
@@ -58,7 +61,7 @@ TESTS = $(check_PROGRAMS)
 # Headers to install.
 googleincludedir = $(includedir)/google
 googleinclude_HEADERS = boundingbox-inl.h boundingbox.h \
-                        color.h fits.h kml.h pngimage.h \
+                        color.h fits.h kml.h mask.h pngimage.h \
                         regionator.h skyprojection.h \
                         stringprintf.h uint8.h wcsprojection.h \
                         wraparound.h
@@ -66,7 +69,7 @@ googleinclude_HEADERS = boundingbox-inl.h boundingbox.h \
 # Library to make.
 lib_LTLIBRARIES = libwcs2kml.la
 libwcs2kml_la_SOURCES = color.cc pngimage.cc stringprintf.cc \
-                        fits.cc kml.cc wcsprojection.cc \
+                        mask.cc fits.cc kml.cc wcsprojection.cc \
                         boundingbox.cc skyprojection.cc \
                         regionator.cc
 libwcs2kml_la_LIBADD = libwcs/libwcs.la

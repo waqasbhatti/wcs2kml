@@ -169,6 +169,10 @@ class PngImage {
   // successful.
   bool ConvertToRGBA(void);
 
+  // Returns whether two images are equal.  To be equal, the image must have
+  // the same properties and every pixel value must be the same.
+  bool Equals(const PngImage &image) const;
+
   // Reads an image from the given filename.  All images are converted to
   // RGBA colorspace with 8 bits per channel.
   bool Read(const std::string &filename);

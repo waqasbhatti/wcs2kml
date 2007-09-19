@@ -355,6 +355,24 @@ bool PngImage::ConvertToRGBA(void) {
   return true;
 }
 
+// Returns whether two images are equal.
+bool PngImage::Equals(const PngImage &image) const {
+  if (width_ != image.width_ ||
+      height_ != image.height_ ||
+      channels_ != image.channels_ ||
+      colorspace_ != image.colorspace_) {
+    return false;
+  }
+
+  for (int i = 0; i < width_ * height_ * channels_; ++i) {
+    if (pixels_[i] != image.pixels_[i]) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
 // Reads an image from file.
 bool PngImage::Read(const std::string &filename) {
   FILE *fp = NULL;

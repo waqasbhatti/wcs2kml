@@ -197,4 +197,35 @@ bool Fits::HeaderHasKeyword(const std::string &header,
   return false;
 }
 
+// Reads an integer keyword and returns its value or default_value if not found.
+int Fits::HeaderReadKeywordInt(const std::string &header,
+                               const std::string &keyword,
+                               int default_value) {
+  if (static_cast<int>(keyword.size()) > FITS_KEYWORD_SIZE) {
+    fprintf(stderr, "\nInvalid FITS keyword '%s' (too long)\n",
+            keyword.c_str());
+    exit(EXIT_FAILURE);
+  }
+
+  for (int i = 0; i < static_cast<int>(header.size()); i += FITS_CARD_SIZE) {
+    std::string card_name = header.substr(i, FITS_KEYWORD_SIZE);
+
+    // Remove trailing space.
+    int last_space_index = card_name.find_last_not_of(" ");
+    if (last_space_index == static_cast<int>(std::string::npos)) {
+      last_space_index = FITS_KEYWORD_SIZE - 1;
+    }
+    
+    card_name = card_name.substr(0, last_space_index + 1);
+    if (card_name == keyword) {
+      // Value lies between characters 9 and 29 inclusive in this FITS card.
+      std::string card = header.substr(i, FITS_CARD_SIZE);
+      std::string value_str = card.substr(9, 21);
+      return atoi(value_str.c_str());
+    }
+  }
+
+  return default_value;
+}
+
 }  // end namespace google_sky

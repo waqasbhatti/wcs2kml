@@ -28,6 +28,7 @@ scripts = ["scripts/ext2fits.py",
            "scripts/fits2kml.py",
            "scripts/fits2png.py",
            "scripts/regionate_fits.py",
+           "scripts/regionated_dir_compressor.py",
            "scripts/wcs2kml.py",
            "scripts/wcs2fits.py"]
 

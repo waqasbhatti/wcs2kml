@@ -82,6 +82,20 @@ WcsProjection::WcsProjection(const std::string &fits_filename, int width,
   // wcstools.
   Fits::AddImageDimensions(width, height, &header);
 
+  // Check that FITS and image dimensions agree.
+  int naxis1 = Fits::HeaderReadKeywordInt(header, "NAXIS1", -1);
+  int naxis2 = Fits::HeaderReadKeywordInt(header, "NAXIS2", -1);
+  
+  if (naxis1 != width) {
+    fprintf(stderr, "\nFITS and PNG image widths disagree "
+                    "(FITS = %d, PNG = %d)\n", naxis1, width);
+    exit(EXIT_FAILURE);
+  } else if (naxis2 != height) {
+    fprintf(stderr, "\nFITS and PNG image heights disagree "
+                    "(FITS = %d, PNG = %d)\n", naxis2, height);
+    exit(EXIT_FAILURE);
+  }
+
   // Parse WCS.
   wcs_ = wcsninit(header.c_str(), header.size());
 
