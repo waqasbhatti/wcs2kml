@@ -28,8 +28,15 @@ namespace {
 
 const int STR_BUFSIZE = 1024;
 
+// Returns the amount of padding needed to make size be a multiple of
+// block_size.
+int Pad(int size, int block_size) {
+  // Outer modulus is needed if size is already a multiple of block_size.
+  return (block_size - size % block_size) % block_size;
+}
+
 // Returns the smaller of two ints.
-inline int min(int x, int y) {
+inline int Min(int x, int y) {
   if (x < y) {
     return x;
   } else {
@@ -140,10 +147,8 @@ void Regionator::Regionate(void) const {
 
   // We pad the input image with transparency so that it is a multiple of the
   // tile size.
-  int x_mod = image_->width() % x_tile_size_;
-  int y_mod = image_->height() % y_tile_size_;
-  int width_padded = image_->width() - x_mod + x_tile_size_;
-  int height_padded = image_->height() - y_mod + y_tile_size_;
+  int width_padded = image_->width() + Pad(image_->width(), x_tile_size_);
+  int height_padded = image_->height() + Pad(image_->height(), y_tile_size_);
 
   // Recursively generate the tiles.
   SplitTileRecursively(0, 0, 0, width_padded - 1, height_padded - 1);
@@ -202,9 +207,9 @@ void Regionator::SplitTileRecursively(int level, int x1, int y1,
   bool is_opaque = true;
 
   for (int i = 0; i < subimage.width(); ++i) {
-    int x = min(static_cast<int>(x1 + i * dx + 0.5), x2);
+    int x = Min(static_cast<int>(x1 + i * dx + 0.5), x2);
     for (int j = 0; j < subimage.height(); ++j) {
-      int y = min(static_cast<int>(y1 + j * dy + 0.5), y2);
+      int y = Min(static_cast<int>(y1 + j * dy + 0.5), y2);
       if (x >= image_->width() || y >= image_->height()) {
         subimage.SetPixel(i, j, transparent);
       } else {
@@ -310,15 +315,16 @@ void Regionator::SplitTileRecursively(int level, int x1, int y1,
     kml.AddPlacemark(placemark);
   }
 
-  if (x2 - x1 + 1 < x_tile_size_ || y2 - y1 + 1 < y_tile_size_ ||
-      is_transparent) {
+  if (x2 - x1 <= x_tile_size_ || y2 - y1 <= y_tile_size_ || is_transparent) {
     // The base case has occured: the image has been processed down to the
     // desired resolution or the current tile is completely transparent.
+    // NB: We use x2 - x1 instead of x2 - x1 + 1 (the true tile width) because
+    // there is a 1 pixel overlap between adjacent quads.
   } else {
     // Recursively process each quadrant of this quadrant.
     int xmid = (x1 + x2) / 2;
     int ymid = (y1 + y2) / 2;
-    
+        
     // Add the 4 subregions to the KML.
     KmlNetworkLink ul = MakeNetworkLink(x1, y1, xmid, ymid);
     KmlNetworkLink ur = MakeNetworkLink(xmid, y1, x2, ymid);
@@ -385,7 +391,7 @@ void Regionator::ComputeBoundingBox(int x1, int y1, int x2, int y2,
 // Creates a NeworkLink object containing a region for the given pixel
 // ranges.
 KmlNetworkLink Regionator::MakeNetworkLink(int x1, int y1,
-                                           int x2,int y2) const {
+                                           int x2, int y2) const {
   double north;
   double south;
   double east;

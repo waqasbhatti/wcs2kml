@@ -25,6 +25,10 @@ static const char *PNG_FILENAME =
     "../../testdata/fpC-001478-g3-0022_small.png";
 static const char *PNG_MASK_FILENAME = 
     "../../testdata/fpC-001478-g3-0022_small_mask.png";
+static const char *PNG_MASK_TEST_FILENAME =
+    "../../testdata/mask_test.png";
+static const char *PNG_MASK_TRUE_FILENAME =
+    "../../testdata/mask_test_transparent.png";
 
 int Main(int argc, char **argv) {
   // Test CreateMask().
@@ -48,7 +52,28 @@ int Main(int argc, char **argv) {
     assert(mask.Equals(true_mask));
   }
   
-  // NB: SetAlphaChannelFromMask() will be tested by skyprojection_test.
+  // Test SetAlphaChannelFromMask().
+  {
+    PngImage image;
+    assert(image.Read(PNG_MASK_TEST_FILENAME));
+    
+    // Test images have a small black border.  The automasking should get
+    // rid of it completely.
+    Color black(4);
+    black.SetChannels(0, 3, 0);
+    black.SetChannel(3, 255);
+    
+    PngImage mask;
+    Mask::CreateMask(image, black, &mask);
+    
+    // Apply the mask.
+    Mask::SetAlphaChannelFromMask(mask, &image);
+    
+    // Compare to previous results.
+    PngImage true_masked_image;
+    assert(true_masked_image.Read(PNG_MASK_TRUE_FILENAME));
+    assert(image.Equals(true_masked_image));
+  }
 
   return 0;
 }
