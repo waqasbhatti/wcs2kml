@@ -21,16 +21,70 @@ Converts all input FITS images to PNG using the zscale autocontrast algorithm.
 
 import os
 import sys
+import optparse
 import fitsimage
 
 def main(argv):
-  if len(argv) < 2:
-    print "Usage: %s <list of fits file>" % os.path.basename(argv[0])
+  usage = "%prog [options] <list of FITS files>"
+  parser = optparse.OptionParser(usage)
+
+  # Options controlling how to perform the autocontrast and scaling.
+  parser.add_option("--contrast", "-c", default="zscale", type="string",
+                    help="autocontrast algorithm to apply, either 'zscale' " \
+                         "or 'percentile', default %default")
+  parser.add_option("--scale", "-s", default="linear", type="string",
+                    help="how to scale pixel values between min and max, " \
+                         "either 'linear' or 'arcsinh', default %default")
+
+  # Options controlling both autocontrast algorithms.
+  parser.add_option("--num_points", default=5000, type="int",
+                    help="# of points to subsample image with")
+  parser.add_option("--num_per_row", default=250, type="int",
+                    help="# of points to sample from each row")
+
+  # Options controlling zscale autocontrast.
+  parser.add_option("--contrast_value", default=0.25, type="float",
+                    help="contrast option for zscale algorithm")
+
+  # Options controlling percentile autocontrast.
+  parser.add_option("--min_percent", default=3.0, type="float",
+                    help="black level for percentile")
+  parser.add_option("--max_percent", default=99.5, type="float",
+                    help="white level for percentile")
+
+  # Options controlling arcsinh scaling.
+  parser.add_option("--nonlinearity", default=3.0, type="float",
+                    help="nonlinearity option for arcsinh scaling, " \
+                         "default %default")
+
+  flags, files = parser.parse_args(argv[1:])
+  
+  if len(files) < 1:
+    print "usage: %s <list of FITS file>" % os.path.basename(argv[0])
     sys.exit(2)
 
-  fitsfiles = argv[1:]
+  # Set up the options for the types of contrast algorithms.
+  contrast_opts = {}
+  contrast_opts["num_points"] = flags.num_points
+  contrast_opts["num_per_row"] = flags.num_per_row
 
-  for fitsfile in fitsfiles:
+  if flags.contrast == "zscale":
+    contrast_opts["contrast"] = flags.contrast_value
+  elif flags.contrast == "percentile":
+    contrast_opts["min_percent"] = flags.min_percent
+    contrast_opts["max_percent"] = flags.max_percent
+  else:
+    print "Error: invalid contrast algorithm '%s'" % flags.contrast
+    sys.exit(2)
+
+  if flags.scale not in ("linear", "arcsinh"):
+    print "Error: invalid scale '%s'" % flags.scale
+    sys.exit(2)
+
+  scale_opts = {}
+  scale_opts["nonlinearity"] = flags.nonlinearity
+    
+  for fitsfile in files:
     if not os.path.exists(fitsfile):
       print "Error: file '%s' doesn't exist" % fitsfile
       sys.exit(2)
@@ -38,10 +92,11 @@ def main(argv):
     name, ext = os.path.splitext(fitsfile)
     pngfile = "%s.png" % name
 
-    # Note: fitsimage provides several options for tweaking the autocontrast
-    # algorithms.  If you want more control, take a look at fitsimage.py.
     sys.stderr.write("Converting '%s'... " % fitsfile)
-    image = fitsimage.FitsImage(fitsfile, allow_repeat_keywords=True)
+    image = fitsimage.FitsImage(fitsfile, contrast=flags.contrast,
+                                contrast_opts=contrast_opts, scale=flags.scale,
+                                scale_opts=scale_opts,
+                                allow_repeat_keywords=True)
     image.save(pngfile)
     sys.stderr.write("done\n")
 

@@ -30,7 +30,7 @@ static const char *WARPED_PNG_FILENAME =
 namespace google_sky {
 
 int Main(int argc, char **argv) {
-  // Test WarpImage with masking.
+  // Test WarpImage() with masking.
   {
     PngImage image;
     assert(image.Read(PNG_FILENAME));

@@ -88,7 +88,7 @@
 // ground_overlay.lat_lon_box.set(lat_lon_box);
 // ground_overlay.look_at.set(look_at);
 //
-// KML kml;
+// Kml kml;
 // kml.AddGroundOverlay(ground_overlay);
 //
 // // Get the raw XML string describing the KML.

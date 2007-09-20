@@ -70,7 +70,7 @@ class KmlNetworkLink;
 // // These options control where to output the tiled imagery and how to
 // // name them.  The root KML is what to load to view the imagery.  For this
 // // example (the default), the imagery will be stored in tiles/tile*.png and
-// // the root KML to load to view the entire hierarchy will be tiles/root.kml.
+// // the root KML to load to view the entire hierarchy will be root.kml.
 // regionator.set_filename_prefix("tile");
 // regionator.set_output_directory("tiles");
 // regionator.set_root_kml("root.kml");
@@ -176,6 +176,16 @@ class Regionator {
     top_level_draw_order_ = top_level_draw_order;
   }
   
+  // Returns the x tile size.
+  inline int x_tile_size(void) const {
+    return x_tile_size_;
+  }
+  
+  // Returns the y tile size.
+  inline int y_tile_size(void) const {
+    return y_tile_size_;
+  }
+  
  private:
   // Output tiles are of size x_tile_size_ x y_tile_size_, defaults to a
   // maximum dimension of 256.
@@ -233,7 +243,7 @@ class Regionator {
   
   // Creates a NeworkLink object containing a region for the given pixel
   // ranges.
-  KmlNetworkLink MakeNetworkLink(int x1, int y1, int x2,int y2) const;
+  KmlNetworkLink MakeNetworkLink(int x1, int y1, int x2, int y2) const;
   
   // Don't allow copying.
   Regionator(const Regionator &);
