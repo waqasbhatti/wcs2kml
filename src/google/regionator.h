@@ -28,7 +28,7 @@ class KmlNetworkLink;
 // Class for regionating an input image and bounding box
 //
 // This class handles the specifics of how to subdivide an image into a
-// hierarchy of lower resolution images and KML documents.  The output of
+// hierarchy of lower resolution images and KML files.  The output of
 // regionating an image is very similar to how Earth actually serves its
 // imagery.  When the user is far away from an image, a low resolution image
 // is loaded.  As the user zooms in, the low resolution image is replaced
@@ -44,7 +44,10 @@ class KmlNetworkLink;
 // 1. We worked really hard to support transparency, which is stripped out by
 //    the gdal package that the Earth Regionator relies on.
 // 2. The Lod (level of detail) values for Sky need to be tuned from their
-//    default values in Earth because the curvature is reversed.
+//    default values in Earth because the curvature is reversed.  In Sky,
+//    the center of the camera is no longer the closest point on the sphere,
+//    so tiles at the edges of the viewport tend to be loaded earlier then
+//    they typically do in Earth.
 // 3. We wanted to reduce the dependencies for our pipeline -- Regionator
 //    would be one more thing to install and run, and it requires gdal.
 //
@@ -64,7 +67,9 @@ class KmlNetworkLink;
 // Regionator regionator(projected_image, bounding_box);
 //
 // // Output tiles will have a max side length of 256 and will be the same
-// // aspect ratio as the warped image.
+// // aspect ratio as the warped image.  Note that the tile size and
+// // minLodPixels are related -- typically you will want
+// // minLodPixels = 1/2 max tile size to avoid stretching the tile.
 // regionator.SetMaxTileSideLength(256);
 //
 // // These options control where to output the tiled imagery and how to

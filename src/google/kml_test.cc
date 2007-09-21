@@ -332,7 +332,7 @@ int Main(int argc, char **argv) {
 
     // Add everything to the KML.
     Kml kml;
-    kml.AddRegion(region);
+    kml.region.set(region);
     kml.AddGroundOverlay(ground_overlay);
     kml.AddPlacemark(placemark);
     kml.AddNetworkLink(ul);

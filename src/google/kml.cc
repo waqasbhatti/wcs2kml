@@ -362,8 +362,13 @@ std::string Kml::ToString(void) const {
                 "<kml xmlns=\"http://earth.google.com/kml/2.2\" "
                 "hint=\"target=sky\">\n");
   StringAppendF(&xml, STR_BUFSIZE, "<Document>\n");
-  for (int i = 0; i < static_cast<int>(regions_.size()); ++i) {
-    xml.append(regions_[i].ToString(1));
+
+  // We let the <Document> tag carry the Region, which means that the Region
+  // will cascade to all children (the arrays of Placemarks, GroundOverlays,
+  // and NetworkLinks).  NetworkLinks therefore are expected to define their
+  // own Regions.
+  if (region.has_value()) {
+    xml.append(region.get().ToString(1));
   }
   for (int i = 0; i < static_cast<int>(placemarks_.size()); ++i) {
     xml.append(placemarks_[i].ToString(1));

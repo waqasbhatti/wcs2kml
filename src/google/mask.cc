@@ -47,7 +47,7 @@ void Mask::CreateMask(const PngImage &image, const Color &mask_out_color,
   // horizontally then 2 vertically.  On each pass, we mask out all pixels
   // from the outer edge of the image to the first pixel that doesn't equal
   // mask_out_color.
-  Color pixel(4);
+  Color pixel(image.channels());
   Color transparent(1);
 
   // Horizontal pass, x increasing.
@@ -106,15 +106,23 @@ void Mask::SetAlphaChannelFromMask(const PngImage &mask, PngImage *image) {
   assert(mask.width() == image->width());
   assert(mask.height() == image->height());
   assert(mask.channels() == 1);
-  assert(image->colorspace() == PngImage::GRAYSCALE_PLUS_ALPHA ||
-         image->colorspace() == PngImage::RGBA);
+  
+  int alpha_index;
+  if (image->colorspace() == PngImage::GRAYSCALE_PLUS_ALPHA) {
+    alpha_index = 1;
+  } else if (image->colorspace() == PngImage::RGBA) {
+    alpha_index = 3;
+  } else {
+    fprintf(stderr, "\nNo alpha channel in image\n");
+    exit(EXIT_FAILURE);
+  }
 
   Color alpha(1);
 
   for (int i = 0; i < image->width(); ++i) {
     for (int j = 0; j < image->height(); ++j) {
       mask.GetPixel(i, j, &alpha);
-      image->SetValue(i, j, 3, alpha.GetChannel(0));
+      image->SetValue(i, j, alpha_index, alpha.GetChannel(0));
     }
   }
 }

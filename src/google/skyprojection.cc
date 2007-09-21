@@ -139,7 +139,6 @@ void SkyProjection::WarpImage(PngImage *projected_image) const {
   assert(projected_width_ > 0);
   assert(projected_height_ > 0);
 
-  // Resize the projected image.
   projected_image->Resize(projected_width_, projected_height_, PngImage::RGBA);
 
   double ra_min;

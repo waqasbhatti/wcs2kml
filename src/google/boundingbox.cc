@@ -20,8 +20,16 @@
 
 namespace {
 
+// Sanity checking constants.  These values are bad because they are too
+// large or small to be valid ra or dec .
 static const double LARGE_BAD_VALUE = 999.0;
 static const double SMALL_BAD_VALUE = -999.0;
+
+// Values are slightly smaller that the true poles to avoid potential
+// numerical roundoff (e.g. 90.000000001 might cause trouble because it's not
+// a valid dec).
+// TODO(jeremybrewer): test WCS Tools behavior for +-90 and slightly larger
+// values.
 static const double NORTH_POLE = 89.9999999;
 static const double SOUTH_POLE = -89.9999999;
 
@@ -61,9 +69,7 @@ void BoundingBox::FindBoundingBox(const WcsProjection &wcs, int width,
 
   // If the image crosses either pole, then the max or min dec will be interior
   // to the image, so the bounding box is wrong.  We check for this and
-  // adjust the limits accordingly.  I check values slightly less than the
-  // true poles to avoid potential numerical errors (I haven't verified that
-  // this actually helps, but I haven't tested wcstools at exactly +-90 dec).
+  // adjust the limits accordingly.
   double x;
   double y;
   double ra = 0.0;

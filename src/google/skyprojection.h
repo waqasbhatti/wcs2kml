@@ -27,6 +27,40 @@
 
 namespace google_sky {
 
+// Class for projecting images into Sky
+//
+// This class handles the image warping necessary to transform an image with
+// a valid World Coordinate System (WCS) into the lat-long projection used
+// by Earth.
+//
+// This class tries to guess the output dimensions of the warped image so
+// that the original image will fit inside the warped image with minimal
+// resizing.  The algorithm for doing this breaks down at rotations of 0, 90,
+// 180, and 270, so in those cases it is better to set the output size
+// manually using SetProjectedSize().
+//
+// Example Usage:
+//
+// // Read an image and it's associated FITS file with WCS.
+// PngImage image;
+// image.Read("foo.png");
+// WcsProjection wcs("foo.fits");
+//
+// // This copies pointers to image an wcs, so don't modify them unless you
+// // want projection to see the changes too.  It also automatically determines
+// // the bounding box of the image in ra, dec space.
+// SkyProjection projection(image, wcs);
+//
+// // Warp the image.
+// PngImage warped_image;
+// projection.WarpImage(&warped_image);
+// warped_image.Write("foo_warped.png");
+//
+// // Create a KML GroundOverlay for the warped image.
+// string kml;
+// projection.CreateKmlGroundOverlay("foo_warped.png", "An example overlay",
+//                                   &kml);
+
 class SkyProjection {
  public:
   // Specifies where the origin in pixel space of an image is
