@@ -21,6 +21,55 @@
 
 namespace google_sky {
 
+// Class for storing uint8 pixel values.
+//
+// Color is a simple uint8 array container class that implements bounds
+// checking.  It is designed to be used with the PngImage class which stores
+// a plain uint8 C array underneath.
+//
+// The meaning of the channels (which are simply index by number 0 to 3) changes
+// depending on the colorspace of the image.  For example, an RGB image has
+// 3 channels where R = 0, G = 1, and B = 2.  An image in the grayscale +
+// alpha colorspace has 2 channels where channel 0 = intensity and channel 1 =
+// alpha.  For this reason, it only makes sense to compare Colors that have
+// the same number of channels -- the Equals() and EqualsIgnoringAlpha()
+// will die if the Colors differ in number of channels.
+//
+// One final note is that the convention for the channels is such that the
+// alpha channel is always the last channel.  The EqualsIgnoringAlpha() method
+// will therefore compare every channel except the last one, which only makes
+// sense for grayscale + alpha or RGBA pixels.  Thus, you can compare 2 RGB
+// pixels with EqualsIgnoringAlpha() and it will compare R and G only.  This
+// isn't optimum, but it was done for efficiency reasons to reduce the number
+// of checks needed.  So it is up to you to make sure you use this method
+// properly.
+//
+// Example Usage:
+//
+// // Creates a pixel with 3 channels (RGB).  By default, every pixel value
+// // is set to 0 (black).
+// Color pixel(3);
+//
+// // Makes RGB values gray.
+// pixel.SetAllChannels(128);
+//
+// // Set the G channel to max intensity.
+// pixel.SetChannel(1, 255);
+//
+// // Compare 2 colors.  They must have the same number of channels.
+// Color black(3);
+//
+// if (black.Equals(pixel)) {
+//   printf("Something is very wrong.\n");
+// }
+//
+// // Pass off the internal array to a function that takes a const uint8 * and
+// // its length.
+// DoSomethingWithAConstArray(pixel.get(), pixel.channels());
+//
+// // get() is const overloaded, so we can also pass off a mutable version.
+// DoSomethingWithAMutableArray(pixel.get(), pixel.channels());
+
 class Color {
  public:
   // Creates a color the given number of channels and the color value 0 for

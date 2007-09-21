@@ -13,13 +13,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef KML_H__
-#define KML_H__
-
-#include <cassert>
-#include <string>
-#include <vector>
-
 // Classes for representing the subset of KML used by Sky
 //
 // This collection of classes is by no means a complete description of the KML
@@ -29,42 +22,47 @@
 // An additional consideration was that other KML code inside Google could not
 // be open sourced.
 //
+// This code was written mostly referring to the KML 2.1 reference with a
+// few minor additions from 2.2 for Sky.  See the KML 2.1 reference at
+// http://www.corp.google.com/~robinz/KML21/kml_tags_21.html for more
+// information.
+//
 // The basic idea of this code is that there is a class for each non-trivial
-// tag.  Each tag class implements a ToString(indent_level) method that
-// returns the XML for that tag indented to the proper level.
+// element.  Each element class implements a ToString(indent_level) method that
+// returns the XML for that element indented to the proper level.
 //
 // Because part of the reason for developing this class was to enforce the
-// KML schema at a code level, any required members of the various tag classes
-// that are not present on calls to ToString() will cause the method to
-// die.  See the documentation for each tag class for a list of required
-// members.
+// KML schema at a code level, any required members of the various element
+// classes that are not present on calls to ToString() will cause the method to
+// die (and there are almost always required members).  See the documentation
+// for each element class for a list of required members.
 //
-// Each subtag is represented as a public instance of a template class to
-// reduce the amount of boilerplate code.  The template class, KmlField,
+// Each child element is represented as a public instance of a template class
+// to reduce the amount of boilerplate code.  The template class, KmlField,
 // handles all of the accessor methods, which are complicated by the fact
 // that some fields are required and some are optional.  See the example code
-// below for concrete examples of how to access subtags.
+// below for concrete examples of how to access child element.
 //
 // The exception is that some classes (KML and KmlLineString) can contain more
-// than one subtag of a given type or more than one piece of data for a given
-// tag.  These classes hold vectors of data rather than KmlFields and provide
-// methods Add* and Clear* for adding and removing tags.  Another oddity comes
-// from classes that contain the <coodinates> tag (KmlPoint and KmlLineString).
-// Instead of storing a KmlField<KmlCoordinates> object, they store the
-// components separately, i.e. latitude and longitude.  Aside from these
-// exceptions, the subtags should be named in sensible way that directly
-// mirrors the KML schema.
+// than one child element of a given type or more than one piece of data for a
+// given element.  These classes hold vectors of data rather than KmlFields and
+// provide methods Add* and Clear* for adding and removing elements.  Another
+// oddity comes from classes that contain the <coodinates> element (KmlPoint
+// and KmlLineString).  Instead of storing a KmlField<KmlCoordinates> object,
+// they store the components separately, i.e. latitude and longitude.  Aside
+// from these exceptions, the child elements should be named in sensible way
+// that directly mirrors the KML schema.
 //
-// The tag classes KmlLatLonBox and KmlLatLonAltBox provide a convenience
+// The element classes KmlLatLonBox and KmlLatLonAltBox provide a convenience
 // method FromBoundingBox() for creating them from a BoundingBox object.
 //
 // Example Usage:
 //
 // // We're going to create a KML document containing a single Ground Overlay.
 //
-// // Here, href is a public instance of KmlField<std::string>.  KmlField
-// // supports get(), set(), clear(), and has_value().  This syntax may
-// // appear a bit odd, but it saves many lines of boilerplate accessor code.
+// // Here, href is a public instance of KmlField<string>.  KmlField supports
+// // get(), set(), clear(), and has_value().  This syntax may appear a bit
+// // odd, but it saves many lines of boilerplate accessor code.
 // KmlIcon icon;
 // icon.href.set("foo.png");
 //
@@ -88,11 +86,18 @@
 // ground_overlay.lat_lon_box.set(lat_lon_box);
 // ground_overlay.look_at.set(look_at);
 //
-// Kml kml;
+// KML kml;
 // kml.AddGroundOverlay(ground_overlay);
 //
 // // Get the raw XML string describing the KML.
 // std::string kml_string = kml.ToString();
+
+#ifndef KML_H__
+#define KML_H__
+
+#include <cassert>
+#include <string>
+#include <vector>
 
 namespace google_sky {
 
@@ -311,8 +316,11 @@ class KmlPlacemark {
 // Required fields: none (but the KML is not very interesting then)
 class Kml {
  public:
-  // Creates a KML document with no members.
-  Kml() : ground_overlays_(), placemarks_(), regions_(), network_links_() {
+  // Creates a KML file with Document as the root Feature.  The GroundOverlays,
+  // Placemarks and NetworkLinks are added as children of the Document.  Note
+  // that there is one Region defined for the Document which cascades to all
+  // children.  NetworkLinks should therefore define their own Region.
+  Kml() : region(), ground_overlays_(), placemarks_(), network_links_() {
     // Nothing needed.
   }
 
@@ -341,15 +349,7 @@ class Kml {
   inline void ClearPlacemarks(void) {
     placemarks_.clear();
   }
-  
-  inline void AddRegion(const KmlRegion &region) {
-    regions_.push_back(region);
-  }
-
-  inline void ClearRegions(void) {
-    regions_.clear();
-  }
-  
+   
   inline void AddNetworkLink(const KmlNetworkLink &network_link) {
     network_links_.push_back(network_link);
   }
@@ -358,10 +358,11 @@ class Kml {
     network_links_.clear();
   }
   
+  KmlField<KmlRegion> region;
+  
  private:
   std::vector<KmlGroundOverlay> ground_overlays_;
   std::vector<KmlPlacemark> placemarks_;
-  std::vector<KmlRegion> regions_;
   std::vector<KmlNetworkLink> network_links_;
   
   // Don't allow copying.

@@ -13,19 +13,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef FITS_H__
-#define FITS_H__
-
-#include <string>
-
-// Class for reading FITS files
+// Defines the Fits class for reading FITS files
 //
 // The FITS (Flexible Image Transport System) file format is an astrophysics
 // community standard for sharing binary data and associated metadata.  Its
 // name is a misnomer because 1) not every FITS file is an image and 2) the
 // image data is stored in a raw format, i.e. CCD counts instead of RGB values.
 // A better definition of FITS is that it is an N dimensional binary array
-// storage convention.
+// storage convention.  See http://archive.stsci.edu/fits/fits_standard/ for
+// an overview of the standard.
 //
 // Each FITS file is broken up into a series of Header Data Units (HDUs)
 // containing a header in ascii + binary data.  FITS headers are plain ascii
@@ -59,10 +55,6 @@
 // NAXIS value of 2, although not all FITS files with NAXIS = 2 are images
 // (they could be 2 unrelated arrays).
 //
-// Currently there is only code to read a header from a FITS file and return
-// it as a string.  Eventually this code may be expanded to perform full
-// parsing of FITS headers into a hashmap like data structure.
-//
 // Parsing a FITS header is tricky because the grammar is not regular --
 // strings are written inside single quotes and may extend beyond the normal
 // length of values on a line.  In addition, strings are left justified and
@@ -76,17 +68,33 @@
 // of 2880 and try to determine if you are looking at a header or data portion,
 // which is complicated by the fact that the pad character for headers is
 // legal to include in the middle of the header.
+
+#ifndef FITS_H__
+#define FITS_H__
+
+#include <string>
+
+namespace google_sky {
+
+// Class for reading FITS files
+//
+// Currently the Fits class is a static class consisting of very basic
+// methods for reading FITS headers, checking for keywords, reading integer
+// keywords, and adding the NAXIS1 and NAXIS2 if not present (they are required
+// by WCS Tools to function properly).
+//
+// A more sophisticated and proper class would be able to parse FITS headers
+// into a hashmap-like data structure and read image data.  Eventually this
+// class may be expanded to handle this.
 //
 // Example Usage:
 //
 // // Reads the primary header.
-// std::string header;
+// string header;
 // Fits::ReadHeader("foo.fits", 0, &header);
 //
 // // Adds in image dimensions if not present.
 // Fits::AddImageDimensions(width, height, &header);
-
-namespace google_sky {
 
 class Fits {
  public:

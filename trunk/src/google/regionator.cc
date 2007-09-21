@@ -84,11 +84,19 @@ Regionator::Regionator(const PngImage &image,
   assert(image.height() > 1);
   assert(image.colorspace() == PngImage::RGBA);
   image_ = &image;
-  SetMaxTileSideLength(256);
   output_directory_ = "tiles";
   filename_prefix_ = "tile";
   root_kml_ = "root.kml";
   draw_tile_borders_ = false;
+
+  // NB: The values of min_lod_pixels_ and the max tile size are related.
+  // If one uses a quad tree hierarchy with min_lod_pixels_ = tile_size / 2
+  // Presuming a quadtree hierarchy min_lod_pixels = tile_size/2,
+  // this makes the tile visible in screen space while that screen space
+  // is between 128^2 and 256^2 pixels, hence the tile is never stretched.
+  // If we used min_lod_pixels = tile_size, the image would always be
+  // stretched.
+  SetMaxTileSideLength(256);
   min_lod_pixels_ = 128;
   max_lod_pixels_ = -1;
   
@@ -289,15 +297,17 @@ void Regionator::SplitTileRecursively(int level, int x1, int y1,
   KmlIcon icon;
   icon.href.set(filename);
 
-  // The draw order is set so that all tiles in a given level have the
-  // same value.
   KmlGroundOverlay ground_overlay;
+
+  // Set the drawOrder of the finer grain tiles higher such that they are
+  // drawn on top of the lower res tiles.  Note that all tiles in a given
+  // level will have the same drawOrder.
   ground_overlay.draw_order.set(level + top_level_draw_order_);
   ground_overlay.icon.set(icon);
   ground_overlay.lat_lon_box.set(lat_lon_alt_box);
 
   Kml kml;
-  kml.AddRegion(region);
+  kml.region.set(region);
   kml.AddGroundOverlay(ground_overlay);
 
   // Draw a border around this image.
@@ -405,6 +415,9 @@ KmlNetworkLink Regionator::MakeNetworkLink(int x1, int y1,
   lat_lon_alt_box.east.set(east);
   lat_lon_alt_box.west.set(west);
 
+  // NB: It is important to use max_lod_pixels = -1 so that the user won't
+  // "fly under" the feature shown.  The value of max_lod_pixels was left as
+  // an option for generality but should almost always be -1 for Super Overlays.
   KmlLod lod;
   lod.min_lod_pixels.set(min_lod_pixels_);
   lod.max_lod_pixels.set(max_lod_pixels_);
