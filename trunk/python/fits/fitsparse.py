@@ -13,6 +13,10 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+#
+# Changelist:
+#
+# 9/25/07   Added call to fits_simple_verify() to verify input file is FITS.
 
 """
 Convert a FITS data table into a container with the ability to
@@ -21,6 +25,7 @@ write out a valid KML Placemark.
 
 import sys
 import os
+import fitslib
 import pyfits
 
 
@@ -155,6 +160,7 @@ def FITSParse(fitsFile,orderbyField='',hdu=1,surveyName=''):
   placemark data for each object.
   """
 
+  fitslib.fits_simple_verify(fitsFile)
   hduList = pyfits.open(fitsFile)
 
   if len(surveyName) == 0:

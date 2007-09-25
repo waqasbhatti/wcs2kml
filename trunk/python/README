@@ -2,14 +2,35 @@ To install, run 'python setup.py install' or copy the modules (everything
 not in the scripts subdirectory, including the fits directory) to any directory
 listed in your PYTHONPATH environment variable.
 
+The Python version of wcs2kml was intended as a sort of "get your feet wet"
+introduction to wcs2kml that is easier to install.  If you find yourself
+wanting more from wcs2kml, you should try out the C++ version (or work on
+improving the Python version and submit a patch).
+
+Limitations of Python wcs2kml:
+- Doesn't handle poles
+- Doesn't regionate imagery on output
+- Fewer options controlling output
+- Much slower
+- Not as thoroughly tested
+
+Advantages of Python wcs2mkl:
+- Generates KMZ file automatically
+- Will convert FITS to raster format automatically
+
 Imagery related scripts:
 
-fits2png.py -- Creates PNG image from a FITS file (see fitsimage.py for
-               more control over the output).
-ext2fits.py -- Creates a set of single extension FITS images from a
-               multi-extension FITS image.
-wcs2fits.py -- Creates a FITS header from an ascii file containing FITS-like
-               keywords with a WCS.
+fits2png.py                  -- Creates s PNG image from a FITS file (see 
+                                fitsimage.py for more information)
+ext2fits.py                  -- Creates a set of single extension FITS images
+                                from a multi-extension FITS image.
+wcs2fits.py                  -- Creates a FITS header from an ascii file
+                                containing FITS-like keywords with a WCS.
+wcs2kml.py                   -- Python version of wcs2kml
+regionated_dir_compressor.py -- Compresses a directory of tiles as output by
+                                the --regionate flag. Only opaque tiles are
+                                compressed, preserving transparency where
+                                needed.  Usually gains 2-3x compression.
 
 Placemark related scripts:
 
@@ -19,7 +40,7 @@ regionate_fits.py -- Similar to fits2kml.py, but generates regionated output.
 
 Modules:
 
-fitslib.py             -- FITS reading/writing library
+fitslib.py             -- supplemental FITS reading/writing library
 wcslib.py              -- WCS library (only supports TAN and TAN-SIPS)
 fitsimage.py           -- Module for treating FITS images as Python Imaging
                           Library objects.

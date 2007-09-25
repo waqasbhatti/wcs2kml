@@ -1,8 +1,0 @@
-Descriptions of scripts:
-
-fits2png.py -- Creates PNG image from a FITS file (see fitsimage.py for
-               more control over the output)
-ext2fits.py -- Creates a set of single extension FITS images from a
-               multi-extension FITS image
-wcs2fits.py -- Creates a FITS header from an ascii file containing FITS-like
-               keywords with a WCS

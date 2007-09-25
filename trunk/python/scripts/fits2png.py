@@ -95,8 +95,7 @@ def main(argv):
     sys.stderr.write("Converting '%s'... " % fitsfile)
     image = fitsimage.FitsImage(fitsfile, contrast=flags.contrast,
                                 contrast_opts=contrast_opts, scale=flags.scale,
-                                scale_opts=scale_opts,
-                                allow_repeat_keywords=True)
+                                scale_opts=scale_opts)
     image.save(pngfile)
     sys.stderr.write("done\n")
 

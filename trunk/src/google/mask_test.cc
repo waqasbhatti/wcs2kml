@@ -75,6 +75,32 @@ int Main(int argc, char **argv) {
     assert(image.Equals(true_masked_image));
   }
 
+  // Test SetAlphaChannelFromMask() for grayscale + alpha.
+  {
+    PngImage image;
+    assert(image.Read(PNG_MASK_TEST_FILENAME));
+    
+    // Test images have a small black border.  The automasking should get
+    // rid of it completely.
+    Color black(4);
+    black.SetChannels(0, 3, 0);
+    black.SetChannel(3, 255);
+    
+    PngImage mask;
+    Mask::CreateMask(image, black, &mask);
+    
+    assert(image.ConvertToGrayscalePlusAlpha());
+    
+    // Apply the mask.
+    Mask::SetAlphaChannelFromMask(mask, &image);
+    
+    // Compare to previous results.
+    PngImage true_masked_image;
+    assert(true_masked_image.Read(PNG_MASK_TRUE_FILENAME));
+    assert(true_masked_image.ConvertToGrayscalePlusAlpha());
+    assert(image.Equals(true_masked_image));
+  }
+
   return 0;
 }
 

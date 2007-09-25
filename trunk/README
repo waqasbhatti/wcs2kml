@@ -1,6 +1,13 @@
 wcs2kml version 0.2
 Jeremy Brewer
 
+What's new in 0.2:
+- Reduced memory footprint for C++ code
+- Smart regionated tile compressor script (regionated_dir_compressor.py)
+- Unit tests for C++ code added
+- Python version migrated to pyfits and numpy
+- Various bug fixes and minor API changes
+
 This package contains code for importing astronomical images into Sky
 in Google Earth.  This process consists of warping the input image
 to lat-lon projection and writing the bounding box in spherical
@@ -257,6 +264,13 @@ image first, then as users zoom closer to the image higher resolution images
 will be loaded.  The --regionate flag will create an efficient hierarchy
 of increasing resolution for you.
 
+Even though regionated images will load more efficiently, sometimes this isn't
+enough.  The regionated_dir_compressor.py script will compress opaque tiles
+to JPEG (using the specified quality), which usually saves a factor of 2-3
+for the default quality = 60.  Because transparency is preserved, the
+compressed tile set should appear identical when viewed in Sky (unless the
+quality is set very low).
+
 There are two options that control how Earth loads a new image from disk
 or network.  These are the <minLodPixels> and <maxLodPixels> KML
 tags, which can be adjusted using corresponding flags above.  The
@@ -294,7 +308,7 @@ ext2fits.py -- Converts multi-extension FITS images to a set of single
 wcs2fits.py -- Takes an ascii file containing a WCS and writes it to a valid
                FITS file containing a single header
 
-These scripts make use of pyfits and the gestalt 
+These scripts make use of pyfits and the Gestalt 
 (http://nvogre.phyast.pitt.edu/wcs/) Python libraries for reading and 
 writing FITS images.  In particular, the following Python modules can be 
 used to easily deal with a variety of problems that might arise when 
@@ -309,17 +323,13 @@ utilize pyfits for the lower level FITS parsing.
 
 fitslib.py
 
-This is a simple Python FITS library that implements a very pyfits-like 
-API for manipulating FITS images.  It only supports FITS images.
-
-I wrote fitslib after developing several simple FITS parsing functions 
-for diagnosing odd FITS files that were causing trouble for pyfits.  
-We are currently in the process of merging the useful bits of fitslib 
-back into pyfits, but there are a few parsing functions in fitslib 
-that aren't in pyfits that you may find useful when dealing with FITS 
-images.  The wcs2fits.py script, for example, uses the lower level 
-parse_card() function to easily parse FITS-like headers that may contain 
-newlines.
+This is a set of supplemental FITS reading functions that can be useful when
+you need to debug a particularly troublesome FITS file.  For example, you
+can use the find_hdus() function to determine the HDU layout of a FITS file or
+use parse_card() to parse FITS-like headers that might contain newlines (the
+included wcs2fits.py script does exactly this).  There is also a quick
+verification function fits_simple_verify() that can be useful for checking
+FITS validity.
 
 fitsimage.py
 
@@ -336,7 +346,7 @@ wcslib.py
 
 Provides WCS projection for TAN and TAN-SIPS.  Used by wcs2kml.py for its
 projection.  Unfortunately, epoch shifts aren't supported.  Use the C++ 
-API if you need more.
+API (which provides a wrapper for WCS Tools) if you need more.
 
 Using the C++ API:
 
