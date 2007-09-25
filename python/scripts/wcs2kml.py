@@ -14,6 +14,14 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+#
+# Changelog:
+#
+# 9/25/07  Added call to fits_simple_verify() to verify input file is FITS.
+#
+# 9/19/07  Replaced the fitslib.py module with the pyfits library.
+#          Modification made by Christopher Hanley, Space Telescope Science
+#          Institute.
 
 """
 Converts an image with WCS information to KML + warped image
@@ -25,14 +33,16 @@ Google Earth.
 Example usage:
 wcs2kml.py --imagefile=<raster image> --fitsfile=<FITS file with WCS>
 
-If the given imagefile is a FITS file, then it will automatically be converted
-into raster format using the fitsimage module.
+If the given imagefile is a FITS file, then only supply the --imagefile
+flag (ignoring --fitsfile) and it will automatically be converted to raster
+format using the fitsimage module.
 
 Requirements:
 - Python 2.3 or newer
 - Python Imaging Library (Image)
-- Numeric
-- Included FITS libraries: fitslib, fitsimage, and wcslib
+- pyfits
+- numpy
+- Included FITS libraries: fitslib, fitsimage and wcslib
 """
 
 import os
@@ -41,6 +51,7 @@ import math
 import getopt
 import time
 import fitslib
+import pyfits
 import fitsimage
 import wcslib
 import Image
@@ -869,10 +880,12 @@ def main(argv):
   # Determine if the input image is a FITS file.
   is_fits_file = True
   try:
-    fits = fitslib.Fits(imagefile)
-    fits.close()
+    fitslib.fits_simple_verify(imagefile)
   except (IOError, ValueError, EOFError):
     is_fits_file = False
+    if not fitsfile:
+      print "Error: no FITS file input for --fitsfile"
+      sys.exit(2)
 
   # Convert input FITS images to raster format if the --fitsfile option has
   # not been given.
@@ -895,14 +908,15 @@ def main(argv):
   # Read the WCS.
   sys.stdout.write("Reading WCS from %s... " % fitsfile)
   sys.stdout.flush()
-  fits = fitslib.Fits(fitsfile)
+  fitslib.fits_simple_verify(fitsfile)
+  fits = pyfits.open(fitsfile)
   try:
     header = fits[0].header
     wcs = wcslib.WcsProjection(header)
   finally:
     fits.close()
   sys.stdout.write("done\n")
- 
+  
   # Set the various warping options and warp the input image.
   projection = SkyProjection(image, wcs)
   projection.backgroundColor = (0, 0, 0, 0)

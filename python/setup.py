@@ -35,7 +35,7 @@ scripts = ["scripts/ext2fits.py",
 # Names of subdirectories.
 packages = ["fits"]
 
-distutils.core.setup(name="wcs2mkl", version="0.1",
+distutils.core.setup(name="wcs2mkl", version="0.2",
                      description="Sky in Google Earth utilities",
                      py_modules=py_modules,
                      scripts=scripts,

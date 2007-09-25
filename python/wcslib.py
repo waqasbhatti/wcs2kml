@@ -33,6 +33,12 @@
 #
 # Changelog:
 #
+# 9/25/07 Added call to fits_simple_verify() to verify input file is FITS.
+#
+# 9/14/07 Replaced fitslib.py with pyfits module.  Modification made by
+#         Christopher Hanley, Space Telescope Science Institute
+#
+#
 # 8/7/07  Added support for converting CDELT based WCS information to a
 #         CD matrix representation.  In addition, the CD matrix inverse is
 #         computed and cached upon instantiation now.
@@ -44,10 +50,10 @@ All WCS projections follow a simple interface and are created by a factory
 function that determines the proper class to return.    This is best
 illustrated with a small example:
 
-import fitslib
+import pyfits
 import wcslib
 
-fits = fitslib.Fits("foo.fits")
+fits = pyfits.open("foo.fits")
 hdr = fits[0].header
 
 # hdr can be any dictionary-like object with FITS keywords as keys
@@ -528,14 +534,15 @@ def WcsProjection(hdr, autoflip=True):
 if __name__ == "__main__":
     import sys
     import os
-    import fitslib
+    import pyfits
     
     if len(sys.argv) != 2:
         print "Usage: %s <fits file>" % os.path.basename(sys.argv[0])
         sys.exit(2)
     
     fitsfile = sys.argv[1]
-    fits = fitslib.Fits(fitsfile)
+    fitslib.fits_simple_verify(fitsfile)
+    fits = pyfits.open(fitsfile)
     hdr = fits[0].header
     wcs = WcsProjection(hdr)
 

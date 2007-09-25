@@ -33,6 +33,13 @@
 #
 # Changelog:
 #
+# 9/25/07   Added call to fits_simple_verify() to verify input file is FITS.
+#           Removed kwargs from FitsImage() because pyfits doesn't use them.
+#
+# 9/14/07   Change array usage from Numeric to numpy.  Changed underlying
+#           FITS I/O library from fitslib to pyfits.  Modifications made
+#           by Christopher Hanley.
+#
 # 8/20/07   Write arcsinh scaling algorithm and adding scaling options.
 #           Updated documentation.  Dropped number of channels check on
 #           color -- PIL should handle this instead.
@@ -92,10 +99,11 @@ import os
 import sys
 import cmath
 import fitslib
+import pyfits
 import pointarray
 import Image
 import ImageDraw
-import Numeric
+import numpy
 
 def zscale_range(image_data, contrast=0.25, num_points=600, num_per_row=120):
 
@@ -131,8 +139,8 @@ def zscale_range(image_data, contrast=0.25, num_points=600, num_per_row=120):
         contrast = 1.0
 
     # check number of points to use is sane
-    if num_points > Numeric.size(image_data) or num_points < 0:
-        num_points = 0.5 * Numeric.size(image_data)
+    if num_points > numpy.size(image_data) or num_points < 0:
+        num_points = 0.5 * numpy.size(image_data)
 
     # determine the number of points in each column
     num_per_col = int(float(num_points) / float(num_per_row) + 0.5)
@@ -238,8 +246,8 @@ def percentile_range(image_data, min_percent=3.0, max_percent=99.0,
         raise ValueError("input data is not an image")
 
     # check number of points to use is sane
-    if num_points > Numeric.size(image_data) or num_points < 0:
-        num_points = 0.5 * Numeric.size(image_data)
+    if num_points > numpy.size(image_data) or num_points < 0:
+        num_points = 0.5 * numpy.size(image_data)
 
     # determine the number of points in each column
     num_per_col = int(float(num_points) / float(num_per_row) + 0.5)
@@ -267,7 +275,7 @@ def percentile_range(image_data, min_percent=3.0, max_percent=99.0,
     return zmin, zmax
 
 def FitsImage(fitsfile, contrast="zscale", contrast_opts={}, scale="linear",
-              scale_opts={}, **kwargs):
+              scale_opts={}):
 
     """
     Constructor-like function that returns a Python Imaging Library (PIL)
@@ -275,7 +283,7 @@ def FitsImage(fitsfile, contrast="zscale", contrast_opts={}, scale="linear",
     FITs files as images.  The contrast is automatically adjusted using the
     zscale algorithm (see zscale_range() above).
 
-    Input:  fitsfile      -- a FITS image filename or file object
+    Input:  fitsfile      -- a FITS image filename
             contrast      -- the algorithm for determining the min/max
                              values in the FITS pixel data to use when
                              compressing the dynamic range of the FITS
@@ -299,7 +307,8 @@ def FitsImage(fitsfile, contrast="zscale", contrast_opts={}, scale="linear",
         raise ValueError("invalid scale value '%s'" % scale)
 
     # open the fits file and read the image data and size
-    fits = fitslib.Fits(fitsfile, **kwargs)
+    fitslib.fits_simple_verify(fitsfile)
+    fits = pyfits.open(fitsfile)
 
     try:
         hdr = fits[0].header
@@ -329,8 +338,8 @@ def FitsImage(fitsfile, contrast="zscale", contrast_opts={}, scale="linear",
 
     # set all points less than zmin to zmin and points greater than
     # zmax to zmax
-    fits_data = Numeric.where(fits_data > zmin, fits_data, zmin)
-    fits_data = Numeric.where(fits_data < zmax, fits_data, zmax)
+    fits_data = numpy.where(fits_data > zmin, fits_data, zmin)
+    fits_data = numpy.where(fits_data < zmax, fits_data, zmax)
 
     if scale == "linear":
         scaled_data = (fits_data - zmin) * (255.0 / (zmax - zmin)) + 0.5
@@ -342,10 +351,10 @@ def FitsImage(fitsfile, contrast="zscale", contrast_opts={}, scale="linear",
         nonlinearity = max(nonlinearity, 0.001)
         max_asinh = cmath.asinh(nonlinearity).real
         scaled_data = (255.0 / max_asinh) * \
-                      (Numeric.arcsinh((fits_data - zmin) * \
-                                       (nonlinearity / (zmax - zmin))))
+                      (numpy.arcsinh((fits_data - zmin) * \
+                                     (nonlinearity / (zmax - zmin))))
 
-    # convert to 8 bit unsigned int ("b" in Numeric)
+    # convert to 8 bit unsigned int ("b" in numpy)
     scaled_data = scaled_data.astype("b")
     
     # create the image
@@ -388,24 +397,10 @@ def main(argv):
         print "Input file will be converted to JPEG"
         sys.exit(2)
    
-    # FITs image to open and
+    # FITS image to open and JPEG counterpart
     fitsfile = argv[1]
     name, ext = os.path.splitext(fitsfile)
     jpegfile = "%s.jpg" % name
-
-    # open the fits image and read the image dimensions
-    start = time.time()
-    fits = fitslib.Fits(fitsfile)
-
-    try:
-        hdr = fits[0].header
-        xsize = hdr["NAXIS1"]
-        ysize = hdr["NAXIS2"]
-    finally:
-        fits.close()
-
-    stop = time.time()
-    print "Reading FITS header took %f sec" % (stop - start)
 
     # open as PIL object
     start = time.time()
