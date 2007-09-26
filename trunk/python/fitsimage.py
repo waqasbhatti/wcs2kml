@@ -358,7 +358,7 @@ def FitsImage(fitsfile, contrast="zscale", contrast_opts={}, scale="linear",
     scaled_data = scaled_data.astype("b")
     
     # create the image
-    image = Image.frombuffer("L", (xsize, ysize), scaled_data)
+    image = Image.frombuffer("L", (xsize, ysize), scaled_data, "raw", "L", 0, 0)
     return image
 
 def draw_circle(image, x, y, radius, color):
