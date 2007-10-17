@@ -33,6 +33,9 @@
 #
 # Changelog:
 #
+# 10/17/07  Added manual range selection to FitsImage.  Fixed typecode for
+#           numpy to use unsigned 8 bit integers.
+#
 # 9/25/07   Added call to fits_simple_verify() to verify input file is FITS.
 #           Removed kwargs from FitsImage() because pyfits doesn't use them.
 #
@@ -280,7 +283,7 @@ def FitsImage(fitsfile, contrast="zscale", contrast_opts={}, scale="linear",
     """
     Constructor-like function that returns a Python Imaging Library (PIL)
     Image object.  This allows extremely easy and powerful manipulation of
-    FITs files as images.  The contrast is automatically adjusted using the
+    FITS files as images.  The contrast is automatically adjusted using the
     zscale algorithm (see zscale_range() above).
 
     Input:  fitsfile      -- a FITS image filename
@@ -288,7 +291,7 @@ def FitsImage(fitsfile, contrast="zscale", contrast_opts={}, scale="linear",
                              values in the FITS pixel data to use when
                              compressing the dynamic range of the FITS
                              data to something visible by the eye, either
-                             "zscale" or "percentile"
+                             "zscale", "percentile", or "manual"
             contrast_opts -- options for the contrast algorithm, see
                              the optional args of [contrast]_range()
                              for what to name the keys
@@ -301,7 +304,7 @@ def FitsImage(fitsfile, contrast="zscale", contrast_opts={}, scale="linear",
                              which has a default value of 3
     """
 
-    if contrast not in ("zscale", "percentile"):
+    if contrast not in ("zscale", "percentile", "manual"):
         raise ValueError("invalid contrast algorithm '%s'" % contrast)
     if scale not in ("linear", "arcsinh"):
         raise ValueError("invalid scale value '%s'" % scale)
@@ -335,6 +338,13 @@ def FitsImage(fitsfile, contrast="zscale", contrast_opts={}, scale="linear",
                                       max_percent=max_percent,
                                       num_points=num_points,
                                       num_per_row=num_per_row)
+    elif contrast == "manual":
+        zmin = contrast_opts.get("min", None)
+        zmax = contrast_opts.get("max", None)
+        if zmin is None:
+            zmin = data.min()
+        if zmax is None:
+            zmax = data.max()
 
     # set all points less than zmin to zmin and points greater than
     # zmax to zmax
@@ -354,8 +364,8 @@ def FitsImage(fitsfile, contrast="zscale", contrast_opts={}, scale="linear",
                       (numpy.arcsinh((fits_data - zmin) * \
                                      (nonlinearity / (zmax - zmin))))
 
-    # convert to 8 bit unsigned int ("b" in numpy)
-    scaled_data = scaled_data.astype("b")
+    # convert to 8 bit unsigned int
+    scaled_data = scaled_data.astype("B")
     
     # create the image
     image = Image.frombuffer("L", (xsize, ysize), scaled_data, "raw", "L", 0, 0)
@@ -416,3 +426,4 @@ def main(argv):
 
 if __name__ == "__main__":
     main(sys.argv)
+
