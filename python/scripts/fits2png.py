@@ -30,8 +30,8 @@ def main(argv):
 
   # Options controlling how to perform the autocontrast and scaling.
   parser.add_option("--contrast", "-c", default="zscale", type="string",
-                    help="autocontrast algorithm to apply, either 'zscale' " \
-                         "or 'percentile', default %default")
+                    help="autocontrast algorithm to apply, either 'zscale', " \
+                         "'percentile', or 'manual', default %default")
   parser.add_option("--scale", "-s", default="linear", type="string",
                     help="how to scale pixel values between min and max, " \
                          "either 'linear' or 'arcsinh', default %default")
@@ -51,6 +51,12 @@ def main(argv):
                     help="black level for percentile")
   parser.add_option("--max_percent", default=99.5, type="float",
                     help="white level for percentile")
+
+  # Options controlling manual contrast.
+  parser.add_option("--min", default=0.0, type="float",
+                    help="black level for manual")
+  parser.add_option("--max", default=32768.0, type="float",
+                    help="white level for manual")
 
   # Options controlling arcsinh scaling.
   parser.add_option("--nonlinearity", default=3.0, type="float",
@@ -73,6 +79,9 @@ def main(argv):
   elif flags.contrast == "percentile":
     contrast_opts["min_percent"] = flags.min_percent
     contrast_opts["max_percent"] = flags.max_percent
+  elif flags.contrast == "manual":
+    contrast_opts["min"] = flags.min
+    contrast_opts["max"] = flags.max
   else:
     print "Error: invalid contrast algorithm '%s'" % flags.contrast
     sys.exit(2)
