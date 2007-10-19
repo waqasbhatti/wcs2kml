@@ -33,6 +33,9 @@
 #
 # Changelog:
 #
+# 10/19/07 Removed NAXIS syncing code when updating NAXIS1, NAXIS2, etc. since
+#          it was buggy.  Improved code for writing EXTEND keyword.
+#
 # 10/17/07 Re-added Fits class to improve backwards compatibility.  The Fits
 #          class is deprecated in favor of pyfits but we should try to maintain
 #          some compatibility with the older codebase.  Fixed bug when adding
@@ -106,7 +109,7 @@ Limitations compared to pyfits:
 __author__ = "Jeremy Brewer (jeremy.d.brewer@gmail.com)"
 __copyright__ = "Copyright 2005, 2006, 2007 Jeremy Brewer"
 __license__ = "BSD"
-__version__ = "1.05"
+__version__ = "1.06"
 
 import os
 import sys
@@ -729,18 +732,17 @@ class Header(object):
                 except ValueError:
                     raise KeyError("previous key '%s' not found" % prev_key)
             
-            # only add the NAXIS keyword if not present
+            # only add the NAXISx keyword if not present
             if old_value is None:
                 self._keys.insert(j + 1, key)
-                self._values["NAXIS"] = i
         elif key == "EXTEND":
             # find the last NAXIS keyword
             for i in xrange(999):
                 naxis_key = "NAXIS%d" % i
                 if naxis_key not in self._values:
                     break
-
-            self._keys.insert(i + 1, key)
+            if old_value is None:
+                self._keys.insert(i + 1, key)
         else:
             # for normal keywords, only change position if the keyword isn't
             # present
