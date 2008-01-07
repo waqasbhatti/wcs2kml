@@ -1,5 +1,13 @@
-wcs2kml version 0.2
+wcs2kml version 0.2.1
 Jeremy Brewer
+
+What's new in 0.2.1:
+- Added Makefile.normal in src/google that should help users who are 
+  having autoconf/automake troubles
+- All headers from WCS Tools are now installed (an installer bug)
+- Cleaned up code for creating/testing for directories
+- Small Python bug fixes
+- Restored Fits class to fitslib.py (for maintenence reasons)
 
 What's new in 0.2:
 - Reduced memory footprint for C++ code
@@ -80,6 +88,14 @@ wcs2kml, type 'make check' to build and run a series of tests.  All of
 the tests should pass, and if not, you should try to determine why 
 before continuing.
 
+If the above fails, a standard and much simpler Makefile is included in 
+the src/google subdirectory named 'Makefile.normal'.  By editing the 
+contents of that file, you may be able to work around autoconf/automake
+issues.  To use this  file, type 'make -f Makefile.normal' after 
+updating it with the location of the various libraries.  Unlike the 
+automake/autoconf approach, Makefile.normal only builds the wcs2kml 
+executable.
+
 Finally, to run wcs2kml, you will need to include the prefix/lib directory
 in your dynamic library path.  On Linux, you need to set the LD_LIBRARY_PATH
 to include prefix/lib (e.g. export LD_LIBRARY_PATH=/prefix/lib for bash).
@@ -104,8 +120,16 @@ prefix/include/google/stringprintf.h
 prefix/include/google/uint8.h
 prefix/include/google/wcsprojection.h
 prefix/include/google/wraparound.h
-prefix/include/wcs.h (from the WCS Tools package, used by wcsprojection.h)
-prefix/lib/libwcs2kml.* (the library extensions vary with platform)
+prefix/include/fitsfile1.h (from WCS Tools, needed by wcsprojection.h)
+prefix/include/fitsfile.h  (from WCS Tools, needed by wcsprojection.h)
+prefix/include/fitshead.h  (from WCS Tools, needed by wcsprojection.h)
+prefix/include/imio.h      (from WCS Tools, needed by wcsprojection.h)
+prefix/include/lwcs.h      (from WCS Tools, needed by wcsprojection.h)
+prefix/include/wcscat1.h   (from WCS Tools, needed by wcsprojection.h)
+prefix/include/wcscat.h    (from WCS Tools, needed by wcsprojection.h)
+prefix/include/wcs.h       (from WCS Tools, needed by wcsprojection.h)
+prefix/include/wcslib.h    (from WCS Tools, needed by wcsprojection.h)
+prefix/lib/libwcs2kml.*    (the library extensions vary with platform)
 
 Note: WCS Tools is statically compiled and linked into libwcs2kml.  We 
 provide a C++ wrapper API that we use for all uses of WCS Tools.
