@@ -21,4 +21,6 @@ libwcs_la_SOURCES = imsetwcs.c imgetwcs.c matchstar.c findstar.c daoread.c \
 
 # Headers to install.
 libwcsincludedir = $(includedir)
-libwcsinclude_HEADERS = wcs.h
+libwcsinclude_HEADERS = fitsfile1.h fitsfile.h fitshead.h imio.h lwcs.h \
+                        wcscat1.h wcscat.h wcs.h wcslib.h
+

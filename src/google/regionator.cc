@@ -18,6 +18,9 @@
 #include <cassert>
 #include <cstdio>
 #include <cstdlib>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <unistd.h>
 #include <google/boundingbox.h>
 #include <google/color.h>
 #include <google/kml.h>
@@ -44,33 +47,20 @@ inline int Min(int x, int y) {
   }
 }
 
-// Silently runs a command and returns the status code (a bit hackish).
-int RunCommand(const std::string &command) {
-  std::string full_command;
-  google_sky::StringPrintf(&full_command, STR_BUFSIZE, "( %s ) > tmp 2> tmp2",
-                           command.c_str());
-  int status_code = system(full_command.c_str());
-  if (remove("tmp") != 0) {
-    fprintf(stderr, "\nCouldn't clean up tmp file\n");
-    exit(EXIT_FAILURE);
-  }
-  if (remove("tmp2") != 0) {
-    fprintf(stderr, "\nCouldn't clean up tmp2 file\n");
-    exit(EXIT_FAILURE);
-  }
-  return status_code;
-}
-
 // Determines whether a directory exists.
 bool IsDirectory(const std::string &path) {
-  int status_code = RunCommand("ls " + path + "/");
-  return status_code == 0;
+  struct stat file_stat;
+  if (stat(path.c_str(), &file_stat) == 0) {
+    return S_ISDIR(file_stat.st_mode);
+  } else {
+    return false;
+  }
 }
 
 // Creates a directory and returns whether it was successful.
 bool CreateDirectory(const std::string &path) {
-  int status_code = RunCommand("mkdir " + path);
-  return status_code == 0;
+  return mkdir(path.c_str(),
+               S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH) == 0;
 }
 
 }  // end anonymous namespace
