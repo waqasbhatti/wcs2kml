@@ -33,13 +33,17 @@
 #
 # Changelog:
 #
+# 3/31/08   Fixed overflow errors that were occuring when zscale_range was
+#           returning weird types for zmin and zmax.  Now we force zmin & zmax
+#           to be of builtin type float for safety.
+#
 # 10/17/07  Added manual range selection to FitsImage.  Fixed typecode for
 #           numpy to use unsigned 8 bit integers.
 #
 # 9/25/07   Added call to fits_simple_verify() to verify input file is FITS.
 #           Removed kwargs from FitsImage() because pyfits doesn't use them.
 #
-# 9/14/07   Change array usage from Numeric to numpy.  Changed underlying
+# 9/14/07   Changed array usage from Numeric to numpy.  Changed underlying
 #           FITS I/O library from fitslib to pyfits.  Modifications made
 #           by Christopher Hanley.
 #
@@ -346,8 +350,12 @@ def FitsImage(fitsfile, contrast="zscale", contrast_opts={}, scale="linear",
         if zmax is None:
             zmax = data.max()
 
-    # set all points less than zmin to zmin and points greater than
-    # zmax to zmax
+    # sometimes the zscale_range or other numpy routines return different types
+    # for zmin and zmax (e.g. float32 and float64), which results in overflow
+    # errors below
+    zmin = float(zmin)
+    zmax = float(zmax)
+    
     fits_data = numpy.where(fits_data > zmin, fits_data, zmin)
     fits_data = numpy.where(fits_data < zmax, fits_data, zmax)
 
