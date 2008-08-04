@@ -394,7 +394,6 @@ A: Experience has taught us that there are a lot of odd WCS headers out
    - There isn't an EQUINOX or EPOCH keyword
    - There isn't a full CD matrix or CDELT pair
    - There aren't both CRPIX and CRVAL values
-   - There are more than 2 WCS axes (e.g CDELT3 values).
 
    If you have a FITS file that fails to meet these requirements, see the
    workaround section for how you can strip out a wcs2kml friendly WCS.
@@ -426,7 +425,8 @@ A: No, wcs2kml reads the image dimensions from the PNG image directly.  If
    complain and exit.
 
    If the FITS image has NAXIS1 and NAXIS2 values that differ from the
-   PNG image dimensions, wcs2kml point this out and exit.
+   PNG image dimensions, wcs2kml point this out and exit.  Additionally,
+   wcs2kml will ensure that the value of NAXIS is >= 2 in this case.
 
 Q: Does wcs2kml handle images that cross the poles and/or the 0-360 border
    in right ascension?

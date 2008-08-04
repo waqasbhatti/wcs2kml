@@ -31,9 +31,6 @@ static const char *WCS_CD_KEYWORDS[8] = {"CD1_1", "CD1_2", "CD2_1", "CD2_2",
 static const int WCS_CD_KEYWORDS_LEN = 8;
 static const char *WCS_CDELT_KEYWORDS[2] = {"CDELT1", "CDELT2"};
 static const int WCS_CDELT_KEYWORDS_LEN = 2;
-static const char *WCS_CDELT_BAD_KEYWORDS[4] = {"CDELT3", "CTYPE3", "CRPIX3",
-                                                "CRVAL3"};
-static const int WCS_CDELT_BAD_KEYWORDS_LEN = 4;
 
 }  // end anonymous namespace
 
@@ -166,16 +163,6 @@ void WcsProjection::DieIfBadWcs(const std::string &header) {
     if (!has_cdelt) {
       fprintf(stderr, "Couldn't find a complete set of CD matrix or CDELT "
                       "keywords\n");
-      exit(EXIT_FAILURE);
-    }
-  }
-  
-  // Check for really weird WCS values.  If these keywords are present then
-  // the return coordinates from wcstools are inexplicably incorrect.
-  for (int i = 0; i < WCS_CDELT_BAD_KEYWORDS_LEN; ++i) {
-    if (Fits::HeaderHasKeyword(header, WCS_CDELT_BAD_KEYWORDS[i])) {
-      fprintf(stderr, "Found weird set of CDELT values; remove the "
-                      "following: %s\n", WCS_CDELT_BAD_KEYWORDS[i]);
       exit(EXIT_FAILURE);
     }
   }

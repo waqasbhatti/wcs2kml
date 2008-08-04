@@ -166,6 +166,13 @@ int Main(int argc, char **argv) {
     printf("no\n");
   }
   
+  double ra_min, ra_max;
+  double dec_min, dec_max;
+  bounding_box.GetWrappedRaBounds(&ra_min, &ra_max);
+  bounding_box.GetDecBounds(&dec_min, &dec_max);
+  printf("Range in ra is %.8f to %.8f\n", ra_min, ra_max);
+  printf("Range in dec is %.8f to %.8f\n", dec_min, dec_max);
+  
   // FITS files have their origin at (1, 1) in the lower left corner, while
   // most raster formats have (0, 0) in the upper left corner.  Depending on
   // how the FITS image was converted to PNG, you may have to correct for
