@@ -129,6 +129,15 @@ void Fits::AddImageDimensions(int width, int height, std::string *header) {
     exit(EXIT_FAILURE);
   }
 
+  // Ensure that the value of NAXIS is always at least 2 because smaller
+  // values cannot contain images.  Some non-optical images store other
+  // information in higher dimensions.
+  int naxis_value = Fits::HeaderReadKeywordInt(*header, "NAXIS", -1);
+  if (naxis_value < 2) {
+    std::string naxis = "NAXIS   =                    2";
+    *header = header->replace(naxis_location, naxis.size(), naxis);
+  }
+
   // The FITS standard specifies that the NAXIS1 and NAXIS2 keywords must
   // immediately follow NAXIS.
   int naxis1_location = naxis_location + FITS_CARD_SIZE;
@@ -145,12 +154,6 @@ void Fits::AddImageDimensions(int width, int height, std::string *header) {
                  "Image width");
     StringPrintf(&naxis2_card, 100, "%-8s= %20d / %-47s", "NAXIS2", height,
                  "Image height");
-
-    // In addition, we need to replace the value of NAXIS with 2.  The FITS
-    // standard dictates that the NAXIS card must look just like the string
-    // given below.
-    std::string naxis = "NAXIS   =                    2";
-    *header = header->replace(naxis_location, naxis.size(), naxis);
   } else if (naxis1 == "NAXIS1" && naxis2 == "NAXIS2") {
     // Do nothing.
   } else {
