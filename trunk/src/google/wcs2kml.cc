@@ -108,7 +108,7 @@ void WriteWorldFile(const std::string &wldfile,
 int Main(int argc, char **argv) {
   std::string usage = "Usage: ";
   usage += argv[0];
-  usage += " -imagefile=<PNG image> --fitsfile=<FITS file with WCS>";
+  usage += " --imagefile=<PNG image> --fitsfile=<FITS file with WCS>";
   google::SetUsageMessage(usage);
   google::ParseCommandLineFlags(&argc, &argv, true);
 
