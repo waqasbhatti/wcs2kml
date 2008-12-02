@@ -21,14 +21,12 @@
 namespace google_sky {
 
 // Creates an empty image.
-PngImage::PngImage() {
-  // pixels_ should always be NULL so the allocation checks will not fail.
-  pixels_ = NULL;
-  width_ = 0;
-  height_ = 0;
-  channels_ = 0;
-  colorspace_ = UNDEFINED_COLORSPACE;
-}
+PngImage::PngImage()
+    : pixels_(NULL),  // Allocation checks for NULL to indicate empty images.
+      width_(0),
+      height_(0),
+      channels_(0),
+      colorspace_(UNDEFINED_COLORSPACE) {}
 
 // Resizes an image to the given size and colorspace.  All memory allocation
 // happens in this function.
@@ -36,7 +34,7 @@ bool PngImage::Resize(int width, int height, Colorspace colorspace) {
   // Check image size.
   assert(width > 0);
   assert(height > 0);
-  
+
   // Determine the number of channels for the given colorspace.
   int channels;
   if (colorspace == GRAYSCALE) {
@@ -51,12 +49,17 @@ bool PngImage::Resize(int width, int height, Colorspace colorspace) {
     // Unknown colorspace.
     return false;
   }
- 
+
   // Allocate memory, checking for overflows.
-  int num_pixels = width * height * channels;
-  if (width * height < width || num_pixels < width) {
+  size_t num_pixels = static_cast<size_t>(width) *
+                      static_cast<size_t>(height) *
+                      static_cast<size_t>(channels);
+
+  if (num_pixels < static_cast<size_t>(width) ||
+      num_pixels < static_cast<size_t>(height)) {
     return false;
   }
+
   try {
     // Deallocate previously allocated memory before reallocating.
     Clear();
@@ -64,26 +67,29 @@ bool PngImage::Resize(int width, int height, Colorspace colorspace) {
   } catch (...) {
     return false;
   }
-  
+
   // We must set the image properties after calling Clear() because it
   // resets all of these.
   width_ = width;
   height_ = height;
-  colorspace_ = colorspace;
   channels_ = channels;
-  
+  colorspace_ = colorspace;
+
   return true;
 }
 
 // Sets every value in the entire image.
 void PngImage::SetAllValues(uint8 value) {
-  for (int i = 0; i < width_ * height_ * channels_; ++i) {
+  size_t num_pixels = static_cast<size_t>(width_) *
+                      static_cast<size_t>(height_) *
+                      static_cast<size_t>(channels_);
+  for (size_t i = 0; i < num_pixels; ++i) {
     pixels_[i] = value;
   }
 }
 
 // Sets the channel for every pixel in the image.
-bool PngImage::SetAllValuesInChannel(int channel, uint8 value) { 
+bool PngImage::SetAllValuesInChannel(int channel, uint8 value) {
   // Check for a valid channel.
   if (channel < 0 || channel >= channels_) {
     return false;
@@ -91,16 +97,16 @@ bool PngImage::SetAllValuesInChannel(int channel, uint8 value) {
 
   for (int i = 0; i < width_; ++i) {
     for (int j = 0; j < height_; ++j) {
-      uint8 *position = const_cast<uint8 *>(GetPixelPosition(i, j));
+      uint8 *position = GetPixelPosition(i, j);
       position[channel] = value;
     }
   }
-  
+
   return true;
 }
 
 // Converts to grayscale.
-bool PngImage::ConvertToGrayscale(void) {
+bool PngImage::ConvertToGrayscale() {
   if (colorspace_ == GRAYSCALE) {
     return true;
   }
@@ -137,10 +143,10 @@ bool PngImage::ConvertToGrayscale(void) {
     // Unknown colorspace.
     return false;
   }
-  
+
   // Delete old memory.
   Clear();
-  
+
   // Instead of copying pixels, we swap internal pointers so that the array
   // inside grayscale is not deleted after this method ends.
   pixels_ = grayscale.pixels_;
@@ -148,7 +154,7 @@ bool PngImage::ConvertToGrayscale(void) {
   height_ = grayscale.height_;
   channels_ = grayscale.channels_;
   colorspace_ = grayscale.colorspace_;
-  
+
   grayscale.pixels_ = NULL;
   grayscale.width_ = 0;
   grayscale.height_ = 0;
@@ -159,7 +165,7 @@ bool PngImage::ConvertToGrayscale(void) {
 }
 
 // Converts to grayscale + alpha.
-bool PngImage::ConvertToGrayscalePlusAlpha(void) {
+bool PngImage::ConvertToGrayscalePlusAlpha() {
   if (colorspace_ == GRAYSCALE_PLUS_ALPHA) {
     return true;
   }
@@ -209,10 +215,10 @@ bool PngImage::ConvertToGrayscalePlusAlpha(void) {
     // Unknown colorspace.
     return false;
   }
-  
+
   // Delete old memory.
   Clear();
-  
+
   // Instead of copying pixels, we swap internal pointers so that the array
   // inside ga is not deleted after this method ends.
   pixels_ = ga.pixels_;
@@ -220,7 +226,7 @@ bool PngImage::ConvertToGrayscalePlusAlpha(void) {
   height_ = ga.height_;
   channels_ = ga.channels_;
   colorspace_ = ga.colorspace_;
-  
+
   ga.pixels_ = NULL;
   ga.width_ = 0;
   ga.height_ = 0;
@@ -231,7 +237,7 @@ bool PngImage::ConvertToGrayscalePlusAlpha(void) {
 }
 
 // Converts to RGB.
-bool PngImage::ConvertToRGB(void) {
+bool PngImage::ConvertToRGB() {
   if (colorspace_ == RGB) {
     return true;
   }
@@ -266,10 +272,10 @@ bool PngImage::ConvertToRGB(void) {
     // Unknown colorspace.
     return false;
   }
-  
+
   // Delete old memory.
   Clear();
-  
+
   // Instead of copying pixels, we swap internal pointers so that the array
   // inside rgb is not deleted after this method ends.
   pixels_ = rgb.pixels_;
@@ -277,7 +283,7 @@ bool PngImage::ConvertToRGB(void) {
   height_ = rgb.height_;
   channels_ = rgb.channels_;
   colorspace_ = rgb.colorspace_;
-  
+
   rgb.pixels_ = NULL;
   rgb.width_ = 0;
   rgb.height_ = 0;
@@ -288,7 +294,7 @@ bool PngImage::ConvertToRGB(void) {
 }
 
 // Converts to RGBA.
-bool PngImage::ConvertToRGBA(void) {
+bool PngImage::ConvertToRGBA() {
   if (colorspace_ == RGBA) {
     return true;
   }
@@ -334,10 +340,10 @@ bool PngImage::ConvertToRGBA(void) {
     // Unknown colorspace.
     return false;
   }
-  
+
   // Delete old memory.
   Clear();
-  
+
   // Instead of copying pixels, we swap internal pointers so that the array
   // inside rgb is not deleted after this method ends.
   pixels_ = rgba.pixels_;
@@ -345,7 +351,7 @@ bool PngImage::ConvertToRGBA(void) {
   height_ = rgba.height_;
   channels_ = rgba.channels_;
   colorspace_ = rgba.colorspace_;
-  
+
   rgba.pixels_ = NULL;
   rgba.width_ = 0;
   rgba.height_ = 0;
@@ -364,7 +370,11 @@ bool PngImage::Equals(const PngImage &image) const {
     return false;
   }
 
-  for (int i = 0; i < width_ * height_ * channels_; ++i) {
+  size_t num_pixels = static_cast<size_t>(width_) *
+                      static_cast<size_t>(height_) *
+                      static_cast<size_t>(channels_);
+
+  for (size_t i = 0; i < num_pixels; ++i) {
     if (pixels_[i] != image.pixels_[i]) {
       return false;
     }
@@ -375,7 +385,7 @@ bool PngImage::Equals(const PngImage &image) const {
 
 // Reads an image from file.
 bool PngImage::Read(const std::string &filename) {
-  FILE *fp = NULL;
+  FILE *file_ptr = NULL;
   png_structp png_ptr = NULL;
   png_infop info_ptr = NULL;
   png_infop end_info = NULL;
@@ -383,47 +393,33 @@ bool PngImage::Read(const std::string &filename) {
   // Inner scoping is used to prevent compiler errors for gotos, which are
   // used as a simple forward jump for memory cleanup.
   {
-    fp = fopen(filename.c_str(), "rb");
-    if (!fp) {
-      goto failure;
-    }
+    file_ptr = fopen(filename.c_str(), "rb");
+    if (!file_ptr) goto failure;
 
     // Check that the input file is a PNG image by reading the first 8 bytes.
     png_byte header[8];
-    int num_read = fread(header, sizeof(png_byte), 8, fp);
-    if (num_read != 8) {
-      goto failure;
-    }
-    
+    int num_read = fread(header, sizeof(png_byte), 8, file_ptr);
+    if (num_read != 8) goto failure;
+
     bool is_png = !png_sig_cmp(header, 0, 8);
-    if (!is_png) {
-      goto failure;
-    }
-   
+    if (!is_png) goto failure;
+
     // PNG structure setup.
     png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
-    if (!png_ptr) {
-      goto failure;
-    }
+    if (!png_ptr) goto failure;
 
     info_ptr = png_create_info_struct(png_ptr);
-    if (!info_ptr) {
-      goto failure;
-    }
+    if (!info_ptr) goto failure;
 
     end_info = png_create_info_struct(png_ptr);
-    if (!end_info) {
-      goto failure;
-    }
+    if (!end_info) goto failure;
 
-    if (setjmp(png_jmpbuf(png_ptr))) {
-      goto failure;
-    }
-    
+    if (setjmp(png_jmpbuf(png_ptr))) goto failure;
+
     // Use standard libpng IO routines.  We backup to the start of the file so
     // libpng doesn't get confused about where it is.
-    rewind(fp);
-    png_init_io(png_ptr, fp);
+    rewind(file_ptr);
+    png_init_io(png_ptr, file_ptr);
 
     // Read some basic properties of the image.
     png_read_info(png_ptr, info_ptr);
@@ -433,9 +429,7 @@ bool PngImage::Read(const std::string &filename) {
     int bit_depth = png_get_bit_depth(png_ptr, info_ptr);
 
     // Resize the underlying pixel array for an RGBA 8 bit per channel image.
-    if (!Resize(width, height, RGBA)) {
-      goto failure;
-    }
+    if (!Resize(width, height, RGBA)) goto failure;
 
     // Set options for libpng so that all images will be converted to 8 bit
     // per channel RGBA.
@@ -460,25 +454,29 @@ bool PngImage::Read(const std::string &filename) {
 
     // Read the image.  Before reading, the data is set to 0 for safety.
     SetAllValues(0);
-    uint8 **rows;
+    uint8 **rows = NULL;
     try {
       rows = new uint8 *[height_];
     } catch (...) {
       goto failure;
     }
 
-    for (int i = 0; i < height_; ++i) {
-      rows[i] = pixels_ + i * width_ * channels_;
+    size_t width_s = static_cast<size_t>(width_);
+    size_t height_s = static_cast<size_t>(height_);
+    size_t channels_s = static_cast<size_t>(channels_);
+
+    for (size_t i = 0; i < height_s; ++i) {
+      rows[i] = pixels_ + i * width_s * channels_s;
     }
 
     png_read_image(png_ptr, rows);
     png_read_end(png_ptr, end_info);
 
     // Clean up successful read resources.
-    fclose(fp);
+    fclose(file_ptr);
     delete[] rows;
     png_destroy_read_struct(&png_ptr, &info_ptr, &end_info);
-  } // end inner scoping
+  }  // end inner scoping
 
   return true;
 
@@ -486,58 +484,36 @@ bool PngImage::Read(const std::string &filename) {
   failure:
     png_infop *info_tmp = NULL;
     png_infop *end_tmp = NULL;
-    
-    if (info_ptr) {
-      info_tmp = &info_ptr;
-    }
-    if (end_info) {
-      end_tmp = &end_info;
-    }
-    
-    if (png_ptr) {
-      png_destroy_read_struct(&png_ptr, info_tmp, end_tmp);
-    }
-    if (pixels_) {
-      delete[] pixels_;
-      pixels_ = NULL;
-    }
-    if (fp) {
-      fclose(fp);
-    }
-
+    if (info_ptr) info_tmp = &info_ptr;
+    if (end_info) end_tmp = &end_info;
+    if (png_ptr) png_destroy_read_struct(&png_ptr, info_tmp, end_tmp);
+    if (file_ptr) fclose(file_ptr);
+    Clear();
     return false;
 }
 
 // Writes an image to file.
 bool PngImage::Write(const std::string &filename) const {
-  FILE *fp = NULL;
+  FILE *file_ptr = NULL;
   png_structp png_ptr = NULL;
   png_infop info_ptr = NULL;
 
   // Inner scoping is used to prevent compiler errors for gotos, which are
   // used as a simple forward jump for memory cleanup.
   {
-    fp = fopen(filename.c_str(), "wb");
-    if (!fp) {
-      goto failure;
-    }
+    file_ptr = fopen(filename.c_str(), "wb");
+    if (!file_ptr) goto failure;
 
     png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
-    if (!png_ptr) {
-      goto failure;
-    }
+    if (!png_ptr) goto failure;
 
     info_ptr = png_create_info_struct(png_ptr);
-    if (!info_ptr) {
-      goto failure;
-    }
+    if (!info_ptr) goto failure;
 
-    if (setjmp(png_jmpbuf(png_ptr))) {
-      goto failure;
-    }
+    if (setjmp(png_jmpbuf(png_ptr))) goto failure;
 
-    // Use standard libpng IO routines.  
-    png_init_io(png_ptr, fp);
+    // Use standard libpng IO routines.
+    png_init_io(png_ptr, file_ptr);
 
     // Set output options for libpng.  For simplicity, we never write indexed
     // images.
@@ -548,14 +524,15 @@ bool PngImage::Write(const std::string &filename) const {
     info_ptr->filter_type = PNG_FILTER_TYPE_BASE;
     info_ptr->interlace_type = PNG_INTERLACE_NONE;
     info_ptr->valid = 0;
-    info_ptr->rowbytes = width_ * channels_;
+    info_ptr->rowbytes = static_cast<size_t>(width_) *
+                         static_cast<size_t>(channels_);
 
     if (colorspace_ == GRAYSCALE) {
       info_ptr->color_type = PNG_COLOR_TYPE_GRAY;
     } else if (colorspace_ == GRAYSCALE_PLUS_ALPHA) {
       info_ptr->color_type = PNG_COLOR_TYPE_GRAY_ALPHA;
     } else if (colorspace_ == RGB) {
-      info_ptr->color_type = PNG_COLOR_TYPE_RGB;    
+      info_ptr->color_type = PNG_COLOR_TYPE_RGB;
     } else if (colorspace_ == RGBA) {
       info_ptr->color_type = PNG_COLOR_TYPE_RGB_ALPHA;
     } else {
@@ -563,15 +540,19 @@ bool PngImage::Write(const std::string &filename) const {
     }
 
     // Output each row.
-    uint8 **rows;
+    uint8 **rows = NULL;
     try {
       rows = new uint8 *[height_];
     } catch (...) {
       goto failure;
     }
 
-    for (int i = 0; i < height_; ++i) {
-      rows[i] = pixels_ + i * width_ * channels_;
+    size_t width_s = static_cast<size_t>(width_);
+    size_t height_s = static_cast<size_t>(height_);
+    size_t channels_s = static_cast<size_t>(channels_);
+
+    for (size_t i = 0; i < height_s; ++i) {
+      rows[i] = pixels_ + i * width_s * channels_s;
     }
 
     png_set_rows(png_ptr, info_ptr, rows);
@@ -579,28 +560,19 @@ bool PngImage::Write(const std::string &filename) const {
     png_write_end(png_ptr, info_ptr);
 
     // Clean up successful write resources.
-    fclose(fp);
+    fclose(file_ptr);
     delete[] rows;
     png_destroy_write_struct(&png_ptr, &info_ptr);
-  } // end inner scoping
+  }  // end inner scoping
 
   return true;
 
   // Handles memory cleanup for failed PNG writes.
   failure:
     png_infop *info_tmp = NULL;
-    
-    if (info_ptr) {
-      info_tmp = &info_ptr;
-    }
-    
-    if (png_ptr) {
-      png_destroy_write_struct(&png_ptr, info_tmp);
-    }
-    if (fp) {
-      fclose(fp);
-    }
-
+    if (info_ptr) info_tmp = &info_ptr;
+    if (png_ptr) png_destroy_write_struct(&png_ptr, info_tmp);
+    if (file_ptr) fclose(file_ptr);
     return false;
 }
 

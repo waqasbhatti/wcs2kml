@@ -12,7 +12,7 @@ PNG_LINK = -lpng
 GFLAGS_LINK = -lgflags
 
 CXX = g++
-CXXFLAGS = $(PNG_INCLUDE) $(GFLAGS_INCLUDE) -I./libwcs -O3 -Wall
+CXXFLAGS = $(PNG_INCLUDE) $(GFLAGS_INCLUDE) -I.. -I./libwcs -O3 -Wall
 LDFLAGS = $(PNG_LIB) $(PNG_LINK) $(GFLAGS_LIB) $(GFLAGS_LINK) \
           -L./libwcs -lwcs
 

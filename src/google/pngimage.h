@@ -93,7 +93,7 @@ class PngImage {
   }
 
   // Deallocates an image and resets all properties.
-  inline void Clear(void) {
+  inline void Clear() {
     if (pixels_) {
       delete[] pixels_;
       pixels_ = NULL;
@@ -120,18 +120,18 @@ class PngImage {
   inline void GetPixel(int i, int j, Color *color) const {
     CheckBounds(i, j);
     assert(channels_ == color->channels());
-    const uint8 *position = GetPixelPosition(i, j);
+    const uint8 *position = GetConstPixelPosition(i, j);
     for (int i = 0; i < channels_; ++i) {
       color->SetChannel(i, position[i]);
     }
   }
-  
+
   // Assigns a pixel at the given position.  The input color must have the
   // same number of channels as the image.  Dies on failure.
   inline void SetPixel(int i, int j, const Color &color) {
     CheckBounds(i, j);
     assert(channels_ == color.channels());
-    uint8 *position = const_cast<uint8 *>(GetPixelPosition(i, j));
+    uint8 *position = GetPixelPosition(i, j);
     for (int i = 0; i < channels_; ++i) {
       position[i] = color.GetChannel(i);
     }
@@ -141,7 +141,7 @@ class PngImage {
   inline uint8 GetValue(int i, int j, int channel) const {
     CheckBounds(i, j);
     assert(channel >= 0 && channel < channels_);
-    const uint8 *position = GetPixelPosition(i, j);
+    const uint8 *position = GetConstPixelPosition(i, j);
     return position[channel];
   }
 
@@ -149,25 +149,25 @@ class PngImage {
   inline void SetValue(int i, int j, int channel, uint8 value) {
     CheckBounds(i, j);
     assert(channel >= 0 && channel < channels_);
-    uint8 *position = const_cast<uint8 *>(GetPixelPosition(i, j));
+    uint8 *position = GetPixelPosition(i, j);
     position[channel] = value;
   }
 
   // Converts an image to grayscale and returns whether the operation was
   // successful.
-  bool ConvertToGrayscale(void);
+  bool ConvertToGrayscale();
 
   // Converts an image to grayscale with an alpha channel and returns whether
   // the operation was successful.
-  bool ConvertToGrayscalePlusAlpha(void);
+  bool ConvertToGrayscalePlusAlpha();
 
   // Converts an image to RGB and returns whether the operation was
   // successful.
-  bool ConvertToRGB(void);
+  bool ConvertToRGB();
 
   // Converts an image to RGBA and returns whether the operation was
   // successful.
-  bool ConvertToRGBA(void);
+  bool ConvertToRGBA();
 
   // Returns whether two images are equal.  To be equal, the image must have
   // the same properties and every pixel value must be the same.
@@ -179,24 +179,24 @@ class PngImage {
 
   // Writes an image to the given filename.
   bool Write(const std::string &filename) const;
-  
+
   // Returns the image width.
-  inline int width(void) const {
+  inline int width() const {
     return width_;
   }
 
-  // Returns the image height.  
-  inline int height(void) const {
+  // Returns the image height.
+  inline int height() const {
     return height_;
   }
-  
+
   // Returns the number of channels in the image.
-  inline int channels(void) const {
+  inline int channels() const {
     return channels_;
   }
 
-  // Returns the colorspace.  
-  inline Colorspace colorspace(void) const {
+  // Returns the colorspace.
+  inline Colorspace colorspace() const {
     return colorspace_;
   }
 
@@ -204,17 +204,11 @@ class PngImage {
   // Internal array of pixel data.
   uint8 *pixels_;
 
-  // Width of image.
-  int width_;
-
-  // Height of image.
-  int height_;
-
-  // Number of channels in image.
-  int channels_;
-
-  // Colorspace of image.
-  Colorspace colorspace_;
+  // Image properties.
+  int width_;              // Width of image.
+  int height_;             // Height of image.
+  int channels_;           // Number of channels in image (e.g. RGB has 3).
+  Colorspace colorspace_;  // Colorspace enum of image.
 
   // Checks for valid indexes.  Dies on invalid indexes.
   inline void CheckBounds(int i, int j) const {
@@ -224,11 +218,23 @@ class PngImage {
 
   // Returns a pointer to the location in the pixels_ array of pixel i, j.
   // Upon return, this pointer will point at the first channel of pixel i, j.
-  inline const uint8 *GetPixelPosition(int i, int j) const {
-    const uint8 *position = pixels_ + (i + j * width_) * channels_;
+  inline const uint8 *GetConstPixelPosition(int i, int j) const {
+    const uint8 *position = pixels_ +
+                           (static_cast<size_t>(i) + static_cast<size_t>(j) *
+                            static_cast<size_t>(width_)) *
+                           static_cast<size_t>(channels_);
     return position;
   }
-  
+
+  // Non-const version of the above.
+  inline uint8 *GetPixelPosition(size_t i, size_t j) const {
+    uint8 *position = pixels_ +
+                      (static_cast<size_t>(i) + static_cast<size_t>(j) *
+                       static_cast<size_t>(width_)) *
+                      static_cast<size_t>(channels_);
+    return position;
+  }
+
   // Don't allow copying.
   PngImage(const PngImage &);
   PngImage &operator=(const PngImage &);
