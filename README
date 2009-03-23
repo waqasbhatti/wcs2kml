@@ -9,6 +9,8 @@ What's new in 0.3:
   installer previously stuck on your system.
 - Updated license to New BSD.
 - Renamed PngImage to Image.
+- Wrote run_tests.py that runs a set of commands read from file to make
+  running all of the unit tests easier (see tests.dat).
 - The usual bugfixes.
 
 What's new in 0.2.1:
@@ -57,7 +59,7 @@ Python Requirements:
 - Python Imaging Library (http://www.pythonware.com/products/pil/)
 - numpy (http://numpy.scipy.org/)
 - pyfits (http://www.stsci.edu/resources/software_hardware/pyfits)
-- Python 2.3 or newer
+- Python 2.4 or newer
 
 Contents:
 - C++ projection API
