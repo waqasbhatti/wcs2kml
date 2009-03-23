@@ -1,0 +1,12 @@
+# Each line is run as a separate command
+boundingbox_test
+color_test
+fits_test
+image_test
+kml_test
+mask_test
+regionator_test
+skyprojection_test
+stringprintf_test
+wcsprojection_test
+wraparound_test
