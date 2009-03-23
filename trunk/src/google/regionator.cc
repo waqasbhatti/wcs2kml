@@ -210,6 +210,7 @@ void Regionator::SplitTileRecursively(int level, int x1, int y1,
       int y = Min(static_cast<int>(y1 + j * dy + 0.5), y2);
       if (x >= image_->width() || y >= image_->height()) {
         subimage.SetPixel(i, j, transparent);
+        is_opaque = false;
       } else {
         image_->GetPixel(x, y, &pixel);
         subimage.SetPixel(i, j, pixel);
