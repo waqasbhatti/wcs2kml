@@ -1,5 +1,15 @@
-wcs2kml version 0.2.1
+wcs2kml version 0.3
 Jeremy Brewer
+
+What's new in 0.3:
+- Major build changes.  We are dropping GNU autotools in favor of a
+  straightforward Makefile that builds a static library and binary.  This will
+  make development much easier and builds much faster.  In the future we may
+  migrate to CMake.  You may want to clean out the google/* files that the
+  installer previously stuck on your system.
+- Updated license to New BSD.
+- Renamed PngImage to Image.
+- The usual bugfixes.
 
 What's new in 0.2.1:
 - Added Makefile.normal in src/google that should help users who are 
@@ -34,16 +44,14 @@ line flags (type fits2png.py --help for a list) or the use of the
 fitsimage Python module.  See the source code for fits2png.py and fitsimage.py
 for more details.
 
-The code for wcs2kml is released under the Apache License 2.0.  See the
+The code for wcs2kml is released under the New BSD License.  See the
 COPYING file for a full license description.  Additional code is bundled with
 wcs2kml which is licensed under different terms.  More specifically, the
-libraries from gestalt are BSD and WCS Tools is LGPL 2.
+WCS Tools library is licensed under LGPL version 2.
 
 C++ Requirements:
 - libpng
 - gflags 0.6 or newer (http://code.google.com/p/google-gflags/)
-- autotools
-- libtool
 
 Python Requirements:
 - Python Imaging Library (http://www.pythonware.com/products/pil/)
