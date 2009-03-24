@@ -30,13 +30,15 @@
 #define IMAGE_H__
 
 #include <cassert>
+
 #include <string>
+
 extern "C" {
 #include <png.h>
 }
 
+#include "base.h"
 #include "color.h"
-#include "uint8.h"
 
 namespace google_sky {
 
@@ -188,10 +190,10 @@ class Image {
 
   // Reads an image from the given filename.  All images are converted to
   // RGBA colorspace with 8 bits per channel.
-  bool Read(const std::string &filename);
+  bool Read(const string &filename);
 
   // Writes an image to the given filename.
-  bool Write(const std::string &filename) const;
+  bool Write(const string &filename) const;
 
   // Returns the image width.
   inline int width() const {
@@ -248,11 +250,9 @@ class Image {
     return position;
   }
 
-  // Don't allow copying.
-  Image(const Image &);
-  Image &operator=(const Image &);
-};  // end Image
+  DISALLOW_COPY_AND_ASSIGN(Image);
+};
 
-}  // end namespace google_sky
+}  // namespace google_sky
 
 #endif  // IMAGE_H__

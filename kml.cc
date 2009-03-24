@@ -29,20 +29,19 @@
 #include "kml.h"
 
 #include "boundingbox.h"
-#include "stringprintf.h"
+#include "string_util.h"
 
 namespace {
 
-const int STR_BUFSIZE = 1024;
-const std::string TWO_SPACES("  ");
+const string TWO_SPACES("  ");
 const double PI = 3.1415926535897931;
 const double TINY_FLOAT_VALUE = 1.0e-8;
 const double RADIUS_EARTH = 6378135.0;       // in meters
 const double VIEWABLE_ANGULAR_SCALE = 50.0;  // in degrees
 
 // Indents a string 2 spaces per level.
-void Indent(std::string *str, int indent_level) {
-  std::string spaces("");
+void Indent(string *str, int indent_level) {
+  string spaces("");
   for (int i = 0; i < indent_level; ++i) {
     spaces.append(TWO_SPACES);
   }
@@ -51,51 +50,48 @@ void Indent(std::string *str, int indent_level) {
 
 // Adds a tag to the given KML string, properly indenting it first.  A newline
 // is added to the end of the tag.
-void AppendTag(std::string *xml, const char *tag, int indent_level) {
-  std::string tag_copy(tag);
+void AppendTag(string *xml, const char *tag, int indent_level) {
+  string tag_copy(tag);
   tag_copy.append("\n");
   Indent(&tag_copy, indent_level);
   xml->append(tag_copy);
 }
 
 // Generates KML representations for primitive types easily.
-std::string CreateKml(const google_sky::KmlField<int> &kml_field,
-                      const std::string &name,
+string CreateKml(const google_sky::KmlField<int> &kml_field,
+                      const string &name,
                       int indent_level) {
-  std::string xml;
-  google_sky::StringPrintf(&xml, STR_BUFSIZE, "<%s>%d</%s>\n", name.c_str(),
-                          kml_field.get(), name.c_str());
+  string xml = google_sky::StringPrintf("<%s>%d</%s>\n", name.c_str(),
+                                        kml_field.get(), name.c_str());
   Indent(&xml, indent_level);
   return xml;
 }
 
-std::string CreateKml(const google_sky::KmlField<double> &kml_field,
-                      const std::string &name, int indent_level) {
-  std::string xml;
-  google_sky::StringPrintf(&xml, STR_BUFSIZE, "<%s>%.14f</%s>\n", name.c_str(),
-                           kml_field.get(), name.c_str());
+string CreateKml(const google_sky::KmlField<double> &kml_field,
+                      const string &name, int indent_level) {
+  string xml = google_sky::StringPrintf("<%s>%.14f</%s>\n", name.c_str(),
+                                        kml_field.get(), name.c_str());
   Indent(&xml, indent_level);
   return xml;
 }
 
-std::string CreateKml(const google_sky::KmlField<std::string> &kml_field,
-                      const std::string &name,
+string CreateKml(const google_sky::KmlField<string> &kml_field,
+                      const string &name,
                       int indent_level) {
-  std::string xml;
-  google_sky::StringPrintf(&xml, STR_BUFSIZE, "<%s>%s</%s>\n", name.c_str(),
-                           kml_field.get().c_str(), name.c_str());
+  string xml = google_sky::StringPrintf("<%s>%s</%s>\n", name.c_str(),
+                                        kml_field.get().c_str(), name.c_str());
   Indent(&xml, indent_level);
   return xml;
 }
 
-}  // end anonymous namespace
+}  // namespace
 
 namespace google_sky {
 
 // KmlIcon methods.
-std::string KmlIcon::ToString(int indent_level) const {
+string KmlIcon::ToString(int indent_level) const {
   assert(href.has_value());
-  std::string xml;
+  string xml;
   AppendTag(&xml, "<Icon>", indent_level);
   xml.append(CreateKml(href, "href", indent_level + 1));
   AppendTag(&xml, "</Icon>", indent_level);
@@ -103,12 +99,12 @@ std::string KmlIcon::ToString(int indent_level) const {
 }
 
 // KmlLatLonBox methods.
-std::string KmlLatLonBox::ToString(int indent_level) const {
+string KmlLatLonBox::ToString(int indent_level) const {
   assert(north.has_value());
   assert(south.has_value());
   assert(east.has_value());
   assert(west.has_value());
-  std::string xml;
+  string xml;
   AppendTag(&xml, "<LatLonBox>", indent_level);
   xml.append(CreateKml(north, "north", indent_level + 1));
   xml.append(CreateKml(south, "south", indent_level + 1));
@@ -122,12 +118,12 @@ std::string KmlLatLonBox::ToString(int indent_level) const {
 }
 
 // KmlLatLonAltBox methods.
-std::string KmlLatLonAltBox::ToString(int indent_level) const {
+string KmlLatLonAltBox::ToString(int indent_level) const {
   assert(north.has_value());
   assert(south.has_value());
   assert(east.has_value());
   assert(west.has_value());
-  std::string xml;
+  string xml;
   AppendTag(&xml, "<LatLonAltBox>", indent_level);
   xml.append(CreateKml(north, "north", indent_level + 1));
   xml.append(CreateKml(south, "south", indent_level + 1));
@@ -147,11 +143,11 @@ std::string KmlLatLonAltBox::ToString(int indent_level) const {
 }
 
 // KmlLookAt methods.
-std::string KmlLookAt::ToString(int indent_level) const {
+string KmlLookAt::ToString(int indent_level) const {
   assert(longitude.has_value());
   assert(latitude.has_value());
   assert(range.has_value());
-  std::string xml;
+  string xml;
   AppendTag(&xml, "<LookAt>", indent_level);
   xml.append(CreateKml(longitude, "longitude", indent_level + 1));
   xml.append(CreateKml(latitude, "latitude", indent_level + 1));
@@ -161,10 +157,10 @@ std::string KmlLookAt::ToString(int indent_level) const {
 }
 
 // KmlLod methods.
-std::string KmlLod::ToString(int indent_level) const {
+string KmlLod::ToString(int indent_level) const {
   assert(min_lod_pixels.has_value());
   assert(max_lod_pixels.has_value());
-  std::string xml;
+  string xml;
   AppendTag(&xml, "<Lod>", indent_level);
   xml.append(CreateKml(min_lod_pixels, "minLodPixels", indent_level + 1));
   xml.append(CreateKml(max_lod_pixels, "maxLodPixels", indent_level + 1));
@@ -173,16 +169,15 @@ std::string KmlLod::ToString(int indent_level) const {
 }
 
 // KmlPoint methods.
-std::string KmlPoint::ToString(int indent_level) const {
+string KmlPoint::ToString(int indent_level) const {
   assert(longitude.has_value());
   assert(latitude.has_value());
   // This is a special case CreateKml() can't handle.
-  std::string coordinates;
-  StringPrintf(&coordinates, STR_BUFSIZE,
-               "<coordinates>%.14f,%.14f</coordinates>\n", longitude.get(),
-               latitude.get());
+  string coordinates =
+      StringPrintf("<coordinates>%.14f,%.14f</coordinates>\n", longitude.get(),
+                   latitude.get());
   Indent(&coordinates, indent_level + 1);
-  std::string xml;
+  string xml;
   AppendTag(&xml, "<Point>", indent_level);
   xml.append(coordinates);
   AppendTag(&xml, "</Point>", indent_level);
@@ -190,15 +185,15 @@ std::string KmlPoint::ToString(int indent_level) const {
 }
 
 // KmlLineString methods.
-std::string KmlLineString::ToString(int indent_level) const {
+string KmlLineString::ToString(int indent_level) const {
   assert(longitudes_.size() > 0 && latitudes_.size() > 0);
-  std::string xml;
+  string xml;
   AppendTag(&xml, "<LineString>", indent_level);
   AppendTag(&xml, "<coordinates>", indent_level + 1);
-  std::string line;
+  string line;
   for (int i = 0; i < static_cast<int>(longitudes_.size()); ++i) {
-    StringPrintf(&line, STR_BUFSIZE, "%.14f,%.14f,%.14f\n", longitudes_[i],
-                 latitudes_[i], 0.0);
+    SStringPrintf(&line, "%.14f,%.14f,%.14f\n", longitudes_[i],
+                  latitudes_[i], 0.0);
     Indent(&line, indent_level + 2);
     xml.append(line);
   }
@@ -208,10 +203,10 @@ std::string KmlLineString::ToString(int indent_level) const {
 }
 
 // KmlGroundOverlay methods.
-std::string KmlGroundOverlay::ToString(int indent_level) const {
+string KmlGroundOverlay::ToString(int indent_level) const {
   assert(lat_lon_box.has_value());
   assert(icon.has_value());
-  std::string xml;
+  string xml;
   AppendTag(&xml, "<GroundOverlay>", indent_level);
   if (name.has_value()) {
     xml.append(CreateKml(name, "name", indent_level + 1));
@@ -303,9 +298,9 @@ void KmlGroundOverlay::FromBoundingBox(const BoundingBox &bounding_box) {
 }
 
 // KmlRegion methods.
-std::string KmlRegion::ToString(int indent_level) const {
+string KmlRegion::ToString(int indent_level) const {
   assert(lat_lon_alt_box.has_value());
-  std::string xml;
+  string xml;
   AppendTag(&xml, "<Region>", indent_level);
   xml.append(lat_lon_alt_box.get().ToString(indent_level + 1));
   if (lod.has_value()) {
@@ -316,9 +311,9 @@ std::string KmlRegion::ToString(int indent_level) const {
 }
 
 // KmlLink methods.
-std::string KmlLink::ToString(int indent_level) const {
+string KmlLink::ToString(int indent_level) const {
   assert(href.has_value());
-  std::string xml;
+  string xml;
   AppendTag(&xml, "<Link>", indent_level);
   xml.append(CreateKml(href, "href", indent_level + 1));
   AppendTag(&xml, "</Link>", indent_level);
@@ -326,9 +321,9 @@ std::string KmlLink::ToString(int indent_level) const {
 }
 
 // KmlNetworkLink methods.
-std::string KmlNetworkLink::ToString(int indent_level) const {
+string KmlNetworkLink::ToString(int indent_level) const {
   assert(link.has_value());
-  std::string xml;
+  string xml;
   AppendTag(&xml, "<NetworkLink>", indent_level);
   if (name.has_value()) {
     xml.append(CreateKml(name, "name", indent_level + 1));
@@ -342,10 +337,10 @@ std::string KmlNetworkLink::ToString(int indent_level) const {
 }
 
 // KmlPlacemark methods.
-std::string KmlPlacemark::ToString(int indent_level) const {
+string KmlPlacemark::ToString(int indent_level) const {
   assert(name.has_value() || description.has_value() ||
          point.has_value() || line_string.has_value());
-  std::string xml;
+  string xml;
   AppendTag(&xml, "<Placemark>", indent_level);
   if (name.has_value()) {
     xml.append(CreateKml(name, "name", indent_level + 1));
@@ -367,14 +362,12 @@ std::string KmlPlacemark::ToString(int indent_level) const {
 }
 
 // Kml methods.
-std::string Kml::ToString(void) const {
-  std::string xml;
-  StringAppendF(&xml, STR_BUFSIZE,
-                "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
-  StringAppendF(&xml, STR_BUFSIZE,
-                "<kml xmlns=\"http://earth.google.com/kml/2.2\" "
+string Kml::ToString(void) const {
+  string xml;
+  StringAppendF(&xml, "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
+  StringAppendF(&xml, "<kml xmlns=\"http://earth.google.com/kml/2.2\" "
                 "hint=\"target=sky\">\n");
-  StringAppendF(&xml, STR_BUFSIZE, "<Document>\n");
+  StringAppendF(&xml, "<Document>\n");
 
   // We let the <Document> tag carry the Region, which means that the Region
   // will cascade to all children (the arrays of Placemarks, GroundOverlays,
@@ -392,9 +385,9 @@ std::string Kml::ToString(void) const {
   for (int i = 0; i < static_cast<int>(network_links_.size()); ++i) {
     xml.append(network_links_[i].ToString(1));
   }
-  StringAppendF(&xml, STR_BUFSIZE, "</Document>\n");
-  StringAppendF(&xml, STR_BUFSIZE, "</kml>\n");
+  StringAppendF(&xml, "</Document>\n");
+  StringAppendF(&xml, "</kml>\n");
   return xml;
 }
 
-}  // end namespace google_sky
+}  // namespace google_sky

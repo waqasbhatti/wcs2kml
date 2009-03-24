@@ -22,12 +22,12 @@ ARFLAGS = -rcs
 
 lib = lib$(LIBPREFIX).a
 libwcs = libwcs/libwcs.a
-objects = color.o image.o stringprintf.o mask.o fits.o \
-          kml.o wraparound.o wcsprojection.o boundingbox.o \
+objects = base.o string_util.o color.o image.o mask.o fits.o kml.o \
+          wraparound.o wcsprojection.o boundingbox.o \
           skyprojection.o regionator.o
 tests = boundingbox_test color_test fits_test image_test kml_test \
-        mask_test regionator_test skyprojection_test \
-        stringprintf_test wcsprojection_test wraparound_test
+        mask_test regionator_test skyprojection_test string_util_test \
+        wcsprojection_test wraparound_test
 programs = $(tests) wcs2kml
 
 all: $(lib) $(programs)
@@ -68,8 +68,8 @@ regionator_test: regionator_test.cc $(lib)
 skyprojection_test: skyprojection_test.cc $(lib)
 	$(CXX) skyprojection_test.cc -o $@ $(CXXFLAGS) $(LINKFLAGS)
 
-stringprintf_test: stringprintf_test.cc $(lib)
-	$(CXX) stringprintf_test.cc -o $@ $(CXXFLAGS) $(LINKFLAGS)
+string_util_test: string_util_test.cc $(lib)
+	$(CXX) string_util_test.cc -o $@ $(CXXFLAGS) $(LINKFLAGS)
 
 wcsprojection_test: wcsprojection_test.cc $(lib)
 	$(CXX) wcsprojection_test.cc -o $@ $(CXXFLAGS) $(LINKFLAGS)

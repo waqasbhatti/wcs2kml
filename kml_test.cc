@@ -28,11 +28,12 @@
 
 #include <cstdio>
 #include <cassert>
-#include <string>
-#include "kml.h"
-#include "stringprintf.h"
 
-using std::string;
+#include <string>
+
+#include "base.h"
+#include "kml.h"
+#include "string_util.h"
 
 static const char *GROUND_OVERLAY =
     "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
@@ -197,9 +198,8 @@ namespace google_sky {
 
 KmlNetworkLink MakeNetworkLink(double west, double south, double east,
                                double north) {
-  string href;
-  StringPrintf(&href, 1024, "foo_%.1f_%.1f_%.1f_%.1f.kml", north, south,
-               east, west);
+  string href =
+      StringPrintf("foo_%.1f_%.1f_%.1f_%.1f.kml", north, south, east, west);
   
   KmlLatLonAltBox lat_lon_alt_box;
   lat_lon_alt_box.north.set(north);
@@ -360,7 +360,7 @@ int Main(int argc, char **argv) {
   return 0;
 }
 
-}  // end namespace google_sky
+}  // namespace google_sky
 
 int main(int argc, char **argv) {
   return google_sky::Main(argc, argv);

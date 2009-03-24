@@ -31,18 +31,18 @@
 #include <cassert>
 #include <cstdio>
 #include <cstdlib>
+
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
+
 #include "boundingbox.h"
 #include "color.h"
 #include "kml.h"
-#include "stringprintf.h"
+#include "string_util.h"
 #include "wraparound.h"
 
 namespace {
-
-const int STR_BUFSIZE = 1024;
 
 // Returns the amount of padding needed to make size be a multiple of
 // block_size.
@@ -61,7 +61,7 @@ inline int Min(int x, int y) {
 }
 
 // Determines whether a directory exists.
-bool IsDirectory(const std::string &path) {
+bool IsDirectory(const string &path) {
   struct stat file_stat;
   if (stat(path.c_str(), &file_stat) == 0) {
     return S_ISDIR(file_stat.st_mode);
@@ -71,12 +71,12 @@ bool IsDirectory(const std::string &path) {
 }
 
 // Creates a directory and returns whether it was successful.
-bool CreateDirectory(const std::string &path) {
+bool CreateDirectory(const string &path) {
   return mkdir(path.c_str(),
                S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH) == 0;
 }
 
-}  // end anonymous namespace
+}  // namespace
 
 namespace google_sky {
 
@@ -177,14 +177,14 @@ void Regionator::Regionate(void) const {
 
   // The root KML lives above the subtile directory.
   KmlLink link = network_link.link.get();
-  std::string href = link.href.get();
+  string href = link.href.get();
   link.href.set(output_directory_ + "/" + href);
   network_link.link.set(link);
 
   Kml kml;
   kml.AddNetworkLink(network_link);
   
-  std::string kmlfile = output_directory_ + "/" + root_kml_;
+  string kmlfile = output_directory_ + "/" + root_kml_;
   FILE *fp = fopen(root_kml_.c_str(), "w");
   if (!fp) {
     fprintf(stderr, "\nCan't open file '%s' for writing\n", root_kml_.c_str());
@@ -254,11 +254,11 @@ void Regionator::SplitTileRecursively(int level, int x1, int y1,
   }
 
   // Write tile to file.
-  std::string prefix = MakeFilenamePrefix(x1, y1, x2, y2);
-  std::string filename = prefix + ".png";
-  std::string kml_filename = prefix + ".kml";
-  std::string full_filename = output_directory_ + "/" + filename;
-  std::string full_kml_filename = output_directory_ + "/" + kml_filename;
+  string prefix = MakeFilenamePrefix(x1, y1, x2, y2);
+  string filename = prefix + ".png";
+  string kml_filename = prefix + ".kml";
+  string full_filename = output_directory_ + "/" + filename;
+  string full_kml_filename = output_directory_ + "/" + kml_filename;
   if (!subimage.Write(full_filename)) {
     fprintf(stderr, "\nCan't write image '%s' to file\n",
             full_filename.c_str());
@@ -367,11 +367,10 @@ void Regionator::SplitTileRecursively(int level, int x1, int y1,
 }
 
 // Generates a filename prefix given the range of the image it copies from.
-std::string Regionator::MakeFilenamePrefix(int x1, int y1,
+string Regionator::MakeFilenamePrefix(int x1, int y1,
                                            int x2, int y2) const {
-  std::string prefix;
-  StringPrintf(&prefix, STR_BUFSIZE, "%s_%d_%d_%d_%d",
-               filename_prefix_.c_str(), x1, y1, x2, y2);
+  string prefix = StringPrintf("%s_%d_%d_%d_%d", filename_prefix_.c_str(),
+                               x1, y1, x2, y2);
   return prefix;
 }
 
@@ -411,7 +410,7 @@ KmlNetworkLink Regionator::MakeNetworkLink(int x1, int y1,
   double east;
   double west;
   ComputeBoundingBox(x1, y1, x2, y2, &north, &south, &east, &west);
-  std::string href = MakeFilenamePrefix(x1, y1, x2, y2) + ".kml";
+  string href = MakeFilenamePrefix(x1, y1, x2, y2) + ".kml";
   
   KmlLatLonAltBox lat_lon_alt_box;
   lat_lon_alt_box.north.set(north);
@@ -440,4 +439,4 @@ KmlNetworkLink Regionator::MakeNetworkLink(int x1, int y1,
   return network_link;
 }
 
-}  // end namespace google_sky
+}  // namespace google_sky

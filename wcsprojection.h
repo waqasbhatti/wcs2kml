@@ -33,7 +33,10 @@
 #define WCSPROJECTION_H__
 
 #include <string>
+
+#include "base.h"
 #include "wraparound.h"
+
 extern "C" {
 #include <wcs.h>
 }
@@ -78,12 +81,12 @@ class WcsProjection {
   // This function dies if the header doesn't contain the keywords NAXIS1 and
   // NAXIS2.  Use the 3 arg ctor instead if you have a FITS file that only
   // contains a WCS but no image data.
-  explicit WcsProjection(const std::string &fits_filename);
+  explicit WcsProjection(const string &fits_filename);
 
   // Like the 1 arg ctor, but additionally ensures that the width and height
   // of the image are included in the header.  This is needed because wcstools
   // looks for these when doing its projections.
-  WcsProjection(const std::string &fits_filename, int width, int height);
+  WcsProjection(const string &fits_filename, int width, int height);
 
   ~WcsProjection() {
     wcsfree(wcs_);
@@ -126,13 +129,11 @@ class WcsProjection {
   // Checks the input header for WCS keywords and dies if the WCS is not
   // fully specified.  This function doesn't catch every error but should
   // cover the majority of common options we will see.
-  static void DieIfBadWcs(const std::string &header);
+  static void DieIfBadWcs(const string &header);
 
-  // Don't allow copying.
-  WcsProjection(const WcsProjection &);
-  WcsProjection &operator=(const WcsProjection &);
-};  // end WcsProjection
+  DISALLOW_COPY_AND_ASSIGN(WcsProjection);
+};
 
-}  // end namespace google_sky
+}  // namespace google_sky
 
 #endif  // WCSPROJECTION_H__

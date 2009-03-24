@@ -26,10 +26,11 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
+#include "mask.h"
+
 #include <cassert>
 #include <cstdio>
 #include <cstdlib>
-#include "mask.h"
 
 namespace google_sky {
 
@@ -140,4 +141,4 @@ void Mask::SetAlphaChannelFromMask(const Image &mask, Image *image) {
   }
 }
 
-}  // end namespace google_sky
+}  // namespace google_sky

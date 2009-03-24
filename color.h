@@ -30,7 +30,8 @@
 #define COLOR_H__
 
 #include <cassert>
-#include "uint8.h"
+
+#include "base.h"
 
 namespace google_sky {
 
@@ -201,11 +202,9 @@ class Color {
     assert(i >= 0 && i < channels_);
   }
 
-  // Don't allow copying.
-  Color(const Color &);
-  Color &operator=(const Color &);
-};  // end Color
+  DISALLOW_COPY_AND_ASSIGN(Color);
+};
 
-}  // end namespace google_sky
+}  // namespace google_sky
 
 #endif  // COLOR_H__

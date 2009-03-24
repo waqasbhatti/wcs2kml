@@ -26,11 +26,13 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
+#include "wcsprojection.h"
+
 #include <cassert>
 #include <cstdio>
 #include <cstdlib>
+
 #include "fits.h"
-#include "wcsprojection.h"
 
 namespace {
 
@@ -45,15 +47,15 @@ static const int WCS_CD_KEYWORDS_LEN = 8;
 static const char *WCS_CDELT_KEYWORDS[2] = {"CDELT1", "CDELT2"};
 static const int WCS_CDELT_KEYWORDS_LEN = 2;
 
-}  // end anonymous namespace
+}  // namespace
 
 namespace google_sky {
 
 // Reads all WCS keywords from the given FITS filename and parses the WCS
 // from the header.
-WcsProjection::WcsProjection(const std::string &fits_filename) {
+WcsProjection::WcsProjection(const string &fits_filename) {
   // Read FITS header and check for WCS.
-  std::string header;
+  string header;
   Fits::ReadHeader(fits_filename, 0, &header);
   WcsProjection::DieIfBadWcs(header);
 
@@ -78,13 +80,13 @@ WcsProjection::WcsProjection(const std::string &fits_filename) {
 // keywords to the header if they aren't present to overcome limitations in
 // how wcstools parses the header.  Strictly speaking, the image dimensions
 // aren't part of the WCS but wcstools likes them to be there.
-WcsProjection::WcsProjection(const std::string &fits_filename, int width,
+WcsProjection::WcsProjection(const string &fits_filename, int width,
                              int height) {
   assert(width > 0);
   assert(height > 0);
 
   // Read FITS header and check for WCS.
-  std::string header;
+  string header;
   Fits::ReadHeader(fits_filename, 0, &header);
   WcsProjection::DieIfBadWcs(header);
 
@@ -132,7 +134,7 @@ WcsProjection::WcsProjection(const std::string &fits_filename, int width,
 // particular for full PC matrices (both kinds), as well as LATPOLE and
 // LONPOLE.  It would also be good to check for illegal values, but that's
 // a lot of work.
-void WcsProjection::DieIfBadWcs(const std::string &header) {
+void WcsProjection::DieIfBadWcs(const string &header) {
   // Every header must have these keywords.
   for (int i = 0; i < WCS_KEYWORDS_LEN; ++i) {
     if (!Fits::HeaderHasKeyword(header, WCS_KEYWORDS[i])) {
@@ -181,4 +183,4 @@ void WcsProjection::DieIfBadWcs(const std::string &header) {
   }
 }
 
-} // end sky namespace
+}  // namespace google_sky

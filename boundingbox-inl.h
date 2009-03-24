@@ -36,7 +36,7 @@ namespace {
 // Converts degrees to radians.
 static const double RAD_PER_DEG = 0.017453292519943295;
 
-}  // end anonymous namespace
+}  // namespace
 
 namespace google_sky {
 
@@ -64,6 +64,6 @@ inline double Point::DistanceRaDecExact(const Point &p) const {
   return sqrt(dx * dx + dy * dy + dz * dz);
 }
 
-}  // end namespace google_sky
+}  // namespace google_sky
 
 #endif  // BOUNDINGBOX_INL_H__

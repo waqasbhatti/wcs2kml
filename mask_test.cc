@@ -28,6 +28,8 @@
 
 #include <cstdio>
 #include <cassert>
+
+#include "base.h"
 #include "mask.h"
 
 namespace google_sky {
@@ -117,7 +119,7 @@ int Main(int argc, char **argv) {
   return 0;
 }
 
-}  // end namespace google_sky
+}  // namespace google_sky
 
 int main(int argc, char **argv) {
   return google_sky::Main(argc, argv);

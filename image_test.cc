@@ -25,12 +25,14 @@
 // CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
+
 #include <cassert>
 #include <cstdio>
 #include <cstdlib>
+
+#include "base.h"
 #include "color.h"
 #include "image.h"
-#include "uint8.h"
 
 namespace google_sky {
 
@@ -307,7 +309,7 @@ int Main(int argc, char **argv) {
   return 0;
 }
 
-}  // end namespace google_sky
+}  // namespace google_sky
 
 int main(int argc, char **argv) {
   return google_sky::Main(argc, argv);

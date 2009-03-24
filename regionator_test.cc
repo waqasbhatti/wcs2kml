@@ -28,13 +28,14 @@
 
 #include <cstdio>
 #include <cassert>
+
 #include <string>
+
+#include "base.h"
 #include "mask.h"
 #include "regionator.h"
 #include "skyprojection.h"
-#include "stringprintf.h"
-
-using std::string;
+#include "string_util.h"
 
 // These files are for a downsampled SDSS frame with a black border to test
 // automasking that is known to properly project.
@@ -48,10 +49,8 @@ namespace google_sky {
 // Reads 2 tiles, one from subdir "tiles" and one from "testdata", and
 // returns whether they are equal.
 bool CompareTile(const char *filename) {
-  string tile_path;
-  string true_tile_path;
-  StringPrintf(&tile_path, 1024, "tiles/%s", filename);
-  StringPrintf(&true_tile_path, 1024, "testdata/%s", filename);
+  string tile_path = StringPrintf("tiles/%s", filename);
+  string true_tile_path = StringPrintf("testdata/%s", filename);
 
   Image tile;
   Image true_tile;
@@ -120,7 +119,7 @@ int Main(int argc, char **argv) {
   return 0;
 }
 
-}  // end namespace google_sky
+}  // namespace google_sky
 
 int main(int argc, char **argv) {
   return google_sky::Main(argc, argv);

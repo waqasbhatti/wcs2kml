@@ -29,6 +29,8 @@
 #include <cassert>
 #include <cmath>
 #include <cstdio>
+
+#include "base.h"
 #include "boundingbox.h"
 #include "wcsprojection.h"
 
@@ -81,7 +83,7 @@ int Main(int argc, char **argv) {
   return 0;
 }
 
-}  // end namespace google_sky
+}  // namespace google_sky
 
 int main(int argc, char **argv) {
   return google_sky::Main(argc, argv);

@@ -30,6 +30,8 @@
 #define REGIONATOR_H__
 
 #include <string>
+
+#include "base.h"
 #include "image.h"
 
 namespace google_sky {
@@ -125,32 +127,32 @@ class Regionator {
   void SetMaxTileSideLength(int side_length);
 
   // Returns the prefix of the output files.
-  inline const std::string &filename_prefix(void) const {
+  inline const string &filename_prefix(void) const {
     return filename_prefix_;
   }
 
   // Sets the prefix of the output files.
-  inline void set_filename_prefix(const std::string &filename_prefix) {
+  inline void set_filename_prefix(const string &filename_prefix) {
     filename_prefix_ = filename_prefix;
   }
 
   // Returns the output directory.
-  inline const std::string &output_directory(void) const {
+  inline const string &output_directory(void) const {
     return output_directory_;
   }
 
   // Sets the output directory.
-  inline void set_output_directory(const std::string &output_directory) {
+  inline void set_output_directory(const string &output_directory) {
     output_directory_ = output_directory;
   }
 
   // Returns the name of the root KML file.
-  inline const std::string &root_kml(void) const {
+  inline const string &root_kml(void) const {
     return root_kml_;
   }
 
   // Sets the name of the root KML file.
-  inline void set_root_kml(const std::string &root_kml) {
+  inline void set_root_kml(const string &root_kml) {
     root_kml_ = root_kml;
   }
 
@@ -222,15 +224,15 @@ class Regionator {
   double dec_pixel_scale_;
 
   // Prefix of output files, defaults to "tile".
-  std::string filename_prefix_;
+  string filename_prefix_;
   
   // Output directory to store the tiles without a trailing slash, defaults
   // to "tiles".
-  std::string output_directory_;
+  string output_directory_;
 
   // Name of output root KML file for regionated subtiles, defaults
   // to "root.kml".
-  std::string root_kml_;
+  string root_kml_;
 
   // Draw borders for each tile?  This is extremely useful when debugging
   // when each level of tiles is loaded.
@@ -253,7 +255,7 @@ class Regionator {
   
   // Generates a filename prefix for an output tile given the limits of the
   // image that it copies from.
-  std::string MakeFilenamePrefix(int x1, int y1, int x2, int y2) const;
+  string MakeFilenamePrefix(int x1, int y1, int x2, int y2) const;
   
   // Computes the bounding box for the given range of coordinates.
   void ComputeBoundingBox(int x1, int y1, int x2, int y2, double *north,
@@ -262,12 +264,10 @@ class Regionator {
   // Creates a NeworkLink object containing a region for the given pixel
   // ranges.
   KmlNetworkLink MakeNetworkLink(int x1, int y1, int x2, int y2) const;
-  
-  // Don't allow copying.
-  Regionator(const Regionator &);
-  Regionator &operator=(const Regionator &);
-};  // end Regionator
 
-}  // end namespace google_sky
+  DISALLOW_COPY_AND_ASSIGN(Regionator);
+};
+
+}  // namespace google_sky
 
 #endif  // REGIONATOR_H__

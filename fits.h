@@ -87,6 +87,8 @@
 
 #include <string>
 
+#include "base.h"
+
 namespace google_sky {
 
 // Class for reading FITS files
@@ -113,8 +115,8 @@ class Fits {
  public:
   // Reads the header from the given FITS file starting at offset and returns
   // it in header.
-  static void ReadHeader(const std::string &fits_filename, long offset,
-                         std::string *header);
+  static void ReadHeader(const string &fits_filename, long offset,
+                         string *header);
 
   // Adds the image dimensions to header by adding cards for NAXIS1 and NAXIS2.
   // This function is safe to call if both NAXIS1 and NAXIS2 are already
@@ -122,15 +124,15 @@ class Fits {
   // violate the FITS standard for NAXIS = 2).  The primary use of this
   // function is to add keywords to keep wcstools happy, as it expects NAXIS1
   // and NAXIS2 if there is a WCS present.
-  static void AddImageDimensions(int width, int height, std::string *header);
+  static void AddImageDimensions(int width, int height, string *header);
 
   // Returns whether the given header string has the given keyword.
-  static bool HeaderHasKeyword(const std::string &header,
-                               const std::string &keyword);
+  static bool HeaderHasKeyword(const string &header,
+                               const string &keyword);
 
   // Reads an integer keyword.  Returns default_value if not found.
-  static int HeaderReadKeywordInt(const std::string &header,
-                                  const std::string &keyword,
+  static int HeaderReadKeywordInt(const string &header,
+                                  const string &keyword,
                                   int default_value);
 
  private:
@@ -142,11 +144,9 @@ class Fits {
     // Nothing needed.
   }
 
-  // Don't allow copying.
-  Fits(const Fits &);
-  Fits &operator=(const Fits &);
-};  // end Fits
+  DISALLOW_COPY_AND_ASSIGN(Fits);
+};
 
-}  // end namespace google_sky
+}  // namespace google_sky
 
 #endif  // FITS_H__
