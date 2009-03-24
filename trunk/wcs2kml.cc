@@ -28,15 +28,18 @@
 
 #include <cstdio>
 #include <cstdlib>
+
 #include <string>
+
 #include <google/gflags.h>
+
+#include "base.h"
 #include "boundingbox.h"
 #include "color.h"
 #include "mask.h"
 #include "image.h"
 #include "regionator.h"
 #include "skyprojection.h"
-#include "uint8.h"
 #include "wcsprojection.h"
 #include "wraparound.h"
 
@@ -80,10 +83,10 @@ DEFINE_string(wldfile, "", "name of output WLD file (not written by default)");
 namespace google_sky {
 
 // Writes a KML GroundOverlay describing this image on the sky.
-void WriteKmlBox(const std::string &kmlfile, const std::string &imagefile,
-                 const std::string &ground_overlay_name,
+void WriteKmlBox(const string &kmlfile, const string &imagefile,
+                 const string &ground_overlay_name,
                  const SkyProjection &projection) {
-  std::string kml_string;
+  string kml_string;
   projection.CreateKmlGroundOverlay(imagefile, ground_overlay_name,
                                     &kml_string);
 
@@ -98,9 +101,9 @@ void WriteKmlBox(const std::string &kmlfile, const std::string &imagefile,
 }
 
 // Writes a world file describing the bounding box.
-void WriteWorldFile(const std::string &wldfile,
+void WriteWorldFile(const string &wldfile,
                     const SkyProjection &projection) {
-  std::string wld_string;
+  string wld_string;
   projection.CreateWorldFile(&wld_string);
 
   FILE *fp = fopen(wldfile.c_str(), "w");
@@ -116,7 +119,7 @@ void WriteWorldFile(const std::string &wldfile,
 // The real main is defined here inside of the namespace to reduce the amount
 // of typing.
 int Main(int argc, char **argv) {
-  std::string usage = "Usage: ";
+  string usage = "Usage: ";
   usage += argv[0];
   usage += " --imagefile=<PNG image> --fitsfile=<FITS file with WCS>";
   google::SetUsageMessage(usage);
@@ -305,7 +308,7 @@ int Main(int argc, char **argv) {
   return 0;
 }
 
-}  // end namespace google_sky
+}  // namespace google_sky
 
 int main(int argc, char **argv) {
   return google_sky::Main(argc, argv);

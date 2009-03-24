@@ -58,4 +58,4 @@ Color::Color(const uint8 *color, int num_channels) {
   }
 }
 
-}  // end namespace google_sky
+}  // namespace google_sky

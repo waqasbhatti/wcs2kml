@@ -31,6 +31,8 @@
 
 #include <cassert>
 #include <cmath>
+
+#include "base.h"
 #include "wraparound.h"
 
 namespace google_sky {
@@ -295,11 +297,9 @@ class BoundingBox {
   // current bounding box.
   void UpdateExtrema(const WcsProjection &wcs, double x, double y);
 
-  // Don't allow copying.
-  BoundingBox(const BoundingBox &);
-  BoundingBox &operator=(const BoundingBox &);
-};  // end BoundingBox
+  DISALLOW_COPY_AND_ASSIGN(BoundingBox);
+};
 
-}  // end namespace google_sky
+}  // namespace google_sky
 
 #endif  // BOUNDINGBOX_H__

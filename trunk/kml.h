@@ -80,7 +80,7 @@
 // icon.href.set("foo.png");
 //
 // // Here's how to get a copy of the href value.
-// std::string href_copy = icon.href.get();
+// string href_copy = icon.href.get();
 //
 // KmlLatLonBox lat_lon_box;
 // lat_lon_box.north.set(12.0);
@@ -103,14 +103,17 @@
 // kml.AddGroundOverlay(ground_overlay);
 //
 // // Get the raw XML string describing the KML.
-// std::string kml_string = kml.ToString();
+// string kml_string = kml.ToString();
 
 #ifndef KML_H__
 #define KML_H__
 
 #include <cassert>
+
 #include <string>
 #include <vector>
+
+#include "base.h"
 
 namespace google_sky {
 
@@ -163,8 +166,8 @@ class KmlField {
 class KmlIcon {
  public:
   // NB: Compiler generated ctor, dtor, and copy functions are fine.
-  std::string ToString(int indent_level) const;
-  KmlField<std::string> href;
+  string ToString(int indent_level) const;
+  KmlField<string> href;
 };
 
 // <LatLonBox> class
@@ -176,7 +179,7 @@ class KmlLatLonBox {
   }
   
   // NB: Compiler generated ctor and copy functions are fine.
-  virtual std::string ToString(int indent_level) const;
+  virtual string ToString(int indent_level) const;
   KmlField<double> north;
   KmlField<double> south;
   KmlField<double> east;
@@ -193,7 +196,7 @@ class KmlLatLonAltBox : public KmlLatLonBox {
   }
   
   // NB: Compiler generated ctor and copy functions are fine.
-  virtual std::string ToString(int indent_level) const;
+  virtual string ToString(int indent_level) const;
   KmlField<double> min_altitude;
   KmlField<double> max_altitude;
 };
@@ -203,7 +206,7 @@ class KmlLatLonAltBox : public KmlLatLonBox {
 class KmlLookAt {
  public:
   // NB: Compiler generated ctor, dtor, and copy functions are fine.
-  std::string ToString(int indent_level) const;
+  string ToString(int indent_level) const;
   KmlField<double> longitude;
   KmlField<double> latitude;
   KmlField<double> range;
@@ -214,7 +217,7 @@ class KmlLookAt {
 class KmlLod {
  public:
   // NB: Compiler generated ctor, dtor, and copy functions are fine.
-  std::string ToString(int indent_level) const;
+  string ToString(int indent_level) const;
   KmlField<int> min_lod_pixels;
   KmlField<int> max_lod_pixels;
 };
@@ -224,7 +227,7 @@ class KmlLod {
 class KmlPoint {
  public:
   // NB: Compiler generated ctor, dtor, and copy functions are fine.
-  std::string ToString(int indent_level) const;
+  string ToString(int indent_level) const;
   KmlField<double> longitude;
   KmlField<double> latitude;
 };
@@ -245,7 +248,7 @@ class KmlLineString {
 
   // NB: Compiler generated copy methods are fine.
 
-  std::string ToString(int indent_level) const;
+  string ToString(int indent_level) const;
 
   inline void AddCoordinate(double longitude, double latitude) {
     longitudes_.push_back(longitude);
@@ -258,8 +261,8 @@ class KmlLineString {
   }
 
  private:
-  std::vector<double> longitudes_;
-  std::vector<double> latitudes_;
+  vector<double> longitudes_;
+  vector<double> latitudes_;
 };
 
 // <GroundOverlay> class
@@ -267,13 +270,13 @@ class KmlLineString {
 class KmlGroundOverlay {
  public:
   // NB: Compiler generated ctor, dtor, and copy functions are fine.
-  std::string ToString(int indent_level) const;
+  string ToString(int indent_level) const;
   
   // Populates the dimensions of the LatLonBox at LookAt from a BoundingBox
   // object describing boundaries of an image in ra, dec space.
   void FromBoundingBox(const BoundingBox &bounding_box);
   
-  KmlField<std::string> name;
+  KmlField<string> name;
   KmlField<int> draw_order;
   KmlField<KmlIcon> icon;
   KmlField<KmlLatLonBox> lat_lon_box;
@@ -285,7 +288,7 @@ class KmlGroundOverlay {
 class KmlRegion {
  public:
   // NB: Compiler generated ctor, dtor, and copy functions are fine.
-  std::string ToString(int indent_level) const;
+  string ToString(int indent_level) const;
   KmlField<KmlLatLonAltBox> lat_lon_alt_box;
   KmlField<KmlLod> lod;
 };
@@ -295,8 +298,8 @@ class KmlRegion {
 class KmlLink {
  public:
   // NB: Compiler generated ctor, dtor, and copy functions are fine.
-  std::string ToString(int indent_level) const;
-  KmlField<std::string> href;
+  string ToString(int indent_level) const;
+  KmlField<string> href;
 };
 
 // <NetworkLink> class
@@ -304,8 +307,8 @@ class KmlLink {
 class KmlNetworkLink {
  public:
   // NB: Compiler generated ctor, dtor, and copy functions are fine.
-  std::string ToString(int indent_level) const;
-  KmlField<std::string> name;
+  string ToString(int indent_level) const;
+  KmlField<string> name;
   KmlField<KmlRegion> region;
   KmlField<KmlLink> link;
 };
@@ -316,9 +319,9 @@ class KmlNetworkLink {
 class KmlPlacemark {
  public:
   // NB: Compiler generated ctor, dtor, and copy functions are fine.
-  std::string ToString(int indent_level) const;
-  KmlField<std::string> name;
-  KmlField<std::string> description;
+  string ToString(int indent_level) const;
+  KmlField<string> name;
+  KmlField<string> description;
   KmlField<KmlLookAt> look_at;
   KmlField<KmlPoint> point;
   KmlField<KmlLineString> line_string;
@@ -343,9 +346,9 @@ class Kml {
 
   // NB: Compiler generated copy methods are fine.
 
-  // Returns a human readable std::string representation of the KML object.
+  // Returns a human readable string representation of the KML object.
   // This is the method to call to generate the raw XML string.
-  std::string ToString(void) const;
+  string ToString(void) const;
   
   inline void AddGroundOverlay(const KmlGroundOverlay &ground_overlay) {
     ground_overlays_.push_back(ground_overlay);
@@ -374,15 +377,13 @@ class Kml {
   KmlField<KmlRegion> region;
   
  private:
-  std::vector<KmlGroundOverlay> ground_overlays_;
-  std::vector<KmlPlacemark> placemarks_;
-  std::vector<KmlNetworkLink> network_links_;
-  
-  // Don't allow copying.
-  Kml(const Kml &);
-  Kml &operator=(const Kml &);
-};  // end Kml
+  vector<KmlGroundOverlay> ground_overlays_;
+  vector<KmlPlacemark> placemarks_;
+  vector<KmlNetworkLink> network_links_;
 
-}  // end namespace google_sky
+  DISALLOW_COPY_AND_ASSIGN(Kml);
+};
+
+}  // namespace google_sky
 
 #endif  // KML_H__

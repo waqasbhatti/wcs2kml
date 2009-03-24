@@ -29,9 +29,9 @@
 #ifndef MASK_H__
 #define MASK_H__
 
+#include "base.h"
 #include "color.h"
 #include "image.h"
-#include "uint8.h"
 
 namespace google_sky {
 
@@ -83,11 +83,9 @@ class Mask {
   // This is a static class.
   Mask();
 
-  // Don't allow copying.
-  Mask(const Mask &);
-  Mask &operator=(const Mask &);
-};  // end Mask
+  DISALLOW_COPY_AND_ASSIGN(Mask);
+};
 
-}  // end namespace google_sky
+}  // namespace google_sky
 
 #endif  // MASK_H__

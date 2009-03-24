@@ -26,9 +26,11 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#include <cassert>
 #include "boundingbox.h"
 #include "boundingbox-inl.h"
+
+#include <cassert>
+
 #include "wcsprojection.h"
 
 namespace {
@@ -46,7 +48,7 @@ static const double SMALL_BAD_VALUE = -999.0;
 static const double NORTH_POLE = 89.9999999;
 static const double SOUTH_POLE = -89.9999999;
 
-}  // end anonymous namespace
+}  // namespace
 
 namespace google_sky {
 
@@ -189,4 +191,4 @@ void BoundingBox::FindBoundingBoxForKnownWrapped(const WcsProjection &wcs,
   assert(dec_max_.dec > SMALL_BAD_VALUE);
 }
 
-}  // end namespace google_sky
+}  // namespace google_sky

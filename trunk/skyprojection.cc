@@ -26,16 +26,16 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
+#include "skyprojection.h"
+
 #include <cassert>
 #include <cmath>
-#include "kml.h"
-#include "skyprojection.h"
-#include "stringprintf.h"
 
-// Private functions
+#include "kml.h"
+#include "string_util.h"
+
 namespace {
 
-static const int STR_BUFSIZE = 1024;
 static const int MAX_SIDE_LENGTH_DEFAULT = 10000;
 static const double TINY_THETA_VALUE = 0.1;
 static const double TINY_FLOAT_VALUE = 1.0e-8;
@@ -45,7 +45,7 @@ inline int Round(double value) {
   return static_cast<int>(value + 0.5);
 }
 
-}  // end anonymous namespace
+}  // namespace
 
 namespace google_sky {
 
@@ -216,9 +216,9 @@ void SkyProjection::WarpImage(Image *projected_image) const {
 // filename imagefile points to the image to include in the <GroundOverlay>
 // element and ground_overlay_name gives the <name> element of the overlay.
 void SkyProjection::CreateKmlGroundOverlay(
-    const std::string &imagefile,
-    const std::string &ground_overlay_name,
-    std::string *kml_string) const {
+    const string &imagefile,
+    const string &ground_overlay_name,
+    string *kml_string) const {
   KmlIcon icon;
   icon.href.set(imagefile);
 
@@ -234,7 +234,7 @@ void SkyProjection::CreateKmlGroundOverlay(
 
 // Writes a World File representation to world_file_string.  Similar to KML
 // coordinates, a World File expects the coordinates to be between 0 and 180.
-void SkyProjection::CreateWorldFile(std::string *world_file_string) const {
+void SkyProjection::CreateWorldFile(string *world_file_string) const {
   // We need to ensure that ra increases monotonically from ra_min.ra to
   // ra_max.ra so that the pixel scale calculation is correct.
   double ra_min_monotonic;
@@ -277,12 +277,12 @@ void SkyProjection::CreateWorldFile(std::string *world_file_string) const {
   // Also note that the pixel indexes referred to by the WCS refer to the
   // pixel centers, so no 1/2 pixel adjustment is needed for the corners.
   world_file_string->clear();
-  StringAppendF(world_file_string, STR_BUFSIZE, "%.14f\n", -ra_pixel_scale);
-  StringAppendF(world_file_string, STR_BUFSIZE, "%.14f\n", 0.0);
-  StringAppendF(world_file_string, STR_BUFSIZE, "%.14f\n", 0.0);
-  StringAppendF(world_file_string, STR_BUFSIZE, "%.14f\n", -dec_pixel_scale);
-  StringAppendF(world_file_string, STR_BUFSIZE, "%.14f\n", ra_max_wrapped);
-  StringAppendF(world_file_string, STR_BUFSIZE, "%.14f\n", dec_max);
+  StringAppendF(world_file_string, "%.14f\n", -ra_pixel_scale);
+  StringAppendF(world_file_string, "%.14f\n", 0.0);
+  StringAppendF(world_file_string, "%.14f\n", 0.0);
+  StringAppendF(world_file_string, "%.14f\n", -dec_pixel_scale);
+  StringAppendF(world_file_string, "%.14f\n", ra_max_wrapped);
+  StringAppendF(world_file_string, "%.14f\n", dec_max);
 }
 
-}  // end namespace google_sky
+}  // namespace google_sky

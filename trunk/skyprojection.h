@@ -32,7 +32,10 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cmath>
+
 #include <string>
+
+#include "base.h"
 #include "boundingbox.h"
 #include "color.h"
 #include "image.h"
@@ -161,14 +164,14 @@ class SkyProjection {
   // bounding box of the file named imagefile and with a <name> tag given by
   // ground_overlay_name.  This method allows for the viewing of images
   // warped to lat-lon projection in Google Earth.
-  void CreateKmlGroundOverlay(const std::string &imagefile,
-                              const std::string &ground_overlay_name,
-                              std::string *kml_string) const;
+  void CreateKmlGroundOverlay(const string &imagefile,
+                              const string &ground_overlay_name,
+                              string *kml_string) const;
 
   // Generates a world file coordinate system reference for the projected
   // image as returned by WarpImage() and returns it in world_file_string.
   // A world file simple is a 6 line affine transformation description.
-  void CreateWorldFile(std::string *world_file_string) const;
+  void CreateWorldFile(string *world_file_string) const;
 
   // Returns the width of the output projection image.
   inline int projected_width(void) const {
@@ -215,11 +218,9 @@ class SkyProjection {
   // image should fit within the projected image with minimal resizing.
   void DetermineProjectedSize(void);
 
-  // Don't allow copying.
-  SkyProjection(const SkyProjection &);
-  SkyProjection &operator=(const SkyProjection &);
-};  // end SkyProjection
+  DISALLOW_COPY_AND_ASSIGN(SkyProjection);
+};
 
-}  // end namespace google_sky
+}  // namespace google_sky
 
 #endif  // SKYPROJECTION_H__

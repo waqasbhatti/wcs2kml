@@ -26,10 +26,12 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
+#include "image.h"
+
 #include <cstdio>
 #include <cstdlib>
+
 #include <stdexcept>
-#include "image.h"
 
 namespace google_sky {
 
@@ -397,7 +399,7 @@ bool Image::Equals(const Image &image) const {
 }
 
 // Reads an image from file.
-bool Image::Read(const std::string &filename) {
+bool Image::Read(const string &filename) {
   FILE *file_ptr = NULL;
   png_structp png_ptr = NULL;
   png_infop info_ptr = NULL;
@@ -506,7 +508,7 @@ bool Image::Read(const std::string &filename) {
 }
 
 // Writes an image to file.
-bool Image::Write(const std::string &filename) const {
+bool Image::Write(const string &filename) const {
   FILE *file_ptr = NULL;
   png_structp png_ptr = NULL;
   png_infop info_ptr = NULL;
@@ -589,4 +591,4 @@ bool Image::Write(const std::string &filename) const {
     return false;
 }
 
-}  // end namespace google_sky
+}  // namespace google_sky

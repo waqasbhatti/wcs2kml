@@ -26,12 +26,15 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
+#include "fits.h"
+
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+
 #include <string>
-#include "fits.h"
-#include "stringprintf.h"
+
+#include "string_util.h"
 
 namespace {
 
@@ -46,7 +49,7 @@ bool CardEqual(const char *card, const char *value, int num_chars) {
   return strncmp(card, value, num_chars) == 0;
 }
 
-}  // end anonymous namespace
+}  // namespace
 
 namespace google_sky {
 
@@ -56,8 +59,8 @@ namespace google_sky {
 // string 'SIMPLE' in chunks of size FITS_CARD_SIZE (FITS_BLOCK_SIZE = 36 *
 // FITS_CARD_SIZE) up to EOF or the string 'END' is found at the start of
 // the chunk.
-void Fits::ReadHeader(const std::string &fits_filename, long offset,
-                      std::string *header) {
+void Fits::ReadHeader(const string &fits_filename, long offset,
+                      string *header) {
   // Erase previous contents.
   header->clear();
 
@@ -122,7 +125,7 @@ void Fits::ReadHeader(const std::string &fits_filename, long offset,
 // not present.  This function is safe to call if both of the keywords are
 // already present but NOT if only one keyword is present (this would violate
 // the FITS standard anyway).
-void Fits::AddImageDimensions(int width, int height, std::string *header) {
+void Fits::AddImageDimensions(int width, int height, string *header) {
   // Find the location of the NAXIS keyword. To do this,
   // we look at each keyword in the header.  This is probably not necessary
   // since NAXIS should be the third keyword, but this is extra safe.
@@ -130,7 +133,7 @@ void Fits::AddImageDimensions(int width, int height, std::string *header) {
   int naxis_location = -1;
 
   for (int i = 0; i < static_cast<int>(header->size()); i += FITS_CARD_SIZE) {
-    std::string keyword = header->substr(i, naxis_len);
+    string keyword = header->substr(i, naxis_len);
     if (keyword == "NAXIS") {
       naxis_location = i;
       break;
@@ -147,7 +150,7 @@ void Fits::AddImageDimensions(int width, int height, std::string *header) {
   // information in higher dimensions.
   int naxis_value = Fits::HeaderReadKeywordInt(*header, "NAXIS", -1);
   if (naxis_value < 2) {
-    std::string naxis = "NAXIS   =                    2";
+    string naxis = "NAXIS   =                    2";
     *header = header->replace(naxis_location, naxis.size(), naxis);
   }
 
@@ -156,16 +159,16 @@ void Fits::AddImageDimensions(int width, int height, std::string *header) {
   int naxis1_location = naxis_location + FITS_CARD_SIZE;
   int naxis2_location = naxis_location + 2 * FITS_CARD_SIZE;
 
-  std::string naxis1 = header->substr(naxis1_location, strlen("NAXIS1"));
-  std::string naxis2 = header->substr(naxis2_location, strlen("NAXIS2"));
+  string naxis1 = header->substr(naxis1_location, strlen("NAXIS1"));
+  string naxis2 = header->substr(naxis2_location, strlen("NAXIS2"));
 
-  std::string naxis1_card = "";
-  std::string naxis2_card = "";
+  string naxis1_card = "";
+  string naxis2_card = "";
 
   if (naxis1 != "NAXIS1" && naxis2 != "NAXIS2") {
-    StringPrintf(&naxis1_card, 100, "%-8s= %20d / %-47s", "NAXIS1", width,
+    SStringPrintf(&naxis1_card, "%-8s= %20d / %-47s", "NAXIS1", width,
                  "Image width");
-    StringPrintf(&naxis2_card, 100, "%-8s= %20d / %-47s", "NAXIS2", height,
+    SStringPrintf(&naxis2_card, "%-8s= %20d / %-47s", "NAXIS2", height,
                  "Image height");
   } else if (naxis1 == "NAXIS1" && naxis2 == "NAXIS2") {
     // Do nothing.
@@ -178,7 +181,7 @@ void Fits::AddImageDimensions(int width, int height, std::string *header) {
   // Create the new header by taking the part including NAXIS and the part
   // after it and adding in the NAXIS1, NAXIS2 cards if needed.  Finally
   // we copy the new header back to the input.
-  std::string header_new = header->substr(0, naxis_location + FITS_CARD_SIZE) +
+  string header_new = header->substr(0, naxis_location + FITS_CARD_SIZE) +
                            naxis1_card + naxis2_card +
                            header->substr(naxis_location + FITS_CARD_SIZE,
                                           header->size() - naxis_location -
@@ -187,8 +190,8 @@ void Fits::AddImageDimensions(int width, int height, std::string *header) {
 }
 
 // Returns whether the given header string has the given keyword.
-bool Fits::HeaderHasKeyword(const std::string &header,
-                            const std::string &keyword) {
+bool Fits::HeaderHasKeyword(const string &header,
+                            const string &keyword) {
   if (static_cast<int>(keyword.size()) > FITS_KEYWORD_SIZE) {
     fprintf(stderr, "\nInvalid FITS keyword '%s' (too long)\n",
             keyword.c_str());
@@ -196,11 +199,11 @@ bool Fits::HeaderHasKeyword(const std::string &header,
   }
 
   for (int i = 0; i < static_cast<int>(header.size()); i += FITS_CARD_SIZE) {
-    std::string card_name = header.substr(i, FITS_KEYWORD_SIZE);
+    string card_name = header.substr(i, FITS_KEYWORD_SIZE);
 
     // Remove trailing space.
     int last_space_index = card_name.find_last_not_of(" ");
-    if (last_space_index == static_cast<int>(std::string::npos)) {
+    if (last_space_index == static_cast<int>(string::npos)) {
       last_space_index = FITS_KEYWORD_SIZE - 1;
     }
     
@@ -214,8 +217,8 @@ bool Fits::HeaderHasKeyword(const std::string &header,
 }
 
 // Reads an integer keyword and returns its value or default_value if not found.
-int Fits::HeaderReadKeywordInt(const std::string &header,
-                               const std::string &keyword,
+int Fits::HeaderReadKeywordInt(const string &header,
+                               const string &keyword,
                                int default_value) {
   if (static_cast<int>(keyword.size()) > FITS_KEYWORD_SIZE) {
     fprintf(stderr, "\nInvalid FITS keyword '%s' (too long)\n",
@@ -224,19 +227,19 @@ int Fits::HeaderReadKeywordInt(const std::string &header,
   }
 
   for (int i = 0; i < static_cast<int>(header.size()); i += FITS_CARD_SIZE) {
-    std::string card_name = header.substr(i, FITS_KEYWORD_SIZE);
+    string card_name = header.substr(i, FITS_KEYWORD_SIZE);
 
     // Remove trailing space.
     int last_space_index = card_name.find_last_not_of(" ");
-    if (last_space_index == static_cast<int>(std::string::npos)) {
+    if (last_space_index == static_cast<int>(string::npos)) {
       last_space_index = FITS_KEYWORD_SIZE - 1;
     }
     
     card_name = card_name.substr(0, last_space_index + 1);
     if (card_name == keyword) {
       // Value lies between characters 9 and 29 inclusive in this FITS card.
-      std::string card = header.substr(i, FITS_CARD_SIZE);
-      std::string value_str = card.substr(9, 21);
+      string card = header.substr(i, FITS_CARD_SIZE);
+      string value_str = card.substr(9, 21);
       return atoi(value_str.c_str());
     }
   }
@@ -244,4 +247,4 @@ int Fits::HeaderReadKeywordInt(const std::string &header,
   return default_value;
 }
 
-}  // end namespace google_sky
+}  // namespace google_sky

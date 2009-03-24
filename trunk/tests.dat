@@ -7,6 +7,6 @@ kml_test
 mask_test
 regionator_test
 skyprojection_test
-stringprintf_test
+string_util_test
 wcsprojection_test
 wraparound_test

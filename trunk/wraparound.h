@@ -31,6 +31,8 @@
 
 #include <cmath>
 
+#include "base.h"
+
 namespace google_sky {
 
 // Static class for determining if images cross the 0-360 boundary
@@ -113,11 +115,9 @@ class WrapAround {
     // Nothing needed.
   }
 
-  // Don't allow copying.
-  WrapAround(const WrapAround &);
-  WrapAround &operator=(const WrapAround &);
-};  // end WrapAround
+  DISALLOW_COPY_AND_ASSIGN(WrapAround);
+};
 
-}  // end namespace google_sky
+}  // namespace google_sky
 
 #endif  // WRAPAROUND_H__
