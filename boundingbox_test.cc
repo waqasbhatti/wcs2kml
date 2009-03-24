@@ -26,17 +26,16 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#include <cassert>
 #include <cmath>
-#include <cstdio>
+
+#include <iostream>
 
 #include "base.h"
 #include "boundingbox.h"
 #include "wcsprojection.h"
 
 // This is a downsampled SDSS frame.
-static const char *FITS_FILENAME =
-    "../../testdata/fpC-001478-g3-0022_small.fits";
+static const char *FITS_FILENAME = "testdata/fpC-001478-g3-0022_small.fits";
 static const int WIDTH = 512;
 static const int HEIGHT = 372;
 static const double TINY = 1.0e-10;
@@ -45,6 +44,8 @@ namespace google_sky {
 
 int Main(int argc, char **argv) {
   {
+    cout << "Testing BoundingBox... ";
+
     WcsProjection wcs(FITS_FILENAME, WIDTH, HEIGHT);
     BoundingBox box(wcs, WIDTH, HEIGHT);
 
@@ -61,25 +62,28 @@ int Main(int argc, char **argv) {
     const Point &dec_max = box.dec_max();
 
     // Check spherical coordinates.
-    assert(fabs(ra_min_true - ra_min.ra) < TINY);
-    assert(fabs(ra_max_true - ra_max.ra) < TINY);
-    assert(fabs(dec_min_true - dec_min.dec) < TINY);
-    assert(fabs(dec_max_true - dec_max.dec) < TINY);
+    ASSERT_TRUE(fabs(ra_min_true - ra_min.ra) < TINY);
+    ASSERT_TRUE(fabs(ra_max_true - ra_max.ra) < TINY);
+    ASSERT_TRUE(fabs(dec_min_true - dec_min.dec) < TINY);
+    ASSERT_TRUE(fabs(dec_max_true - dec_max.dec) < TINY);
 
     // Check pixel location of extrema.
-    assert(fabs(ra_min.x - 1.0) < TINY);
-    assert(fabs(ra_min.y - 1.0) < TINY);
+    ASSERT_TRUE(fabs(ra_min.x - 1.0) < TINY);
+    ASSERT_TRUE(fabs(ra_min.y - 1.0) < TINY);
 
-    assert(fabs(ra_max.x - WIDTH) < TINY);
-    assert(fabs(ra_max.y - HEIGHT) < TINY);
+    ASSERT_TRUE(fabs(ra_max.x - WIDTH) < TINY);
+    ASSERT_TRUE(fabs(ra_max.y - HEIGHT) < TINY);
 
-    assert(fabs(dec_min.x - 1.0) < TINY);
-    assert(fabs(dec_min.y - HEIGHT) < TINY);
+    ASSERT_TRUE(fabs(dec_min.x - 1.0) < TINY);
+    ASSERT_TRUE(fabs(dec_min.y - HEIGHT) < TINY);
 
-    assert(fabs(dec_max.x - WIDTH) < TINY);
-    assert(fabs(dec_max.y - 1.0) < TINY);
+    ASSERT_TRUE(fabs(dec_max.x - WIDTH) < TINY);
+    ASSERT_TRUE(fabs(dec_max.y - 1.0) < TINY);
+
+    cout << "pass\n";
   }
 
+  cout << "Passed\n";
   return 0;
 }
 

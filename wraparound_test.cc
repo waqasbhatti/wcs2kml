@@ -26,9 +26,9 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#include <cstdio>
-#include <cassert>
 #include <cmath>
+
+#include <iostream>
 
 #include "base.h"
 #include "wraparound.h"
@@ -36,36 +36,46 @@
 namespace google_sky {
 
 int Main(int argc, char **argv) {
-  // Test ImageWrapsAround.
   {
-    assert(WrapAround::ImageWrapsAround(10.0, 350.0));
-    assert(!WrapAround::ImageWrapsAround(10.0, 20.0));
-    assert(!WrapAround::ImageWrapsAround(180.0, 190.0));
-    assert(!WrapAround::ImageWrapsAround(180.0, 180.0));
+    cout << "Testing ImageWrapsAround()... ";
+
+    ASSERT_TRUE(WrapAround::ImageWrapsAround(10.0, 350.0));
+    ASSERT_FALSE(WrapAround::ImageWrapsAround(10.0, 20.0));
+    ASSERT_FALSE(WrapAround::ImageWrapsAround(180.0, 190.0));
+    ASSERT_FALSE(WrapAround::ImageWrapsAround(180.0, 180.0));
+
+    cout << "pass\n";
   }
 
-  // Test MakeRaMonotonic.
   {
+    cout << "Testing MakeRaMonotonic()... ";
+
     double ra = 5.0;
     WrapAround::MakeRaMonotonic(&ra);
-    assert(fabs(ra - 365.0) < 1.0e-6);
+    ASSERT_TRUE(fabs(ra - 365.0) < 1.0e-6);
 
     ra = 355.0;
     WrapAround::MakeRaMonotonic(&ra);
-    assert(fabs(ra - 355.0) < 1.0e-6);
+    ASSERT_TRUE(fabs(ra - 355.0) < 1.0e-6);
+
+    cout << "pass\n";
   }
 
-  // Test RestoreWrapAround.
   {
+    cout << "Testing RestoreWrapAround()... ";
+
     double ra = 5 * 360.0 + 5.0;
     WrapAround::RestoreWrapAround(&ra);
-    assert(fabs(ra - 5.0) < 1.0e-6);
+    ASSERT_TRUE(fabs(ra - 5.0) < 1.0e-6);
 
     ra = 15.0 - 360.0 * 3;
     WrapAround::RestoreWrapAround(&ra);
-    assert(fabs(ra - 15.0) < 1.0e-6);
+    ASSERT_TRUE(fabs(ra - 15.0) < 1.0e-6);
+
+    cout << "pass\n";
   }
 
+  cout << "Passed\n";
   return 0;
 }
 

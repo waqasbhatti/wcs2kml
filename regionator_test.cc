@@ -26,9 +26,7 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#include <cstdio>
-#include <cassert>
-
+#include <iostream>
 #include <string>
 
 #include "base.h"
@@ -39,10 +37,8 @@
 
 // These files are for a downsampled SDSS frame with a black border to test
 // automasking that is known to properly project.
-static const char *FITS_FILENAME =
-    "testdata/fpC-001478-g3-0022_small.fits";
-static const char *PNG_FILENAME = 
-    "testdata/fpC-001478-g3-0022_small.png";
+static const char *FITS_FILENAME = "testdata/fpC-001478-g3-0022_small.fits";
+static const char *PNG_FILENAME = "testdata/fpC-001478-g3-0022_small.png";
 
 namespace google_sky {
 
@@ -65,12 +61,15 @@ bool CompareTile(const char *filename) {
 }
 
 int Main(int argc, char **argv) {
-  // Test Regionate().  Here we use an image that should have 5 tiles total:
-  // 1 top level tile and 4 subtiles.  After generating the tiles, we compare
-  // them to the correct tiles in testdata.
+  // Test Regionate().  
   {
+    cout << "Testing Regionate()... ";
+
+    // Here we use an image that should have 5 tiles total: 1 top level tile
+    // and 4 subtiles.  After generating the tiles, we compare them to the
+    // correct tiles in testdata.
     Image image;
-    assert(image.Read(PNG_FILENAME));
+    ASSERT_TRUE(image.Read(PNG_FILENAME));
     WcsProjection wcs(FITS_FILENAME, image.width(), image.height());
     Color bg_color(4);  // transparent
     SkyProjection projection(image, wcs);
@@ -105,17 +104,20 @@ int Main(int argc, char **argv) {
     // Read the output tiles and compare them.  We know the name of the
     // output tiles for this cooked example that is a multiple of the tile
     // size.
-    assert(CompareTile("tile_0_0_190_255.png"));
-    assert(CompareTile("tile_0_0_381_511.png"));
-    assert(CompareTile("tile_0_255_190_511.png"));
-    assert(CompareTile("tile_190_0_381_255.png"));
-    assert(CompareTile("tile_190_255_381_511.png"));
+    ASSERT_TRUE(CompareTile("tile_0_0_190_255.png"));
+    ASSERT_TRUE(CompareTile("tile_0_0_381_511.png"));
+    ASSERT_TRUE(CompareTile("tile_0_255_190_511.png"));
+    ASSERT_TRUE(CompareTile("tile_190_0_381_255.png"));
+    ASSERT_TRUE(CompareTile("tile_190_255_381_511.png"));
     
     // Clean up.
-    assert(system("rm root.kml") == 0);
-    assert(system("rm -rf tiles/") == 0);
+    ASSERT_TRUE(system("rm root.kml") == 0);
+    ASSERT_TRUE(system("rm -rf tiles/") == 0);
+
+    cout << "pass\n";
   }
 
+  cout << "Passed\n";
   return 0;
 }
 

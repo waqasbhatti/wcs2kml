@@ -26,8 +26,7 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#include <cstdio>
-#include <cassert>
+#include <iostream>
 
 #include "base.h"
 #include "mask.h"
@@ -36,20 +35,19 @@ namespace google_sky {
 
 // These files are for a downsampled SDSS frame with a black border to test
 // automasking that is known to properly project.
-static const char *PNG_FILENAME = 
-    "testdata/fpC-001478-g3-0022_small.png";
+static const char *PNG_FILENAME = "testdata/fpC-001478-g3-0022_small.png";
 static const char *PNG_MASK_FILENAME = 
     "testdata/fpC-001478-g3-0022_small_mask.png";
-static const char *PNG_MASK_TEST_FILENAME =
-    "testdata/mask_test.png";
+static const char *PNG_MASK_TEST_FILENAME = "testdata/mask_test.png";
 static const char *PNG_MASK_TRUE_FILENAME =
     "testdata/mask_test_transparent.png";
 
 int Main(int argc, char **argv) {
-  // Test CreateMask().
   {
+    cout << "Testing CreateMask()... ";
+
     Image image;
-    assert(image.Read(PNG_FILENAME));
+    ASSERT_TRUE(image.Read(PNG_FILENAME));
 
     // Test images have a small black border.  The automasking should get
     // rid of it completely.
@@ -62,15 +60,18 @@ int Main(int argc, char **argv) {
    
     // Compare to previous results.
     Image true_mask;
-    assert(true_mask.Read(PNG_MASK_FILENAME));
-    assert(true_mask.ConvertToGrayscale());
-    assert(mask.Equals(true_mask));
+    ASSERT_TRUE(true_mask.Read(PNG_MASK_FILENAME));
+    ASSERT_TRUE(true_mask.ConvertToGrayscale());
+    ASSERT_TRUE(mask.Equals(true_mask));
+
+    cout << "pass\n";
   }
   
-  // Test SetAlphaChannelFromMask().
   {
+    cout << "Testing SetAlphaChannelFromMask()... ";
+
     Image image;
-    assert(image.Read(PNG_MASK_TEST_FILENAME));
+    ASSERT_TRUE(image.Read(PNG_MASK_TEST_FILENAME));
     
     // Test images have a small black border.  The automasking should get
     // rid of it completely.
@@ -86,14 +87,17 @@ int Main(int argc, char **argv) {
     
     // Compare to previous results.
     Image true_masked_image;
-    assert(true_masked_image.Read(PNG_MASK_TRUE_FILENAME));
-    assert(image.Equals(true_masked_image));
+    ASSERT_TRUE(true_masked_image.Read(PNG_MASK_TRUE_FILENAME));
+    ASSERT_TRUE(image.Equals(true_masked_image));
+
+    cout << "pass\n";
   }
 
-  // Test SetAlphaChannelFromMask() for grayscale + alpha.
   {
+    cout << "Testing SetAlphaChannelFromMask() for grayscale + alpha... ";
+
     Image image;
-    assert(image.Read(PNG_MASK_TEST_FILENAME));
+    ASSERT_TRUE(image.Read(PNG_MASK_TEST_FILENAME));
     
     // Test images have a small black border.  The automasking should get
     // rid of it completely.
@@ -104,18 +108,21 @@ int Main(int argc, char **argv) {
     Image mask;
     Mask::CreateMask(image, black, &mask);
     
-    assert(image.ConvertToGrayscalePlusAlpha());
+    ASSERT_TRUE(image.ConvertToGrayscalePlusAlpha());
     
     // Apply the mask.
     Mask::SetAlphaChannelFromMask(mask, &image);
     
     // Compare to previous results.
     Image true_masked_image;
-    assert(true_masked_image.Read(PNG_MASK_TRUE_FILENAME));
-    assert(true_masked_image.ConvertToGrayscalePlusAlpha());
-    assert(image.Equals(true_masked_image));
+    ASSERT_TRUE(true_masked_image.Read(PNG_MASK_TRUE_FILENAME));
+    ASSERT_TRUE(true_masked_image.ConvertToGrayscalePlusAlpha());
+    ASSERT_TRUE(image.Equals(true_masked_image));
+
+    cout << "pass\n";
   }
 
+  cout << "Passed\n";
   return 0;
 }
 
