@@ -74,7 +74,7 @@ def main(argv):
   finally:
     f.close()
 
-  print "Ran %d tests with %d failure(s)" % (num_tests, num_failures)
+  print "\nRan %d tests with %d failure(s)" % (num_tests, num_failures)
 
 if __name__ == "__main__":
   main(sys.argv)
