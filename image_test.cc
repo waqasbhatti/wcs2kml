@@ -1,4 +1,5 @@
 // Copyright (c) 2007-2009, Google Inc.
+// Author: Jeremy Brewer
 // All rights reserved.
 // 
 // Redistribution and use in source and binary forms, with or without
@@ -24,7 +25,6 @@
 // CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
-
 #include <cassert>
 #include <cstdio>
 #include <cstdlib>
@@ -268,7 +268,7 @@ int Main(int argc, char **argv) {
     Image verify_image;
     int width = 5;
     int height = 10;
-    char *tmp_png = "tmp.png";
+    const char *tmp_png = "tmp.png";
 
     // Note that images read from disk are always RGBA after being read, so
     // we need to convert them back before comparing.
