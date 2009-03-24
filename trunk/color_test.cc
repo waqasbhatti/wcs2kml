@@ -26,8 +26,7 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#include <cstdio>
-#include <cassert>
+#include <iostream>
 
 #include "base.h"
 #include "color.h"
@@ -38,57 +37,61 @@ static const uint8 BLACK[3] = { 0, 0, 0 };
 static const uint8 WHITE[3] = { 255, 255, 255 };
 
 int Main(int argc, char **argv) {
-  // Test constructors.
   {
+    cout << "Testing constructors... ";
     Color color(4);
-    assert(color.channels() == 4);
+    ASSERT_EQ(4, color.channels());
 
     Color color2(2);
-    assert(color2.channels() == 2);
+    ASSERT_EQ(2, color2.channels());
 
     Color color3(WHITE, 3);
-    assert(color3.channels() == 3);
+    ASSERT_EQ(3, color3.channels());
+    cout << "pass\n";
   }
 
-  // Test GetChannel().
   {
+    cout << "Testing GetChannel()... ";
     uint8 zero = 0;
     uint8 max = 255;
     Color black(4);
     for (int i = 0; i < black.channels(); ++i) {
-      assert(black.GetChannel(i) == zero);
+      ASSERT_EQ(zero, black.GetChannel(i));
     }
 
     Color white(WHITE, 3);
     for (int i = 0; i < white.channels(); ++i) {
-      assert(white.GetChannel(i) == max);
+      ASSERT_EQ(max, white.GetChannel(i));
     }
+    cout << "pass\n";
   }
   
-  // Test SetChannel().
   {
+    cout << "Testing SetChannel()... ";
     uint8 gray_value = 128;
     Color gray(4);
     for (int i = 0; i < gray.channels(); ++i) {
       gray.SetChannel(i, gray_value);
     }
     for (int i = 0; i < gray.channels(); ++i) {
-      assert(gray.GetChannel(i) == gray_value);
+      ASSERT_EQ(gray_value, gray.GetChannel(i));
     }
+    cout << "pass\n";
   }
   
-  // Test SetAllChannels().
   {
+    cout << "Testing SetAllChannels()... ";
     uint8 gray_value = 128;
     Color gray(4);
     gray.SetAllChannels(gray_value);
     for (int i = 0; i < gray.channels(); ++i) {
-      assert(gray.GetChannel(i) == gray_value);
+      ASSERT_EQ(gray_value, gray.GetChannel(i));
     }
+    cout << "pass\n";
   }
   
-  // Test CopyChannels().
   {
+    cout << "Testing CopyChannels()... ";
     Color white(4);
     Color copy(4);
     white.SetAllChannels(255);
@@ -96,30 +99,32 @@ int Main(int argc, char **argv) {
     
     copy.CopyChannels(white, 1, 3);
     for (int i = 1; i < 3; ++i) {
-      assert(copy.GetChannel(i) == 255);
+      ASSERT_EQ(255, copy.GetChannel(i));
     }
     
-    assert(copy.GetChannel(0) == 0);
-    assert(copy.GetChannel(3) == 0);  
+    ASSERT_EQ(0, copy.GetChannel(0));
+    ASSERT_EQ(0, copy.GetChannel(3));
+    cout << "pass\n";
   }
   
-  // Test Equals().
   {
+    cout << "Testing Equals()... ";
     Color gray(4);
     Color gray2(4);
     Color black(4);
     gray.SetAllChannels(128);
     gray2.SetAllChannels(128);
     
-    assert(gray.Equals(gray2));
-    assert(gray2.Equals(gray));
+    ASSERT_TRUE(gray.Equals(gray2));
+    ASSERT_TRUE(gray2.Equals(gray));
 
-    assert(!gray.Equals(black));
-    assert(!black.Equals(gray));
+    ASSERT_FALSE(gray.Equals(black));
+    ASSERT_FALSE(black.Equals(gray));
+    cout << "pass\n";
   }
   
-  // Test EqualsIgnoringAlpha().
   {
+    cout << "Testing EqualsIgnoringAlpha()... ";
     Color gray(4);
     Color gray2(4);
     Color gray3(4);
@@ -133,19 +138,21 @@ int Main(int argc, char **argv) {
     almost_gray.SetChannel(2, 127);
     almost_gray.SetChannel(3, 127);
 
-    assert(gray.EqualsIgnoringAlpha(gray2));
-    assert(gray2.EqualsIgnoringAlpha(gray));
+    ASSERT_TRUE(gray.EqualsIgnoringAlpha(gray2));
+    ASSERT_TRUE(gray2.EqualsIgnoringAlpha(gray));
 
-    assert(gray.EqualsIgnoringAlpha(gray3));
-    assert(gray3.EqualsIgnoringAlpha(gray));
+    ASSERT_TRUE(gray.EqualsIgnoringAlpha(gray3));
+    ASSERT_TRUE(gray3.EqualsIgnoringAlpha(gray));
 
-    assert(!gray.EqualsIgnoringAlpha(black));
-    assert(!black.EqualsIgnoringAlpha(gray));
+    ASSERT_FALSE(gray.EqualsIgnoringAlpha(black));
+    ASSERT_FALSE(black.EqualsIgnoringAlpha(gray));
 
-    assert(!gray.EqualsIgnoringAlpha(almost_gray));
-    assert(!almost_gray.EqualsIgnoringAlpha(gray));
+    ASSERT_FALSE(gray.EqualsIgnoringAlpha(almost_gray));
+    ASSERT_FALSE(almost_gray.EqualsIgnoringAlpha(gray));
+    cout << "pass\n";
   }
 
+  cout << "Passed\n";
   return 0;
 }
 

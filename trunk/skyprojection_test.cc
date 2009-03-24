@@ -26,8 +26,7 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#include <cstdio>
-#include <cassert>
+#include <iostream>
 
 #include "base.h"
 #include "mask.h"
@@ -35,20 +34,19 @@
 
 // These files are for a downsampled SDSS frame with a black border to test
 // automasking that is known to properly project.
-static const char *FITS_FILENAME =
-    "testdata/fpC-001478-g3-0022_small.fits";
-static const char *PNG_FILENAME = 
-    "testdata/fpC-001478-g3-0022_small.png";
-static const char *WARPED_PNG_FILENAME = 
+static const char *FITS_FILENAME = "testdata/fpC-001478-g3-0022_small.fits";
+static const char *PNG_FILENAME = "testdata/fpC-001478-g3-0022_small.png";
+static const char *WARPED_PNG_FILENAME =
     "testdata/fpC-001478-g3-0022_small_warped.png";
 
 namespace google_sky {
 
 int Main(int argc, char **argv) {
-  // Test WarpImage() with masking.
   {
+    cout << "Testing WarpImage() with masking... ";
+
     Image image;
-    assert(image.Read(PNG_FILENAME));
+    ASSERT_TRUE(image.Read(PNG_FILENAME));
     WcsProjection wcs(FITS_FILENAME, image.width(), image.height());
     Color bg_color(4);  // transparent
     SkyProjection projection(image, wcs);
@@ -68,13 +66,16 @@ int Main(int argc, char **argv) {
 
     Image warped_image;
     projection.WarpImage(&warped_image);
-    
+
     // Compare to previous results.
     Image true_warped_image;
-    assert(true_warped_image.Read(WARPED_PNG_FILENAME));
-    assert(warped_image.Equals(true_warped_image));
+    ASSERT_TRUE(true_warped_image.Read(WARPED_PNG_FILENAME));
+    ASSERT_TRUE(warped_image.Equals(true_warped_image));
+
+    cout << "pass\n";
   }
 
+  cout << "Passed\n";
   return 0;
 }
 

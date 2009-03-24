@@ -26,10 +26,9 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#include <cstdio>
-#include <cassert>
 #include <cmath>
 
+#include <iostream>
 #include <string>
 
 #include "base.h"
@@ -96,51 +95,56 @@ static const char *FITS_HEADER_NAXIS =
 static const char *FITS_FILENAME = "testdata/fits_test.fits";
 
 int Main(int argc, char **argv) {
-  // Test ReadHeader().
   {
+    cout << "Testing ReadHeader()... ";
     string header;
     Fits::ReadHeader(FITS_FILENAME, 0, &header);
-    assert(header == FITS_HEADER);
+    ASSERT_EQ(FITS_HEADER, header);
     Fits::ReadHeader(FITS_FILENAME, 2880, &header);
-    assert(header == FITS_HEADER_NO_NAXIS);
+    ASSERT_EQ(FITS_HEADER_NO_NAXIS, header);
     Fits::ReadHeader(FITS_FILENAME, 2 * 2880, &header);
-    assert(header == FITS_HEADER_NAXIS);
+    ASSERT_EQ(FITS_HEADER_NAXIS, header);
+    cout << "pass\n";
   }
 
-  // Test AddImageDimensions().
   {
+    cout << "Testing AddImageDimensions()... ";
     string header_no_naxis;
     string header_naxis;
     Fits::ReadHeader(FITS_FILENAME, 2880, &header_no_naxis);
     Fits::ReadHeader(FITS_FILENAME, 2 * 2880, &header_naxis);
     Fits::AddImageDimensions(100, 200, &header_no_naxis);
-    assert(header_no_naxis == header_naxis);
+    ASSERT_EQ(header_naxis, header_no_naxis);
+    cout << "pass\n";
   }
 
-  // Test HeaderHasKeyword().
   {
+    cout << "Testing HeaderHasKeyword()... ";
     string header;
     Fits::ReadHeader(FITS_FILENAME, 0, &header);
-    assert(Fits::HeaderHasKeyword(header, "SIMPLE"));
-    assert(Fits::HeaderHasKeyword(header, "BITPIX"));
-    assert(Fits::HeaderHasKeyword(header, "NAXIS1"));
-    assert(Fits::HeaderHasKeyword(header, "END"));
-    assert(!Fits::HeaderHasKeyword(header, "NAX"));
-    assert(!Fits::HeaderHasKeyword(header, "NAXIS  "));
-    assert(!Fits::HeaderHasKeyword(header, "  NAXIS"));
+    ASSERT_TRUE(Fits::HeaderHasKeyword(header, "SIMPLE"));
+    ASSERT_TRUE(Fits::HeaderHasKeyword(header, "BITPIX"));
+    ASSERT_TRUE(Fits::HeaderHasKeyword(header, "NAXIS1"));
+    ASSERT_TRUE(Fits::HeaderHasKeyword(header, "END"));
+    ASSERT_FALSE(Fits::HeaderHasKeyword(header, "NAX"));
+    ASSERT_FALSE(Fits::HeaderHasKeyword(header, "NAXIS  "));
+    ASSERT_FALSE(Fits::HeaderHasKeyword(header, "  NAXIS"));
+    cout << "pass\n";
   }
   
-  // Test ReadKeywordInt().
   {
+    cout << "Testing ReadKeywordInt()... ";
     string header;
     Fits::ReadHeader(FITS_FILENAME, 0, &header);
-    assert(Fits::HeaderReadKeywordInt(header, "BITPIX", -1) == 8);
-    assert(Fits::HeaderReadKeywordInt(header, "NAXIS", -1) == 2);
-    assert(Fits::HeaderReadKeywordInt(header, "NAXIS1", -1) == 852);
-    assert(Fits::HeaderReadKeywordInt(header, "NAXIS2", -1) == 562);
-    assert(Fits::HeaderReadKeywordInt(header, "FOO", -1) == -1);
+    ASSERT_EQ(8, Fits::HeaderReadKeywordInt(header, "BITPIX", -1));
+    ASSERT_EQ(2, Fits::HeaderReadKeywordInt(header, "NAXIS", -1));
+    ASSERT_EQ(852, Fits::HeaderReadKeywordInt(header, "NAXIS1", -1));
+    ASSERT_EQ(562, Fits::HeaderReadKeywordInt(header, "NAXIS2", -1));
+    ASSERT_EQ(-1, Fits::HeaderReadKeywordInt(header, "FOO", -1));
+    cout << "pass\n";
   }
-  
+
+  cout << "Passed\n";
   return 0;
 }
 

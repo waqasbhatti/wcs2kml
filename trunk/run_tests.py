@@ -37,7 +37,8 @@ def run(command):
   try:
     process = subprocess.Popen(args, stdout=subprocess.PIPE,
                                stderr=subprocess.PIPE)
-    return_code = process.wait() / 256
+    process.wait()
+    return_code = process.returncode
     stdout = process.stdout.read()
     stderr = process.stderr.read()
   except OSError, msg:

@@ -34,8 +34,7 @@
 #include "wcsprojection.h"
 
 // This is a downsampled SDSS frame.
-static const char *FITS_FILENAME =
-    "../../testdata/fpC-001478-g3-0022_small.fits";
+static const char *FITS_FILENAME = "testdata/fpC-001478-g3-0022_small.fits";
 static const int WIDTH = 512;
 static const int HEIGHT = 372;
 static const double TINY = 1.0e-10;
@@ -43,8 +42,9 @@ static const double TINY = 1.0e-10;
 namespace google_sky {
 
 int Main(int argc, char **argv) {
-  // Test ToRaDec() (compared by hand to output from the ds9 FITS viewer).
-  {  
+  {
+    cout << "Testing ToRaDec()... ";
+
     WcsProjection wcs(FITS_FILENAME, WIDTH, HEIGHT);
     double ra;
     double dec;
@@ -56,36 +56,39 @@ int Main(int argc, char **argv) {
     x = 1.0;
     y = 1.0;
     wcs.ToRaDec(x, y, &ra, &dec);
-    assert(fabs(ra - 211.22294735674018) < TINY);
-    assert(fabs(dec - 4.05902713965908) < TINY);
+    ASSERT_TRUE(fabs(ra - 211.22294735674018) < TINY);
+    ASSERT_TRUE(fabs(dec - 4.05902713965908) < TINY);
 
     x = static_cast<double>(WIDTH);
     y = 1.0;
     wcs.ToRaDec(x, y, &ra, &dec);
-    assert(fabs(ra - 211.23196153167223) < TINY);
-    assert(fabs(dec - 4.28811486571381) < TINY);
+    ASSERT_TRUE(fabs(ra - 211.23196153167223) < TINY);
+    ASSERT_TRUE(fabs(dec - 4.28811486571381) < TINY);
 
     x = 1.0;
     y = static_cast<double>(HEIGHT);
     wcs.ToRaDec(x, y, &ra, &dec);
-    assert(fabs(ra - 211.38968824884054) < TINY);
-    assert(fabs(dec - 4.05248327187094) < TINY);
+    ASSERT_TRUE(fabs(ra - 211.38968824884054) < TINY);
+    ASSERT_TRUE(fabs(dec - 4.05248327187094) < TINY);
     
     x = static_cast<double>(WIDTH);
     y = static_cast<double>(HEIGHT);
     wcs.ToRaDec(x, y, &ra, &dec);
-    assert(fabs(ra - 211.39875091170057) < TINY);
-    assert(fabs(dec - 4.28156919355767) < TINY);
+    ASSERT_TRUE(fabs(ra - 211.39875091170057) < TINY);
+    ASSERT_TRUE(fabs(dec - 4.28156919355767) < TINY);
     
     x = 0.5 * WIDTH;
     y = 0.5 * HEIGHT;
     wcs.ToRaDec(x, y, &ra, &dec);
-    assert(fabs(ra - 211.31060308825374) < TINY);
-    assert(fabs(dec - 4.17008771653732) < TINY);
+    ASSERT_TRUE(fabs(ra - 211.31060308825374) < TINY);
+    ASSERT_TRUE(fabs(dec - 4.17008771653732) < TINY);
+
+    cout << "pass\n";
   }  
   
-  // Test ToPixel().
   {
+    cout << "Testing ToPixel()... ";
+
     WcsProjection wcs(FITS_FILENAME, WIDTH, HEIGHT);
     double ra;
     double dec;
@@ -103,9 +106,9 @@ int Main(int argc, char **argv) {
         y = static_cast<double>(j + 1);
         wcs.ToRaDec(x, y, &ra, &dec);
         inside = wcs.ToPixel(ra, dec, &x_check, &y_check);
-        assert(inside);
-        assert(fabs(x - x_check) < TINY);
-        assert(fabs(y - y_check) < TINY);
+        ASSERT_TRUE(inside);
+        ASSERT_TRUE(fabs(x - x_check) < TINY);
+        ASSERT_TRUE(fabs(y - y_check) < TINY);
       }
     }
 
@@ -113,14 +116,17 @@ int Main(int argc, char **argv) {
     ra = 212.23;
     dec = 67.67;
     inside = wcs.ToPixel(ra, dec, &x_check, &y_check);
-    assert(!inside);
+    ASSERT_FALSE(inside);
 
     ra = 154.15;
     dec = 15.45;
     inside = wcs.ToPixel(ra, dec, &x_check, &y_check);
-    assert(!inside);
+    ASSERT_FALSE(inside);
+
+    cout << "pass\n";
   }
-  
+
+  cout << "Passed\n";
   return 0;
 }
 
