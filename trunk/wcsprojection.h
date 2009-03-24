@@ -1,4 +1,5 @@
 // Copyright (c) 2007-2009, Google Inc.
+// Author: Jeremy Brewer
 // All rights reserved.
 // 
 // Redistribution and use in source and binary forms, with or without
