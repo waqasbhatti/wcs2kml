@@ -32,7 +32,8 @@ namespace google_sky {
 
 // Creates a color with the given number of channels and 0 for all values.
 Color::Color(int num_channels) {
-  assert(num_channels > 0 && num_channels <= MAX_CHANNELS);
+  CHECK(num_channels > 0 && num_channels <= MAX_CHANNELS)
+      << "Invalid num_channels: " << num_channels;
   channels_ = num_channels;
   for (int i = 0; i < num_channels; ++i) {
     array_[i] = 0;
@@ -46,7 +47,8 @@ Color::Color(int num_channels) {
 
 // Creates a Color from the input values.
 Color::Color(const uint8 *color, int num_channels) {
-  assert(num_channels > 0 && num_channels <= MAX_CHANNELS);
+  CHECK(num_channels > 0 && num_channels <= MAX_CHANNELS)
+      << "Invalid num_channels: " << num_channels;
   channels_ = num_channels;
   for (int i = 0; i < num_channels; ++i) {
     array_[i] = color[i];

@@ -90,7 +90,7 @@ namespace google_sky {
 
 // KmlIcon methods.
 string KmlIcon::ToString(int indent_level) const {
-  assert(href.has_value());
+  CHECK(href.has_value()) << "No href value";
   string xml;
   AppendTag(&xml, "<Icon>", indent_level);
   xml.append(CreateKml(href, "href", indent_level + 1));
@@ -100,10 +100,10 @@ string KmlIcon::ToString(int indent_level) const {
 
 // KmlLatLonBox methods.
 string KmlLatLonBox::ToString(int indent_level) const {
-  assert(north.has_value());
-  assert(south.has_value());
-  assert(east.has_value());
-  assert(west.has_value());
+  CHECK(north.has_value()) << "No north value";
+  CHECK(south.has_value()) << "No south value";
+  CHECK(east.has_value()) << "No east value";
+  CHECK(west.has_value()) << "No west value";
   string xml;
   AppendTag(&xml, "<LatLonBox>", indent_level);
   xml.append(CreateKml(north, "north", indent_level + 1));
@@ -119,10 +119,10 @@ string KmlLatLonBox::ToString(int indent_level) const {
 
 // KmlLatLonAltBox methods.
 string KmlLatLonAltBox::ToString(int indent_level) const {
-  assert(north.has_value());
-  assert(south.has_value());
-  assert(east.has_value());
-  assert(west.has_value());
+  CHECK(north.has_value()) << "No north value";
+  CHECK(south.has_value()) << "No south value";
+  CHECK(east.has_value()) << "No east value";
+  CHECK(west.has_value()) << "No west value";
   string xml;
   AppendTag(&xml, "<LatLonAltBox>", indent_level);
   xml.append(CreateKml(north, "north", indent_level + 1));
@@ -144,9 +144,9 @@ string KmlLatLonAltBox::ToString(int indent_level) const {
 
 // KmlLookAt methods.
 string KmlLookAt::ToString(int indent_level) const {
-  assert(longitude.has_value());
-  assert(latitude.has_value());
-  assert(range.has_value());
+  CHECK(longitude.has_value()) << "No longitude";
+  CHECK(latitude.has_value()) << "No latitude value";
+  CHECK(range.has_value()) << "No range value";
   string xml;
   AppendTag(&xml, "<LookAt>", indent_level);
   xml.append(CreateKml(longitude, "longitude", indent_level + 1));
@@ -158,8 +158,8 @@ string KmlLookAt::ToString(int indent_level) const {
 
 // KmlLod methods.
 string KmlLod::ToString(int indent_level) const {
-  assert(min_lod_pixels.has_value());
-  assert(max_lod_pixels.has_value());
+  CHECK(min_lod_pixels.has_value()) << "No min_lod_pixels value";
+  CHECK(max_lod_pixels.has_value()) << "No max_lod_pixels value";
   string xml;
   AppendTag(&xml, "<Lod>", indent_level);
   xml.append(CreateKml(min_lod_pixels, "minLodPixels", indent_level + 1));
@@ -170,8 +170,8 @@ string KmlLod::ToString(int indent_level) const {
 
 // KmlPoint methods.
 string KmlPoint::ToString(int indent_level) const {
-  assert(longitude.has_value());
-  assert(latitude.has_value());
+  CHECK(longitude.has_value()) << "No longitude";
+  CHECK(latitude.has_value()) << "No latitude";
   // This is a special case CreateKml() can't handle.
   string coordinates =
       StringPrintf("<coordinates>%.14f,%.14f</coordinates>\n", longitude.get(),
@@ -186,7 +186,8 @@ string KmlPoint::ToString(int indent_level) const {
 
 // KmlLineString methods.
 string KmlLineString::ToString(int indent_level) const {
-  assert(longitudes_.size() > 0 && latitudes_.size() > 0);
+  CHECK_GT(longitudes_.size(), 0);
+  CHECK_GT(latitudes_.size(), 0);
   string xml;
   AppendTag(&xml, "<LineString>", indent_level);
   AppendTag(&xml, "<coordinates>", indent_level + 1);
@@ -204,8 +205,8 @@ string KmlLineString::ToString(int indent_level) const {
 
 // KmlGroundOverlay methods.
 string KmlGroundOverlay::ToString(int indent_level) const {
-  assert(lat_lon_box.has_value());
-  assert(icon.has_value());
+  CHECK(lat_lon_box.has_value()) << "No lat_lon_box value";
+  CHECK(icon.has_value()) << "No icon value";
   string xml;
   AppendTag(&xml, "<GroundOverlay>", indent_level);
   if (name.has_value()) {
@@ -228,8 +229,8 @@ void KmlGroundOverlay::FromBoundingBox(const BoundingBox &bounding_box) {
   double ra_center;
   double dec_center;
   bounding_box.GetRaDecCenter(&ra_center, &dec_center);
-  assert(ra_center >= 0.0);
-  assert(ra_center < 360.0);
+  CHECK_GTE(ra_center, 0.0);
+  CHECK_LT(ra_center, 360.0);
   
   // For the corners, we need to include the properly wrapped coordinates.
   double east;
@@ -299,7 +300,7 @@ void KmlGroundOverlay::FromBoundingBox(const BoundingBox &bounding_box) {
 
 // KmlRegion methods.
 string KmlRegion::ToString(int indent_level) const {
-  assert(lat_lon_alt_box.has_value());
+  CHECK(lat_lon_alt_box.has_value()) << "No lat_lon_alt_box value";
   string xml;
   AppendTag(&xml, "<Region>", indent_level);
   xml.append(lat_lon_alt_box.get().ToString(indent_level + 1));
@@ -312,7 +313,7 @@ string KmlRegion::ToString(int indent_level) const {
 
 // KmlLink methods.
 string KmlLink::ToString(int indent_level) const {
-  assert(href.has_value());
+  CHECK(href.has_value()) << "No href value";
   string xml;
   AppendTag(&xml, "<Link>", indent_level);
   xml.append(CreateKml(href, "href", indent_level + 1));
@@ -322,7 +323,7 @@ string KmlLink::ToString(int indent_level) const {
 
 // KmlNetworkLink methods.
 string KmlNetworkLink::ToString(int indent_level) const {
-  assert(link.has_value());
+  CHECK(link.has_value()) << "No link value";
   string xml;
   AppendTag(&xml, "<NetworkLink>", indent_level);
   if (name.has_value()) {
@@ -338,8 +339,9 @@ string KmlNetworkLink::ToString(int indent_level) const {
 
 // KmlPlacemark methods.
 string KmlPlacemark::ToString(int indent_level) const {
-  assert(name.has_value() || description.has_value() ||
-         point.has_value() || line_string.has_value());
+  CHECK(name.has_value() || description.has_value() ||
+        point.has_value() || line_string.has_value())
+      << "Placemarks must have a name, description, point, or line_string";
   string xml;
   AppendTag(&xml, "<Placemark>", indent_level);
   if (name.has_value()) {

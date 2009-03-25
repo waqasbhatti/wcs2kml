@@ -29,8 +29,6 @@
 #include "boundingbox.h"
 #include "boundingbox-inl.h"
 
-#include <cassert>
-
 #include "wcsprojection.h"
 
 namespace {
@@ -178,17 +176,17 @@ void BoundingBox::FindBoundingBoxForKnownWrapped(const WcsProjection &wcs,
   }
 
   // Sanity checks.
-  assert(ra_min_.ra < LARGE_BAD_VALUE);
-  assert(ra_min_.dec < LARGE_BAD_VALUE);
+  CHECK_LT(ra_min_.ra, LARGE_BAD_VALUE);
+  CHECK_LT(ra_min_.dec, LARGE_BAD_VALUE);
 
-  assert(ra_max_.ra > SMALL_BAD_VALUE);
-  assert(ra_max_.dec > SMALL_BAD_VALUE);
+  CHECK_GT(ra_max_.ra, SMALL_BAD_VALUE);
+  CHECK_GT(ra_max_.dec, SMALL_BAD_VALUE);
 
-  assert(dec_min_.ra < LARGE_BAD_VALUE);
-  assert(dec_min_.dec < LARGE_BAD_VALUE);
+  CHECK_LT(dec_min_.ra, LARGE_BAD_VALUE);
+  CHECK_LT(dec_min_.dec, LARGE_BAD_VALUE);
 
-  assert(dec_max_.ra > SMALL_BAD_VALUE);
-  assert(dec_max_.dec > SMALL_BAD_VALUE);
+  CHECK_GT(dec_max_.ra, SMALL_BAD_VALUE);
+  CHECK_GT(dec_max_.dec, SMALL_BAD_VALUE);
 }
 
 }  // namespace google_sky
