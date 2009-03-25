@@ -70,31 +70,19 @@ void Fits::ReadHeader(const string &fits_filename, long offset,
 
   // Read header line by line.
   FILE *fp = fopen(fits_filename.c_str(), "r");
-  if (!fp) {
-    fprintf(stderr, "\nCan't open FITS file '%s'\n", fits_filename.c_str());
-    exit(EXIT_FAILURE);
-  }
+  CHECK(fp != NULL) << "Can't open FITS file " << fits_filename;
 
-  if (fseek(fp, offset, SEEK_SET)) {
-    fprintf(stderr, "\nCan't seek to position %ld in FITS file '%s'\n", offset,
-            fits_filename.c_str());
-    exit(EXIT_FAILURE);
-  }
+  CHECK_EQ(fseek(fp, offset, SEEK_SET), 0)
+      << "Can't seek to position " << offset << " in FITS file "
+      << fits_filename;
 
   // Check first keyword.
-  int num_read = fread(card, sizeof(char), FITS_CARD_SIZE, fp);  
-  if (num_read != FITS_CARD_SIZE) {
-    fprintf(stderr, "\nCouldn't read from FITS file '%s'\n",
-            fits_filename.c_str());
-    exit(EXIT_FAILURE);
-  }
-  
-  if (!CardEqual(card, "SIMPLE", 6)) {
-    fprintf(stderr, "\nInput file '%s' isn't a valid FITS file\n",
-            fits_filename.c_str());
-    exit(EXIT_FAILURE);
-  }
+  int num_read = fread(card, sizeof(char), FITS_CARD_SIZE, fp);
+  CHECK_EQ(num_read, FITS_CARD_SIZE) << "Couldn't read from FITS file "
+                                     << fits_filename;
 
+  CHECK(CardEqual(card, "SIMPLE", 6)) << "Input file '" << fits_filename
+                                      << "' isn't a valid FITS file";
   header->append(card, FITS_CARD_SIZE);
 
   // Read other keywords until END is found or EOF is reached.
@@ -102,13 +90,10 @@ void Fits::ReadHeader(const string &fits_filename, long offset,
     num_read = fread(card, sizeof(char), FITS_CARD_SIZE, fp);
     if (num_read != FITS_CARD_SIZE) {
       if (feof(fp)) {
-        fprintf(stderr, "\nFound EOF before END card in '%s'\n",
-                fits_filename.c_str());
+        CHECK(false) << "Found EOF before END card in " << fits_filename;
       } else {
-        fprintf(stderr, "\nCouldn't read from FITS file '%s'\n",
-                fits_filename.c_str());
+        CHECK(false) << "Unknown IO error in FITS file " << fits_filename;
       }
-      exit(EXIT_FAILURE);
     }
     
     header->append(card, FITS_CARD_SIZE);
@@ -140,10 +125,7 @@ void Fits::AddImageDimensions(int width, int height, string *header) {
     }
   }
 
-  if (naxis_location < 0) {
-    fprintf(stderr, "Header lacks NAXIS keyword\n");
-    exit(EXIT_FAILURE);
-  }
+  CHECK_GT(naxis_location, 0) << "Header lacks NAXIS keyword";
 
   // Ensure that the value of NAXIS is always at least 2 because smaller
   // values cannot contain images.  Some non-optical images store other
@@ -173,30 +155,25 @@ void Fits::AddImageDimensions(int width, int height, string *header) {
   } else if (naxis1 == "NAXIS1" && naxis2 == "NAXIS2") {
     // Do nothing.
   } else {
-    fprintf(stderr, "Can't handle case where only NAXIS1 or NAXIS2 are "
-                    "missing\n");
-    exit(EXIT_FAILURE);
+    CHECK(false) << "Can't handle case where only NAXIS1 or NAXIS2 are missing";
   }
 
   // Create the new header by taking the part including NAXIS and the part
   // after it and adding in the NAXIS1, NAXIS2 cards if needed.  Finally
   // we copy the new header back to the input.
-  string header_new = header->substr(0, naxis_location + FITS_CARD_SIZE) +
-                           naxis1_card + naxis2_card +
-                           header->substr(naxis_location + FITS_CARD_SIZE,
-                                          header->size() - naxis_location -
-                                          FITS_CARD_SIZE);
+  string header_new =
+      header->substr(0, naxis_location + FITS_CARD_SIZE) +
+      naxis1_card + naxis2_card +
+      header->substr(naxis_location + FITS_CARD_SIZE,
+                     header->size() - naxis_location - FITS_CARD_SIZE);
   header->assign(header_new);
 }
 
 // Returns whether the given header string has the given keyword.
 bool Fits::HeaderHasKeyword(const string &header,
                             const string &keyword) {
-  if (static_cast<int>(keyword.size()) > FITS_KEYWORD_SIZE) {
-    fprintf(stderr, "\nInvalid FITS keyword '%s' (too long)\n",
-            keyword.c_str());
-    exit(EXIT_FAILURE);
-  }
+  CHECK_LTE(static_cast<int>(keyword.size()), FITS_KEYWORD_SIZE)
+      << "Invalid FITS keyword '" << keyword << "' (too long)";
 
   for (int i = 0; i < static_cast<int>(header.size()); i += FITS_CARD_SIZE) {
     string card_name = header.substr(i, FITS_KEYWORD_SIZE);
@@ -220,11 +197,8 @@ bool Fits::HeaderHasKeyword(const string &header,
 int Fits::HeaderReadKeywordInt(const string &header,
                                const string &keyword,
                                int default_value) {
-  if (static_cast<int>(keyword.size()) > FITS_KEYWORD_SIZE) {
-    fprintf(stderr, "\nInvalid FITS keyword '%s' (too long)\n",
-            keyword.c_str());
-    exit(EXIT_FAILURE);
-  }
+  CHECK_LTE(static_cast<int>(keyword.size()), FITS_KEYWORD_SIZE)
+      << "Invalid FITS keyword '" << keyword << "' (too long)";
 
   for (int i = 0; i < static_cast<int>(header.size()); i += FITS_CARD_SIZE) {
     string card_name = header.substr(i, FITS_KEYWORD_SIZE);

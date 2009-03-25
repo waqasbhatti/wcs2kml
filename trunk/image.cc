@@ -47,8 +47,8 @@ Image::Image()
 // happens in this function.
 bool Image::Resize(int width, int height, Colorspace colorspace) {
   // Check image size.
-  assert(width > 0);
-  assert(height > 0);
+  CHECK_GT(width, 0);
+  CHECK_GT(height, 0);
 
   // Determine the number of channels for the given colorspace.
   int channels;

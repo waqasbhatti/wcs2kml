@@ -29,8 +29,6 @@
 #ifndef IMAGE_H__
 #define IMAGE_H__
 
-#include <cassert>
-
 #include <string>
 
 extern "C" {
@@ -54,10 +52,7 @@ namespace google_sky {
 //
 // // Read a PNG from file.
 // Image image;
-// if (!image.Read("foo.png")) {
-//   fprintf(stderr, "Couldn't read image\n");
-//   exit(EXIT_FAILURE);
-// }
+// CHECK(image.Read("foo.png")) << "Couldn't read image";
 //
 // // Read some pixel values.
 // Color pixel(image.channels());
@@ -69,10 +64,7 @@ namespace google_sky {
 //
 // // Create a PNG from scratch.
 // Image new_image;
-// if (!new_image.Resize(100, 100, RGB)) {
-//   fprintf(stderr, "Couldn't resize image\n");
-//   exit(EXIT_FAILURE);
-// }
+// CHECK(new_image.Resize(100, 100, Image::RGB)) << "Couldn't resize image";
 // Color gray(new_image.channels());
 // gray.SetAllChannels(128);
 //
@@ -83,10 +75,7 @@ namespace google_sky {
 // }
 //
 // // Write a PNG to file.
-// if (!image.Write("bar.png")) {
-//   fprintf(stderr, "Couldn't write image\n");
-//   exit(EXIT_FAILURE);
-// }
+// CHECK(image.Write("bar.png")) << "Couldn't write image";
 
 class Image {
  public:
@@ -134,7 +123,7 @@ class Image {
   // number of channels as the image.  Dies on failure.
   inline void GetPixel(int i, int j, Color *color) const {
     CheckBounds(i, j);
-    assert(channels_ == color->channels());
+    ASSERT_EQ(channels_, color->channels());
     const uint8 *position = GetConstPixelPosition(i, j);
     for (int i = 0; i < channels_; ++i) {
       color->SetChannel(i, position[i]);
@@ -145,7 +134,7 @@ class Image {
   // same number of channels as the image.  Dies on failure.
   inline void SetPixel(int i, int j, const Color &color) {
     CheckBounds(i, j);
-    assert(channels_ == color.channels());
+    ASSERT_EQ(channels_, color.channels());
     uint8 *position = GetPixelPosition(i, j);
     for (int i = 0; i < channels_; ++i) {
       position[i] = color.GetChannel(i);
@@ -155,7 +144,8 @@ class Image {
   // Returns the value of the given channel at pixel i, j.
   inline uint8 GetValue(int i, int j, int channel) const {
     CheckBounds(i, j);
-    assert(channel >= 0 && channel < channels_);
+    CHECK(channel >= 0 && channel < channels_)
+        << "Invalid channel: " << channel;
     const uint8 *position = GetConstPixelPosition(i, j);
     return position[channel];
   }
@@ -163,7 +153,8 @@ class Image {
   // Sets the value of the given channel at pixel i, j to value.
   inline void SetValue(int i, int j, int channel, uint8 value) {
     CheckBounds(i, j);
-    assert(channel >= 0 && channel < channels_);
+    CHECK(channel >= 0 && channel < channels_)
+        << "Invalid channel: " << channel;
     uint8 *position = GetPixelPosition(i, j);
     position[channel] = value;
   }
@@ -227,8 +218,8 @@ class Image {
 
   // Checks for valid indexes.  Dies on invalid indexes.
   inline void CheckBounds(int i, int j) const {
-    assert(i >= 0 && i < width_);
-    assert(j >= 0 && j < height_);
+    CHECK(i >= 0 && i < width_) << "Invalid row pixel: " << i;
+    CHECK(j >= 0 && j < height_) << "Invalid column pixel: " << j;
   }
 
   // Returns a pointer to the location in the pixels_ array of pixel i, j.

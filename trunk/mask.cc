@@ -28,34 +28,24 @@
 
 #include "mask.h"
 
-#include <cassert>
-#include <cstdio>
-#include <cstdlib>
-
 namespace google_sky {
 
 // Automatically creates a mask by masking out edge pixels of color
 // mask_out_color.
 void Mask::CreateMask(const Image &image, const Color &mask_out_color,
                       Image *mask) {
-  assert(image.width() > 0);
-  assert(image.height() > 0);
+  CHECK_GT(image.width(), 0);
+  CHECK_GT(image.height(), 0);
   // Check for a valid color.
-  if (mask_out_color.channels() != image.channels()) {
-    fprintf(stderr, "\nMask out color should have %d channels (has %d)\n",
-            image.channels(), mask_out_color.channels());
-    exit(EXIT_FAILURE);
-  }
+  CHECK_EQ(mask_out_color.channels(), image.channels())
+      << "Mask out color should have " << image.channels() << " channels (has "
+      << mask_out_color.channels() << ")";
 
   // Create a mask that is completely opaque.
-  if (!mask->Resize(image.width(), image.height(), Image::GRAYSCALE)) {
-    fprintf(stderr, "\nCan't create mask.\n");
-    exit(EXIT_FAILURE);
-  }
-  if (!mask->SetAllValuesInChannel(0, 255)) {
-    fprintf(stderr, "\nCan't set alpha channel\n");
-    exit(EXIT_FAILURE);
-  }
+  CHECK(mask->Resize(image.width(), image.height(), Image::GRAYSCALE))
+      << "Can't create mask";
+  CHECK(mask->SetAllValuesInChannel(0, 255))
+      << "Can't set alpha channel";
 
   // To create the mask, we perform 4 passes on the input image, first 2
   // horizontally then 2 vertically.  On each pass, we mask out all pixels
@@ -115,11 +105,11 @@ void Mask::CreateMask(const Image &image, const Color &mask_out_color,
 
 // Uses the input mask to set the alpha channel of the underlying image.
 void Mask::SetAlphaChannelFromMask(const Image &mask, Image *image) {
-  assert(image->width() > 0);
-  assert(image->height() > 0);
-  assert(mask.width() == image->width());
-  assert(mask.height() == image->height());
-  assert(mask.channels() == 1);
+  CHECK_GT(image->width(), 0);
+  CHECK_GT(image->height(), 0);
+  ASSERT_EQ(mask.width(), image->width());
+  ASSERT_EQ(mask.height(), image->height());
+  ASSERT_EQ(mask.channels(), 1);
   
   int alpha_index;
   if (image->colorspace() == Image::GRAYSCALE_PLUS_ALPHA) {
@@ -127,8 +117,7 @@ void Mask::SetAlphaChannelFromMask(const Image &mask, Image *image) {
   } else if (image->colorspace() == Image::RGBA) {
     alpha_index = 3;
   } else {
-    fprintf(stderr, "\nNo alpha channel in image\n");
-    exit(EXIT_FAILURE);
+    CHECK(false) << "No alpha channel in image";
   }
 
   Color alpha(1);
