@@ -31,8 +31,14 @@
 #include <cassert>
 #include <cmath>
 
+#include <google/gflags.h>
+
 #include "kml.h"
 #include "string_util.h"
+
+// Not normally needed.
+DEFINE_bool(align_with_base_imagery, false,
+            "Align output with Google Earth's base imagery?");
 
 namespace {
 
@@ -168,15 +174,23 @@ void SkyProjection::WarpImage(Image *projected_image) const {
   double yscale = (dec_max - dec_min) /
                   static_cast<double>(projected_image->height() - 1);
 
+  // Alter the loop to run from max ra to min ra for <GroundOverlay> elements.
+  double ra_start = ra_min;
+  if (!FLAGS_align_with_base_imagery) {
+    xscale = -xscale;
+    ra_start = ra_max;
+  }
+
   // For each pixel in the new image, compute ra, dec then x, y in the original
   // image and copy the pixel values.
-  // NB: The loop procedes from (ra_max, dec_max) to (ra_min, dec_min), i.e.
-  // from the upper left corner to the lower right corner of the projected
-  // image.  Hence, i, j properly indexes the projected image in lat-lon space.
+  // NB: The loop procedes from (ra_min or ra_max, dec_max) to
+  // (ra_max or ra_min, dec_min), i.e. from the upper left corner to the lower
+  // right corner of the projected image.  Hence, i, j properly indexes the
+  // projected image in lat-lon space.
   Color pixel(4);
 
   for (int i = 0; i < projected_image->width(); ++i) {
-    double ra = ra_max - i * xscale;
+    double ra = ra_start + i * xscale;
     for (int j = 0; j < projected_image->height(); ++j) {
       double dec = dec_max - j * yscale;
       // Coordinates in original FITS image start at (1, 1) in the lower left
