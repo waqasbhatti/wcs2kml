@@ -111,7 +111,7 @@ void Mask::SetAlphaChannelFromMask(const Image &mask, Image *image) {
   ASSERT_EQ(mask.height(), image->height());
   ASSERT_EQ(mask.channels(), 1);
   
-  int alpha_index;
+  int alpha_index = 0;
   if (image->colorspace() == Image::GRAYSCALE_PLUS_ALPHA) {
     alpha_index = 1;
   } else if (image->colorspace() == Image::RGBA) {

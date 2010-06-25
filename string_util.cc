@@ -26,6 +26,7 @@
 
 #include <climits>
 #include <cstdarg>
+#include <cstdio>
 #include <cstring>
 
 #include "base.h"

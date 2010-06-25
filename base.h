@@ -29,6 +29,7 @@
 #define BASE_H__
 
 #include <cmath>
+#include <cstdlib>
 #include <cstring>
 
 #include <iostream>
