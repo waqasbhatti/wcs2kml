@@ -808,8 +808,7 @@ class Header(object):
         """
 
         for key in self._keys:
-            value = self._keys[key]
-            yield value
+            yield self._values[key]
 
     def iteritems(self):
         
@@ -819,8 +818,7 @@ class Header(object):
         """
         
         for key in self._keys:
-            value = self._keys[key]
-            yield key, value
+            yield key, self._values[key]
 
     def keys(self):
         
