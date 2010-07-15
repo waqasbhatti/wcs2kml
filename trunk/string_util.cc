@@ -58,23 +58,26 @@ namespace google_sky {
 string StringPrintf(const char *format, ...) {
   // Keep trying to fill the buffer until successful.
   int size = DEFAULT_BUFFER_SIZE;
-  char *buffer = NULL;
-  while (true) {
+  char *buffer = new char[size];
+
+  va_list ap;
+  va_start(ap, format);
+  int needed_size = vsnprintf(buffer, size, format, ap);
+  va_end(ap);
+
+  if (needed_size >= size) {
+    size = needed_size + 1;  // +1 for trailing '\0'.
+    delete[] buffer;
     buffer = new char[size];
 
     va_list ap;
     va_start(ap, format);
-    int needed_size = vsnprintf(buffer, size, format, ap);
+    needed_size = vsnprintf(buffer, size, format, ap);
     va_end(ap);
 
-    if (needed_size < size) {
-      break;  // Success!
-    } else {
-      size = needed_size + 1;  // +1 for trailing '\0'.
-      CHECK(size < INT_MAX / 2) << "Integer overflow";
-      delete[] buffer;
-    }
+    CHECK(needed_size < size) << "Second vsnprintf failed";
   }
+
   string s(buffer);
   delete[] buffer;
   return s;
@@ -83,23 +86,26 @@ string StringPrintf(const char *format, ...) {
 void SStringPrintf(string *dest, const char *format, ...) {
   // Keep trying to fill the buffer until successful.
   int size = DEFAULT_BUFFER_SIZE;
-  char *buffer = NULL;
-  while (true) {
+  char *buffer = new char[size];
+
+  va_list ap;
+  va_start(ap, format);
+  int needed_size = vsnprintf(buffer, size, format, ap);
+  va_end(ap);
+
+  if (needed_size >= size) {
+    size = needed_size + 1;  // +1 for trailing '\0'.
+    delete[] buffer;
     buffer = new char[size];
 
     va_list ap;
     va_start(ap, format);
-    int needed_size = vsnprintf(buffer, size, format, ap);
+    needed_size = vsnprintf(buffer, size, format, ap);
     va_end(ap);
 
-    if (needed_size < size) {
-      break;  // Success!
-    } else {
-      size = needed_size + 1;  // +1 for trailing '\0'.
-      CHECK(size < INT_MAX / 2) << "Integer overflow";
-      delete[] buffer;
-    }
+    CHECK(needed_size < size) << "Second vsnprintf failed";
   }
+
   *dest = buffer;
   delete[] buffer;
 }
@@ -107,23 +113,26 @@ void SStringPrintf(string *dest, const char *format, ...) {
 void StringAppendF(string *dest, const char *format, ...) {
   // Keep trying to fill the buffer until successful.
   int size = DEFAULT_BUFFER_SIZE;
-  char *buffer = NULL;
-  while (true) {
+  char *buffer = new char[size];
+
+  va_list ap;
+  va_start(ap, format);
+  int needed_size = vsnprintf(buffer, size, format, ap);
+  va_end(ap);
+
+  if (needed_size >= size) {
+    size = needed_size + 1;  // +1 for trailing '\0'.
+    delete[] buffer;
     buffer = new char[size];
 
     va_list ap;
     va_start(ap, format);
-    int needed_size = vsnprintf(buffer, size, format, ap);
+    needed_size = vsnprintf(buffer, size, format, ap);
     va_end(ap);
 
-    if (needed_size < size) {
-      break;  // Success!
-    } else {
-      size = needed_size + 1;  // +1 for trailing '\0'.
-      CHECK(size < INT_MAX / 2) << "Integer overflow";
-      delete[] buffer;
-    }
+    CHECK(needed_size < size) << "Second vsnprintf failed";
   }
+
   dest->append(buffer);
   delete[] buffer;
 }
