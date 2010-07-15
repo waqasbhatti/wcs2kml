@@ -61,17 +61,16 @@ string StringPrintf(const char *format, ...) {
   char *buffer = NULL;
   while (true) {
     buffer = new char[size];
-    buffer[size - 2] = '\0';  // Mark the next to last char.
 
     va_list ap;
     va_start(ap, format);
-    vsnprintf(buffer, size, format, ap);
+    int needed_size = vsnprintf(buffer, size, format, ap);
     va_end(ap);
 
-    if (buffer[size - 2] == '\0') {
-      break;
+    if (needed_size < size) {
+      break;  // Success!
     } else {
-      size *= 2;
+      size = needed_size + 1;  // +1 for trailing '\0'.
       CHECK(size < INT_MAX / 2) << "Integer overflow";
       delete[] buffer;
     }
@@ -87,17 +86,16 @@ void SStringPrintf(string *dest, const char *format, ...) {
   char *buffer = NULL;
   while (true) {
     buffer = new char[size];
-    buffer[size - 2] = '\0';  // Mark the next to last char.
 
     va_list ap;
     va_start(ap, format);
-    vsnprintf(buffer, size, format, ap);
+    int needed_size = vsnprintf(buffer, size, format, ap);
     va_end(ap);
 
-    if (buffer[size - 2] == '\0') {
-      break;
+    if (needed_size < size) {
+      break;  // Success!
     } else {
-      size *= 2;
+      size = needed_size + 1;  // +1 for trailing '\0'.
       CHECK(size < INT_MAX / 2) << "Integer overflow";
       delete[] buffer;
     }
@@ -112,17 +110,16 @@ void StringAppendF(string *dest, const char *format, ...) {
   char *buffer = NULL;
   while (true) {
     buffer = new char[size];
-    buffer[size - 2] = '\0';  // Mark the next to last char.
 
     va_list ap;
     va_start(ap, format);
-    vsnprintf(buffer, size, format, ap);
+    int needed_size = vsnprintf(buffer, size, format, ap);
     va_end(ap);
 
-    if (buffer[size - 2] == '\0') {
-      break;
+    if (needed_size < size) {
+      break;  // Success!
     } else {
-      size *= 2;
+      size = needed_size + 1;  // +1 for trailing '\0'.
       CHECK(size < INT_MAX / 2) << "Integer overflow";
       delete[] buffer;
     }
