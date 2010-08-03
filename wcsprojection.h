@@ -88,9 +88,7 @@ class WcsProjection {
   // looks for these when doing its projections.
   WcsProjection(const string &fits_filename, int width, int height);
 
-  ~WcsProjection() {
-    wcsfree(wcs_);
-  }
+  ~WcsProjection();
 
   // Converts the given pixel coordinates to ra, dec.  The returned ra value
   // is guaranteed to lie within 0 to 360.
