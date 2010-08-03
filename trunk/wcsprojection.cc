@@ -116,6 +116,10 @@ WcsProjection::WcsProjection(const string &fits_filename, int width,
   wcsoutinit(wcs_, const_cast<char *>("J2000"));
 }
 
+WcsProjection::~WcsProjection() {
+  wcsfree(wcs_);
+}
+
 // Checks for a variety of WCS keywords and dies if the header lacks a proper
 // combination of them.  This is needed because wcstools will not raise any
 // sort of error if a WCS isn't present or is malformed.  This is probably 90%
