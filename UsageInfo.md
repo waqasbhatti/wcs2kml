@@ -1,0 +1,131 @@
+# Usage #
+
+The _wcs2kml_ program takes as input a FITS file containing a WCS header and
+a PNG version of the same image.  _wcs2kml_ only uses the WCS from the
+primary header of the FITS file -- the pixels to use for the output image
+are taken from the PNG image, so the FITS file need only contain a single
+header with WCS information.
+
+The most basic usage for _wcs2kml_ is:
+
+`wcs2kml --fitsfile=foo.fits --imagefile=foo.png`
+
+This will produce a warped image and a KML document.  To view the image in
+Sky in Google Earth, open the KML document in Google Earth.  Earth also
+supports a format known as KMZ, which is simply a zip archive containing
+KML and images.  By default, KMZ archives load the doc.kml file, so you
+can package a KMZ file like so:
+
+`wcs2kml --fitsfile=foo.fits --imagefile=foo.png --kmlfile=doc.kml`
+`        --outfile=foo_warped.png`
+
+`zip foo.kmz doc.kml foo_warped.png`
+
+There are many additional options described below.
+
+# Commandline Options #
+
+  * `--help`
+  * `--helpshort`
+
+Use the `--helpshort` flag to get a brief usage summary.  The `--help` flags
+lists all of the flags you can use, including those defined outside of
+`wcs2mkl.cc` (a unique feature of _gflags_ is that flags can be declared
+anywhere).
+
+  * `--kmlfile`
+  * `--outfile`
+
+These specifiy the output warped PNG image and KML document.  If the
+`--regionate` (see below) flag is turned on, `--outfile` is ignored, but `--kmlfile`
+specifies the root KML document.
+
+  * `--copy_input_size`
+  * `--output_width`
+  * `--output_height`
+  * `--max_side_length`
+
+By default, _wcs2kml_ tries to guess what the warped image's dimensions should
+be.  The equations it uses are derived by assuming that an image is rotated
+slightly and that the output image dimensions should allow the original
+image to fit inside the rotated box with minimal resizing.  The algorithm in
+general works really well except for images that have rotation angles of
+0, 90, 180, and 270, so in cases where images have north or east up it is
+helpful to be able to specify the output dimensions exactly.
+
+The `--max_side_length` flag is applied after all of the above options are
+specified.  It will maintain the same aspect ratio of the projected image but
+reduce the maximum dimension to the specified amount.  This is useful is you
+want to downsample the output image.
+
+  * `--input_image_origin_is_upper_left`
+
+Sometimes FITS files are inverted about the y axis when converted to raster
+formats because the origin convention of FITS is different from that of most
+raster formats.  Or perhaps you solved for the WCS using pixel coordinates
+from a JPEG or PNG image.  In either case your image will appear flipped from
+how it should be in Sky, and this option is what you should use to fix it.
+
+  * `--maskfile`
+
+If you have a mask for your input image, you can specify it as input and
+_wcs2kml_ will make masked out regions transparent.  If you don't have a
+mask but need to make one (e.g. if your image has huge black borders around
+it), then use the `--automask` option.  As with the input image, the mask
+must be in PNG format.
+
+  * `--automask`
+  * `--automask_red`
+  * `--automask_green`
+  * `--automask_blue`
+  * `--automaskfile`
+
+These options control the automasking feature of _wcs2kml_.  If `--automask`
+is on, _wcs2kml_ will mask out every exterior pixel of the given RGB color.
+The mask _wcs2kml_ generates is written to the file given by `--automaskfile`.
+
+  * `--regionate`
+  * `--regionate_dir`
+  * `--regionate_filename_prefix`
+  * `--regionate_min_lod_pixels`
+  * `--regionate_max_lod_pixels`
+  * `--regionate_top_level_draw_order`
+  * `--regionate_draw_tile_borders`
+
+The `--regionate` flag will "regionate" the image, meaning _wcs2kml_ will
+output a hierarchy of image tiles and KML documents instead of a single
+image and KML file.  The output of this is termed a _Super Overlay_ on the
+KML tutorial site.  By default, `--regionate` will produce a set of images
+in a subdirectory "tiles" with a root KML file taken from `--kmlfile`.  To view
+the output images in Earth, you would open the root KML file.
+
+So why would you want to regionate an image?  If your image is really
+large (more than a few hundred kilobytes), users will experience a huge
+delay as they load the input image into Google Earth.  This delay is much
+worse over a network and will make your computer server unhappy.  The
+solution is to regionate the image so that Earth will load a low resolution
+image first, then as users zoom closer to the image higher resolution images
+will be loaded.  The `--regionate` flag will create an efficient hierarchy
+of increasing resolution for you.
+
+There are two options that control how Earth loads a new image from disk
+or network.  These are the `<minLodPixels>` and `<maxLodPixels>` KML
+tags, which can be adjusted using corresponding flags above.  The
+defaults have been tuned for Sky, but you might find it useful to
+experiment with other values.  The KML Tutorial site is a good place to
+learn how these options work.
+
+If you have multiple regionated images that overlap, the
+`--regionate_top_level_draw_order` may be of use.  It allows to specify the
+`<drawOrder>` tag for the top level image.  This will determine which of the
+regionated images will appear on top of the other.  See the KML tutorial site
+for more information.
+
+Finally, if you need to debug how Earth is loading your regionated imagery
+or if you just want to see a really cool effect, turn on the
+`--regionate_draw_tile_borders` flag, which will draw a white border around
+each tile.  This will show you exactly when each new level of imagery is
+being loaded.
+
+See the [KML Tutorial](http://code.google.com/apis/kml/documentation/kml_21tutorial.html) for more information on the `<Region>` tag and how
+the various options work:

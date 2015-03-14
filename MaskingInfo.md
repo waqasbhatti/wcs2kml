@@ -1,0 +1,28 @@
+# Masking #
+
+Both the C++ API and _wcs2kml_ have rich support for _masking_, or the ability to remove (or "mask out") parts of the input image.  This is useful for images that have large areas that don't contain real data (common in mosaics) or contain bad data (saturation, diffraction spikes, CCD read-out errors, etc.) or have imperfect filter overlap (which yields edges consisting of a single color).  Masking gives you the ability to improve the appearance of your image and make sure that it blends seemlessly into the base map imagery already in Sky.
+
+## Automasking ##
+
+The simplest way to take advantage of masking is to let _wcs2kml_ do everything for you.  If you use the `--automask` flag, all exterior pixels of a given color will be masked out.  By default, `--automask` will look for black pixels (RGB values 0, 0, 0), but you can customize the automasking to look for any RGB color using the `--automask_red`, `--automask_green`, and `--automask_blue` flags.  The input values for these flags specify the RGB values to mask out and should be within the range 0 to 255 (input images are scaled to 8 bits per channel before automasking is applied).  For example, to remove exterior pixels of RGB color 12, 14, 16, you would use the command:
+
+```
+wcs2kml --imagefile=foo.png --fitsfile=foo.fits --automask --automask_red=12
+        --automask_green=14 --automask_blue=16
+```
+
+So how does automasking work?  The algorithm is simple: make 4 linear passes from each edge of the image (2 horizontal, 2 vertical), marking each pixel of the specified RGB color as transparent until a pixel of a different color is encountered.  This algorithm won't get every single possible exterior pixel for every possible shape, but it will work for simple shapes like rectangles and circles or any other convex shape.
+
+_wcs2kml_ will write out the mask it generates to the argument of `--automaskfile` so that you can inspect exactly what it masked out.
+
+## Mask Files ##
+
+While automasking will suffice for many images, there are some important limitations to bear in mind.  First, it only masks out exterior pixels for relatively simple image shapes.  Images with more complicated geometries (notches, holes, gaps, etc.) may not be properly masked.   Second, it makes pixels either completely transparent or completely opaque, based on the specified masking color.  For images where the background color is very close to black (which is not uncommon in astronomical imagery), this can result in a ragged or choppy edge.
+
+Both of these can be overcome by using the `--maskfile` option.  The argument to `--maskfile` is a PNG image of the same size as the input image.  The mask image should be grayscale (technically, it can be in color but it's converted to grayscale) which specifies the transparency of the image.  White (255) pixels are completely opaque, black pixels (0) are completely transparent and any values in between are semi-transparent.  The pixel values from the mask file are copied directly into the alpha channel of the input image and override any previous values.  Using a mask file allows you to control the transparency of the input image on a pixel by pixel basis.
+
+Image editors can be a good way of generating a mask file easily.  Many of them support thresholding selection that can let you find every pixel above or below a given value.  Running _wcs2kml_ with the `--automask` flag generates an associated mask file based on its attempt to process your image, which can be a good starting point for creating your own hand-tuned mask.
+
+## Images with Transparency ##
+
+A mask file just specifies the alpha channel of the input image, so what about images that already have an alpha channel (i.e., PNG images with transparency)?  The answer is simple -- the alpha channel of images is preserved, so any transparent regions in the input image will also be transparent in the output image.  So you don't actually have to use a mask file to remove unwanted areas -- just make those areas transparent in your favorite image editor.  Keep in mind, though, that the alpha channel is overwritten if you use the `--maskfile` flag.
