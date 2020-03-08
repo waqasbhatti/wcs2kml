@@ -453,7 +453,7 @@ bool Image::Read(const string &filename) {
     } else if (color_type == PNG_COLOR_TYPE_GRAY ||
                color_type == PNG_COLOR_TYPE_GRAY_ALPHA) {
       if (bit_depth < 8) {
-        png_set_gray_1_2_4_to_8(png_ptr);
+        png_set_expand_gray_1_2_4_to_8(png_ptr);
       }
       png_set_gray_to_rgb(png_ptr);
     }
@@ -530,29 +530,25 @@ bool Image::Write(const string &filename) const {
     // Use standard libpng IO routines.
     png_init_io(png_ptr, file_ptr);
 
+    int color_type;
+    if (colorspace_ == GRAYSCALE) {
+        color_type = PNG_COLOR_TYPE_GRAY;
+    } else if (colorspace_ == GRAYSCALE_PLUS_ALPHA) {
+        color_type = PNG_COLOR_TYPE_GRAY_ALPHA;
+    } else if (colorspace_ == RGB) {
+        color_type = PNG_COLOR_TYPE_RGB;
+    } else if (colorspace_ == RGBA) {
+        color_type = PNG_COLOR_TYPE_RGB_ALPHA;
+    } else {
+        goto failure;
+    }
+    
     // Set output options for libpng.  For simplicity, we never write indexed
     // images.
-    info_ptr->width = width_;
-    info_ptr->height = height_;
-    info_ptr->bit_depth = 8;
-    info_ptr->compression_type = PNG_COMPRESSION_TYPE_BASE;
-    info_ptr->filter_type = PNG_FILTER_TYPE_BASE;
-    info_ptr->interlace_type = PNG_INTERLACE_NONE;
-    info_ptr->valid = 0;
-    info_ptr->rowbytes = static_cast<size_t>(width_) *
-                         static_cast<size_t>(channels_);
-
-    if (colorspace_ == GRAYSCALE) {
-      info_ptr->color_type = PNG_COLOR_TYPE_GRAY;
-    } else if (colorspace_ == GRAYSCALE_PLUS_ALPHA) {
-      info_ptr->color_type = PNG_COLOR_TYPE_GRAY_ALPHA;
-    } else if (colorspace_ == RGB) {
-      info_ptr->color_type = PNG_COLOR_TYPE_RGB;
-    } else if (colorspace_ == RGBA) {
-      info_ptr->color_type = PNG_COLOR_TYPE_RGB_ALPHA;
-    } else {
-      goto failure;
-    }
+    int bit_depth = 8;
+    png_set_IHDR(png_ptr, info_ptr, width_, height_, bit_depth, color_type,
+                 PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_BASE,
+                 PNG_FILTER_TYPE_BASE);
 
     // Output each row.
     uint8 **rows = NULL;
